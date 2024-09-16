@@ -1,3 +1,7 @@
+# Fix for torch training on OVH debian
+import torch
+torch.multiprocessing.set_sharing_strategy('file_system')
+
 import argparse
 import sys
 import json
@@ -19,9 +23,6 @@ from data import sources_changed, merge_shuffle, extract_flores_val
 import sentencepiece as spm
 from onmt_tools import average_models, sp_vocab_to_onmt_vocab
 
-# Fix for torch training on OVH debian
-import torch.multiprocessing
-torch.multiprocessing.set_sharing_strategy('file_system')
 
 parser = argparse.ArgumentParser(description='Train LibreTranslate compatible models')
 parser.add_argument('--config',
