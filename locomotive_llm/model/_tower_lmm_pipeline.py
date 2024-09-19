@@ -24,7 +24,7 @@ class TowerLlmPipeline:
         """
         res = []
         if src is not None and tgt is not None:
-            texts = [self._towerbase_prompt(texts, src, tgt) for text in texts]
+            texts = [self._towerbase_prompt(text, src, tgt) for text in texts]
         for text in texts:
             inputs = self._tokenizer(text, return_tensors="pt").input_ids
             inputs = inputs.to(self._device)
