@@ -15,6 +15,9 @@ class TowerLlmPipeline:
     def _towerbase_prompt(self, str, src, tgt):
         return f"{src} : {str}\n{tgt} :"
 
+    def remove_prompt(self, answer, delimiter):
+        return delimiter.join(answer.split(delimiter)[1:])
+
     def transform(self, texts, src=None, tgt=None):
         """
         Translate input text using the TowerLLM model.
@@ -29,5 +32,6 @@ class TowerLlmPipeline:
             inputs = self._tokenizer(text, return_tensors="pt").input_ids
             inputs = inputs.to(self._device)
             outputs = self._model.generate(inputs, max_length=self._max_len)
-            res.append(self._tokenizer.decode(outputs[0], skip_special_tokens=True))
+            res.append(self.remove_prompt(self._tokenizer.decode(outputs[0], skip_special_tokens=True),
+                                          delimiter=f"\n{src}"))
         return res

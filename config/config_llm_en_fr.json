@@ -1,11 +1,10 @@
 {
   "from": {
-    "code": "deu_Latn",
-    "name": "German"
+    "code": "en_Latn",
+    "name": "Enlish"
   },
   "to": {
     "code": "fra_Latn",
     "name": "French"
   },
   "version": "1"  }
-
