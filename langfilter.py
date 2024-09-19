@@ -20,9 +20,11 @@ if args.fm is not None and args.to is not None and args.corpus is not None:
     to = args.to
     corpus = args.corpus
 else:
-    parser.error(f"You must specify source (--fm) and target (--to) languages, as well as a directory path (-c) containing a corpus.")
+    parser.error(
+        f"You must specify source (--fm) and target (--to) languages, as well as a directory path (-c) containing a corpus.")
 
 lang_filtered = os.path.join(corpus, "lang-filtered")
+
 
 def count_lines(file):
     def blocks(files, size=65536):
@@ -31,12 +33,13 @@ def count_lines(file):
             if not b: break
             yield b
 
-    with open(file, "r",encoding="utf-8",errors='ignore') as f:
+    with open(file, "r", encoding="utf-8", errors='ignore') as f:
         return sum(bl.count("\n") for bl in blocks(f))
 
+
 def langfilter() -> None:
-    filelist = [ f for f in os.listdir(corpus) if os.path.isfile(os.path.join(corpus, f)) ]
-	
+    filelist = [f for f in os.listdir(corpus) if os.path.isfile(os.path.join(corpus, f))]
+
     for f in filelist:
         if f == "source.txt" or f.endswith(fm):
             source = os.path.join(corpus, f)
@@ -61,14 +64,14 @@ def langfilter() -> None:
     garbage_pairs = 0
 
     with open(source, "r+b") as sfp, \
-    open(target, "r+b") as tfp, \
-    open(garbage_fm, "w", encoding="utf-8") as _sfp, \
-    open(garbage_to, "w", encoding="utf-8") as _tfp, \
-    open(probs_fm, "w", encoding="utf-8") as psfp, \
-    open(probs_to, "w", encoding="utf-8") as ptfp, \
-    open(filtered_fm, "w", encoding="utf-8") as gsfp, \
-    open(filtered_to, "w", encoding="utf-8") as gtfp,\
-    open(languages, "w", encoding="utf-8") as lafp:
+            open(target, "r+b") as tfp, \
+            open(garbage_fm, "w", encoding="utf-8") as _sfp, \
+            open(garbage_to, "w", encoding="utf-8") as _tfp, \
+            open(probs_fm, "w", encoding="utf-8") as psfp, \
+            open(probs_to, "w", encoding="utf-8") as ptfp, \
+            open(filtered_fm, "w", encoding="utf-8") as gsfp, \
+            open(filtered_to, "w", encoding="utf-8") as gtfp, \
+            open(languages, "w", encoding="utf-8") as lafp:
 
         src_mm = mmap.mmap(sfp.fileno(), 0)
         tgt_mm = mmap.mmap(tfp.fileno(), 0)
@@ -79,7 +82,7 @@ def langfilter() -> None:
         for src_line in src_it:
             line_s = src_line.decode("utf-8").strip()
             line_t = next(tgt_it).decode("utf-8").strip()
-            line_no +=1
+            line_no += 1
             progress_bar.update(1)
             try:
                 lang_s = langdetect.detect(line_s)
@@ -89,15 +92,15 @@ def langfilter() -> None:
                 lang_t = langdetect.detect(line_t)
             except Exception:
                 lang_t = "unknown"
-				
+
             if lang_s == fm and lang_t == to:
                 gsfp.write(line_s + "\n")
                 gtfp.write(line_t + "\n")
-            else:				
+            else:
                 _sfp.write(line_s + "\n")
                 _tfp.write(line_t + "\n")
                 lafp.write("from " + lang_s + " to " + lang_t + "\n")
-                garbage_pairs +=1
+                garbage_pairs += 1
                 if lang_s == "unknown":
                     psfp.write("Unknown language found")
                 else:
@@ -107,11 +110,12 @@ def langfilter() -> None:
                     ptfp.write("Unknown language found")
                 else:
                     target_probs = langdetect.detect_langs(line_t)
-                    ptfp.write(str(target_probs) + "\n")		
-				
+                    ptfp.write(str(target_probs) + "\n")
+
         progress_bar.close()
 
     print(f"Found {garbage_pairs} lines of others languages among {line_no} as a whole.")
+
 
 if __name__ == "__main__":
     langfilter()

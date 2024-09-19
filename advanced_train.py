@@ -22,36 +22,36 @@ from onmt_tools import average_models, sp_vocab_to_onmt_vocab
 
 parser = argparse.ArgumentParser(description='Train LibreTranslate compatible models')
 parser.add_argument('--config',
-    type=str,
-    default="model-config.json",
-    help='Path to model-config.json. Default: %(default)s')
+                    type=str,
+                    default="model-config.json",
+                    help='Path to model-config.json. Default: %(default)s')
 parser.add_argument('--reverse',
-    action='store_true',
-    help='Reverse the source and target languages in the configuration and data sources. Default: %(default)s')
+                    action='store_true',
+                    help='Reverse the source and target languages in the configuration and data sources. Default: %(default)s')
 parser.add_argument('--rerun',
-    action='store_true',
-    help='Rerun the training from scratch. Default: %(default)s')
+                    action='store_true',
+                    help='Rerun the training from scratch. Default: %(default)s')
 parser.add_argument('--rerun-onmt',
-    action='store_true',
-    help='Rerun the training from ONMT training. Default: %(default)s')
+                    action='store_true',
+                    help='Rerun the training from ONMT training. Default: %(default)s')
 parser.add_argument('--tensorboard',
-    action='store_true',
-    help='Run tensorboard during training. Default: %(default)s')
+                    action='store_true',
+                    help='Run tensorboard during training. Default: %(default)s')
 parser.add_argument('--toy',
-    action='store_true',
-    help='Train a toy model (useful for testing). Default: %(default)s')
+                    action='store_true',
+                    help='Train a toy model (useful for testing). Default: %(default)s')
 parser.add_argument('--inflight',
-    action='store_true',
-    help='While training is in progress on a separate process, you can launch another instance of train.py with this flag turned on to build a model from the last available checkpoints rather that waiting until the end. Default: %(default)s')
+                    action='store_true',
+                    help='While training is in progress on a separate process, you can launch another instance of train.py with this flag turned on to build a model from the last available checkpoints rather that waiting until the end. Default: %(default)s')
 parser.add_argument('--byte_fallback_off',
-    action='store_false',
-    help='Disable byte fallback during SentencePiece training. Default is enabled (True).')
+                    action='store_false',
+                    help='Disable byte fallback during SentencePiece training. Default is enabled (True).')
 
-args = parser.parse_args() 
+args = parser.parse_args()
 try:
     with open(args.config) as f:
         config = json.loads(f.read())
-    
+
     if args.reverse:
         config["from"], config["to"] = config["to"], config["from"]
 except Exception as e:
@@ -100,7 +100,8 @@ for s in config['sources']:
         s = s["source"]
 
     md5 = hashlib.md5(s.encode('utf-8')).hexdigest()
-    
+
+
     def add_source_from(dir):
         source, target = None, None
         skip_reverse = False
@@ -110,13 +111,12 @@ for s in config['sources']:
             elif f.lower().endswith(f".{config['to']['code']}"):
                 target = f
                 skip_reverse = True
-            
+
             if "source" in f.lower():
                 source = f
             elif f.lower().endswith(f".{config['from']['code']}"):
                 source = f
                 skip_reverse = True
-
 
         if source is not None and target is not None:
             if args.reverse and not skip_reverse:
@@ -132,6 +132,7 @@ for s in config['sources']:
         else:
             print(f"Cannot find a source.txt and a target.txt in {s} ({dir}). Exiting...")
             exit(1)
+
 
     if s.lower().startswith("file://"):
         add_source_from(s[7:])
@@ -152,9 +153,10 @@ for s in config['sources']:
             def download_source():
                 def print_progress(progress):
                     print(f"\r{s} [{int(progress)}%]     ", end='\r')
-                
+
                 download(s, cache_dir, progress_callback=print_progress, basename=os.path.basename(zip_path))
                 print()
+
 
             if not os.path.isfile(zip_path):
                 download_source()
@@ -172,17 +174,17 @@ for s in config['sources']:
             print(f"Extracting {zip_path} to {dataset_path}")
             with zipfile.ZipFile(zip_path, 'r') as zip_ref:
                 zip_ref.extractall(dataset_path)
-            
+
             os.unlink(zip_path)
-        
-            subfolders = [ f.path for f in os.scandir(dataset_path) if f.is_dir()]
+
+            subfolders = [f.path for f in os.scandir(dataset_path) if f.is_dir()]
             if len(subfolders) == 1:
                 # Move files from subfolder
                 for f in [f.path for f in os.scandir(subfolders[0]) if f.is_file()]:
                     shutil.move(f, dataset_path)
-                
+
                 shutil.rmtree(subfolders[0])
-        
+
         add_source_from(dataset_path)
 
 min_weight = float('inf')
@@ -209,7 +211,8 @@ extract_flores_val(config['from']['code'], config['to']['code'], run_dir, datase
 os.makedirs(onmt_dir, exist_ok=True)
 
 # Check for .pt files in the onmt_dir
-pt_files_present = any(file.endswith('.pt') for file in os.listdir(onmt_dir) if os.path.isfile(os.path.join(onmt_dir, file)))
+pt_files_present = any(
+    file.endswith('.pt') for file in os.listdir(onmt_dir) if os.path.isfile(os.path.join(onmt_dir, file)))
 # Allows to change sources if there is already a checkpoint with a trained vocab
 changed = not pt_files_present and sources_changed(sources, run_dir)
 
@@ -225,13 +228,14 @@ sp_model_path = os.path.join(run_dir, "sentencepiece.model")
 if not os.path.isfile(sp_model_path) or changed:
     while True:
         try:
-            spm.SentencePieceTrainer.train(input=[sources[s]["source"] for s in sources] + [sources[s]["target"] for s in sources], 
-                                            model_prefix=f"{run_dir}/sentencepiece", vocab_size=config.get('vocab_size', 50000),
-                                            character_coverage=config.get('character_coverage', 1.0),
-                                            input_sentence_size=config.get('input_sentence_size', 1000000),
-                                            shuffle_input_sentence=True,
-                                            byte_fallback=args.byte_fallback_off,
-                                            control_symbols=control_symbols)
+            spm.SentencePieceTrainer.train(
+                input=[sources[s]["source"] for s in sources] + [sources[s]["target"] for s in sources],
+                model_prefix=f"{run_dir}/sentencepiece", vocab_size=config.get('vocab_size', 50000),
+                character_coverage=config.get('character_coverage', 1.0),
+                input_sentence_size=config.get('input_sentence_size', 1000000),
+                shuffle_input_sentence=True,
+                byte_fallback=args.byte_fallback_off,
+                control_symbols=control_symbols)
             break
         except Exception as e:
             err = str(e)
@@ -255,14 +259,14 @@ onmt_config = {
     'tgt_vocab': f"{rel_onmt_dir}/openmt.vocab",
     'src_vocab_size': config.get('vocab_size', 50000),
     'tgt_vocab_size': config.get('vocab_size', 50000),
-    'share_vocab': True, 
+    'share_vocab': True,
     'data': {
         'valid': {
             'path_src': f'{rel_run_dir}/src-val.txt',
-            'path_tgt': f'{rel_run_dir}/tgt-val.txt', 
+            'path_tgt': f'{rel_run_dir}/tgt-val.txt',
             'transforms': valid_transforms
         }
-    }, 
+    },
     'src_subword_type': 'sentencepiece',
     'tgt_subword_type': 'sentencepiece',
     'src_onmttok_kwargs': {
@@ -273,51 +277,51 @@ onmt_config = {
         'mode': 'none',
         'lang': config['to']['code'],
     },
-    'src_subword_model': f'{rel_run_dir}/sentencepiece.model', 
-    'tgt_subword_model': f'{rel_run_dir}/sentencepiece.model', 
-    'src_subword_nbest': 1, 
-    'src_subword_alpha': 0.0, 
-    'tgt_subword_nbest': 1, 
-    'tgt_subword_alpha': 0.0, 
-    'src_seq_length': 150, 
-    'tgt_seq_length': 150, 
-    'skip_empty_level': 'silent', 
-    'save_model': f'{rel_onmt_dir}/openmt.model', 
-    'save_checkpoint_steps': 1000, 
-    'valid_steps': 2500, 
-    'train_steps': 50000, 
-    'early_stopping': 4, 
-    'bucket_size': 262144, 
-    'world_size': 1, 
-    'gpu_ranks': [0], 
-    'batch_type': 'tokens', 
+    'src_subword_model': f'{rel_run_dir}/sentencepiece.model',
+    'tgt_subword_model': f'{rel_run_dir}/sentencepiece.model',
+    'src_subword_nbest': 1,
+    'src_subword_alpha': 0.0,
+    'tgt_subword_nbest': 1,
+    'tgt_subword_alpha': 0.0,
+    'src_seq_length': 150,
+    'tgt_seq_length': 150,
+    'skip_empty_level': 'silent',
+    'save_model': f'{rel_onmt_dir}/openmt.model',
+    'save_checkpoint_steps': 1000,
+    'valid_steps': 2500,
+    'train_steps': 50000,
+    'early_stopping': 4,
+    'bucket_size': 262144,
+    'world_size': 1,
+    'gpu_ranks': [0],
+    'batch_type': 'tokens',
     'queue_size': 10000,
     'batch_size': 4096,
     'valid_batch_size': 128,
-    'max_generator_batches': 2, 
-    'accum_count': 8, 
-    'accum_steps': 0, 
-    'model_dtype': 'fp16', 
-    'optim': 'adam', 
+    'max_generator_batches': 2,
+    'accum_count': 8,
+    'accum_steps': 0,
+    'model_dtype': 'fp16',
+    'optim': 'adam',
     'learning_rate': 1,
-    'warmup_steps': 16000, 
-    'decay_method': 'noam', 
-    'adam_beta2': 0.998, 
-    'max_grad_norm': 0, 
-    'label_smoothing': 0.1, 
-    'param_init': 0, 
-    'param_init_glorot': True, 
-    'normalization': 'tokens', 
-    'encoder_type': 'transformer', 
-    'decoder_type': 'transformer', 
+    'warmup_steps': 16000,
+    'decay_method': 'noam',
+    'adam_beta2': 0.998,
+    'max_grad_norm': 0,
+    'label_smoothing': 0.1,
+    'param_init': 0,
+    'param_init_glorot': True,
+    'normalization': 'tokens',
+    'encoder_type': 'transformer',
+    'decoder_type': 'transformer',
     'position_encoding': False,
     'max_relative_positions': 20,
-    'enc_layers': 6, 
+    'enc_layers': 6,
     'dec_layers': 6,
     'heads': 8,
-    'hidden_size': 512, 
+    'hidden_size': 512,
     'rnn_size': 512,
-    'word_vec_size': 512, 
+    'word_vec_size': 512,
     'transformer_ff': 2048,
     'dropout_steps': 0,
     'dropout': 0.1,
@@ -335,8 +339,8 @@ onmt_config = {
 # Populate data sources
 for s in sources:
     onmt_config['data'][sources[s]['hash']] = {
-        'path_src': sources[s]['source'], 
-        'path_tgt': sources[s]['target'], 
+        'path_src': sources[s]['source'],
+        'path_tgt': sources[s]['target'],
         'weight': sources[s]['weight'],
         'transforms': train_transforms,
         'src_prefix': sources[s]['src_prefix'],
@@ -350,8 +354,8 @@ if sys.platform == 'darwin' or no_gpu:
 
 if args.toy:
     toy_config = {
-        'valid_steps': 100, 
-        'train_steps': 200, 
+        'valid_steps': 100,
+        'train_steps': 200,
         'save_checkpoint_steps': 100
     }
     for k in toy_config:
@@ -371,16 +375,19 @@ sp_vocab_file = os.path.join(run_dir, "sentencepiece.vocab")
 onmt_vocab_file = os.path.join(onmt_dir, "openmt.vocab")
 if changed and os.path.isfile(onmt_vocab_file):
     os.unlink(onmt_vocab_file)
-    
+
 if not os.path.isfile(onmt_vocab_file):
-    #subprocess.run(["onmt_build_vocab", "-config", onmt_config_path, "-n_sample", "-1", "-num_threads", str(os.cpu_count())])
+    # subprocess.run(["onmt_build_vocab", "-config", onmt_config_path, "-n_sample", "-1", "-num_threads", str(os.cpu_count())])
     sp_vocab_to_onmt_vocab(sp_vocab_file, onmt_vocab_file)
 
-last_checkpoint = os.path.join(onmt_dir, os.path.basename(onmt_config["save_model"]) + f'_step_{onmt_config["train_steps"]}.pt')
+last_checkpoint = os.path.join(onmt_dir,
+                               os.path.basename(onmt_config["save_model"]) + f'_step_{onmt_config["train_steps"]}.pt')
+
 
 def get_checkpoints():
     chkpts = [cp for cp in glob.glob(os.path.join(onmt_dir, "*.pt")) if "averaged.pt" not in cp]
     return list(sorted(chkpts, key=lambda x: int(re.findall('\d+', x)[0])))
+
 
 if (not (os.path.isfile(last_checkpoint) or args.inflight)) or changed or args.rerun_onmt:
     cmd = ["onmt_train", "-config", onmt_config_path]
@@ -399,7 +406,7 @@ if (not (os.path.isfile(last_checkpoint) or args.inflight)) or changed or args.r
         import mimetypes
 
         log_dir = os.path.join(onmt_dir, "logs")
-        
+
         # Allow tensorboard to run on Windows due to mimetypes bug: https://github.com/microsoft/vscode-python/pull/16203
         mimetypes.add_type("application/javascript", ".js")
 
@@ -410,7 +417,7 @@ if (not (os.path.isfile(last_checkpoint) or args.inflight)) or changed or args.r
         webbrowser.open(url)
 
         cmd += ["--tensorboard", "--tensorboard_log_dir", log_dir]
-    
+
     # Resume?
     checkpoints = get_checkpoints()
     if len(checkpoints) > 0 and not changed:
@@ -450,13 +457,13 @@ if os.path.isdir(ct2_model_dir):
 
 print("Converting to ctranslate2")
 subprocess.run([
-        "ct2-opennmt-py-converter",
-        "--model_path",
-        average_checkpoint,
-        "--output_dir",
-        ct2_model_dir,
-        "--quantization",
-        "int8"])
+    "ct2-opennmt-py-converter",
+    "--model_path",
+    average_checkpoint,
+    "--output_dir",
+    ct2_model_dir,
+    "--quantization",
+    "int8"])
 
 # Package
 package_slug = f"translate-{config['from']['code']}_{config['to']['code']}-{config['version'].replace('.', '_')}"
@@ -482,12 +489,16 @@ shutil.copytree(stanza_dir, os.path.join(package_folder, "stanza"))
 
 print(f"Writing {package_file}")
 zip_filename = os.path.join(run_dir, f"{package_slug}.zip")
+
+
 def zipdir(path, ziph):
     for root, dirs, files in os.walk(path):
         for file in files:
             ziph.write(os.path.join(root, file),
                        os.path.relpath(os.path.join(root, file),
                                        os.path.join(path, '..')))
+
+
 with zipfile.ZipFile(zip_filename, 'w') as zipf:
     zipdir(package_folder, zipf)
 os.rename(zip_filename, package_file)
