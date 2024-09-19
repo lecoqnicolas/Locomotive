@@ -22,7 +22,7 @@ def main(params: argparse.Namespace) -> None:
             exit(0)
 
         translated_text = model.transform([text], config['from']["name"], config["to"]["name"])
-        print(f"({config['to']['code']})> {translated_text}")
+        print(f"({config['to']['code']})> {translated_text[0]}")
 
 
 if __name__ == "__main__":
