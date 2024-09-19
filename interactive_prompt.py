@@ -21,7 +21,7 @@ def main(params: argparse.Namespace) -> None:
             print("")
             exit(0)
 
-        translated_text = model.transform(text, config['from']["name"], config["to"]["name"])
+        translated_text = model.transform([text], config['from']["name"], config["to"]["name"])
         print(f"({config['to']['code']})> {translated_text}")
 
 

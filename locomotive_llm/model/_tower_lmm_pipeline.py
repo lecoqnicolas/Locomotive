@@ -22,9 +22,12 @@ class TowerLlmPipeline:
         :param texts: list of texts to translate.
         :return: The translated texts.
         """
+        res = []
         if src is not None and tgt is not None:
-            texts = [self._towerbase_prompt(text, src, tgt) for text in texts]
-        inputs = self._tokenizer(texts, return_tensors="pt").input_ids
-        inputs = inputs.to(self._device)
-        outputs = self._model.generate(inputs, max_length=self._max_len)
-        return self._tokenizer.decode(outputs, skip_special_tokens=True)
+            texts = [self._towerbase_prompt(texts, src, tgt) for text in texts]
+        for text in texts:
+            inputs = self._tokenizer(text, return_tensors="pt").input_ids
+            inputs = inputs.to(self._device)
+            outputs = self._model.generate(inputs, max_length=self._max_len)
+            res.append(self._tokenizer.decode(outputs[0], skip_special_tokens=True))
+        return res
