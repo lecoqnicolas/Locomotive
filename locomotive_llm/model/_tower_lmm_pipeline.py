@@ -10,12 +10,13 @@ class TowerLlmPipeline:
         self._tokenizer = AutoTokenizer.from_pretrained(self._id)
         self._model.eval()
         self._max_len = max_len
-        self._batch_size= batch_size
+        self._batch_size = batch_size
 
     def _towerbase_prompt(self, str, src, tgt):
         return f"{src} : {str}\n{tgt} :"
 
     def remove_prompt(self, answer, delimiter):
+        print(answer)
         return delimiter.join(answer.split(delimiter)[1:])
 
     def transform(self, texts, src=None, tgt=None):
@@ -31,7 +32,8 @@ class TowerLlmPipeline:
         for text in texts:
             inputs = self._tokenizer(text, return_tensors="pt").input_ids
             inputs = inputs.to(self._device)
-            outputs = self._model.generate(inputs, max_length=self._max_len)
+            outputs = self._model.generate(inputs, max_length=self._max_len, attention_mask = inputs["attention_mask"],
+                                           pad_token_id=self._tokenizer.eos_token_id)
             res.append(self.remove_prompt(self._tokenizer.decode(outputs[0], skip_special_tokens=True),
                                           delimiter=f"\n{src}"))
         return res
