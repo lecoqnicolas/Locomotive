@@ -15,9 +15,8 @@ class TowerLlmPipeline:
     def _towerbase_prompt(self, str, src, tgt):
         return f"{src} : {str}\n{tgt} :"
 
-    def remove_prompt(self, answer, delimiter):
-        print(answer)
-        return delimiter.join(answer.split(delimiter)[1:])
+    def remove_prompt(self, answer, input):
+        return answer.split(input)[1:]
 
     def transform(self, texts, src=None, tgt=None):
         """
@@ -36,5 +35,5 @@ class TowerLlmPipeline:
                                            attention_mask=inputs["attention_mask"].to(self._device),
                                            pad_token_id=self._tokenizer.eos_token_id)
             res.append(self.remove_prompt(self._tokenizer.decode(outputs[0], skip_special_tokens=True),
-                                          delimiter=f"\n{src}"))
+                                          input=text))
         return res
