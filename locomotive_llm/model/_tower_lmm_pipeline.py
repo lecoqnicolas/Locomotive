@@ -33,7 +33,7 @@ class TowerLlmPipeline:
             inputs = self._tokenizer(text, return_tensors="pt")
             outputs = self._model.generate(inputs.input_ids.to(self._device),
                                            max_length=self._max_len,
-                                           attention_mask=inputs["attention_mask"],
+                                           attention_mask=inputs["attention_mask"].to(self._device),
                                            pad_token_id=self._tokenizer.eos_token_id)
             res.append(self.remove_prompt(self._tokenizer.decode(outputs[0], skip_special_tokens=True),
                                           delimiter=f"\n{src}"))
