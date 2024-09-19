@@ -274,7 +274,7 @@ def compute_scores() -> None:
 # ... or download model, but then, make sure a huggingface token is installed and the token account has acknowledged cometkiwi license.
     else:
         try:
-            model_path = download_model(args.model, saving_directory=os.path.join(current_dir, "cache", "wmt22-cometkiwi-da"))
+            model_path = download_model(args.model, saving_directory=os.path.join(current_dir, "cache", "wmt22-cometkiwi-da"), local_files_only= True)
         except Exception as e:
             print("A huggingface token should be installed, and the model's license acknowledged before downloading.")
             print(e)
