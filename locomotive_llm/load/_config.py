@@ -7,6 +7,6 @@ def load_config(config_path, reverse=False):
             config = json.loads(f.read())
         if reverse:
             config["from"], config["to"] = config["to"], config["from"]
+        return config
     except Exception as e:
-        print(f"Cannot open config file: {e}")
-        exit(1)
+        raise Exception(f"Cannot open config file") from e
