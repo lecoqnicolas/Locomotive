@@ -5,7 +5,7 @@ from pathlib import Path
 
 import torch
 
-from locomotive_llm.model import TowerLlmPipeline
+from locomotive_llm.model import TowerLlmPipeline, TowerInstructPipelineLangChain,TowerLlmPipelineLangChain
 from locomotive_llm.load import load_flores, get_flores_file_path, load_config
 from locomotive_llm.eval import evaluate_bleu
 
@@ -21,13 +21,17 @@ def main(params: argparse.Namespace) -> None:
     # Load model configuration
     config = load_config(params.config, params.reverse)
     # load model
-    model = TowerLlmPipeline(device="cuda" if torch.cuda.is_available() and not args.cpu else "cpu",
-                             batch_size=args.batch_size)
+    if params.use_towerinstruct and params.use_langchain:
+        model = TowerInstructPipelineLangChain(device="cuda" if torch.cuda.is_available() and not params.cpu else "cpu")
+    elif params.use_langchain:
+            model = TowerLlmPipelineLangChain(device="cuda" if torch.cuda.is_available() and not params.cpu else "cpu")
+    else:
+        model = TowerLlmPipeline(device="cuda" if torch.cuda.is_available() and not params.cpu else "cpu")
 
     # output directories
     model_dirname = f"{config['from']['code']}_{config['to']['code']}-{config['version']}"
     run_dir = Path("run") / model_dirname
-
+    os.makedirs(run_dir, exist_ok=True)
     # load flores dataset
     src_texts, tgt_texts = load_flores(config["from"]["code"], config["to"]["code"], params.flores_dataset)
 
@@ -37,7 +41,7 @@ def main(params: argparse.Namespace) -> None:
         tgt_texts = [tgt_texts[params.flores_id]]
 
     # translate the texts
-    translated_texts = model.transform(src_texts, src=config["from"]["name"], tgt=config["to"]["name"])
+    translated_texts = model.transform(src_texts, config["from"]["name"], config["to"]["name"])
 
     # run the evaluations
     if params.bleu:
@@ -95,7 +99,12 @@ if __name__ == "__main__":
         type=int,
         default=32,
         help='Max batch size for translation. Default: %(default)s')
-
+    parser.add_argument('--use_langchain',
+                        action='store_true',
+                        help='Use LangChain for the translation pipeline. Default: %(default)s')
+    parser.add_argument('--use_towerinstruct',
+                        action='store_true',
+                        help='Use LangChain for the translation pipeline. Default: %(default)s')
     args = parser.parse_args()
 
     main(args)

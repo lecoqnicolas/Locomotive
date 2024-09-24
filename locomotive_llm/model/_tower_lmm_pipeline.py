@@ -1,4 +1,7 @@
-from transformers import AutoTokenizer, AutoModelForCausalLM
+from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
+from langchain.prompts import PromptTemplate
+from langchain_huggingface import HuggingFacePipeline
+
 
 
 class TowerLlmPipeline:
@@ -17,6 +20,7 @@ class TowerLlmPipeline:
 
     def remove_prompt(self, answer, input):
         return answer.split(input)[1:]
+    
 
     def transform(self, texts, src=None, tgt=None):
         """
