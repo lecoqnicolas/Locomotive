@@ -1,9 +1,10 @@
 experiment_name: "InstructMistral0.2"
 run_name: "test_run"
-use_langchain: False
+use_langchain: True
 use_towerinstruct: True
 version: 1
 llm_model: "Unbabel/TowerInstruct-Mistral-7B-v0.2"
+prompt: "config/prompts/example_prompt.yml"
 batch_size: 1024
 device: "cuda"
 src_code: "en_Latn"

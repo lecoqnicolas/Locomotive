@@ -12,7 +12,9 @@ def main(params: argparse.Namespace) -> None:
     config = load_config(params.config, params.reverse)
     pipeline_class = get_pipeline(config)
     model = pipeline_class(model_id=config.llm_model,
-                           device="cuda" if torch.cuda.is_available() and not params.cpu else "cpu")
+                           device="cuda" if torch.cuda.is_available() and not params.cpu else "cpu",
+                           prompt_file=config.prompt,
+                           batch_size=config.batch_size)
 
     print("Starting interactive mode")
     while True:

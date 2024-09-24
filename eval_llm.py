@@ -25,7 +25,9 @@ def main(params: argparse.Namespace) -> None:
     config = load_config(params.config, params.reverse)
     pipeline_class = get_pipeline(config)
     pipeline = pipeline_class(model_id=config.llm_model,
-                           device="cuda" if torch.cuda.is_available() and not params.cpu else "cpu")
+                              device="cuda" if torch.cuda.is_available() and not params.cpu else "cpu",
+                              prompt_file=config.prompt,
+                              batch_size=config.batch_size)
 
     # output directories
     model_dirname = f"{config.src_code}_{config.tgt_code}-{config.version}"

@@ -1,0 +1,7 @@
+input_variables:
+- src_lang
+- tgt_lang
+- text
+output_parser: null
+template: "Translate this from {src_lang} to {tgt_lang}:\n{text}\nTranslation:"
+template_format: f-string

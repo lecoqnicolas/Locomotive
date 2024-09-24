@@ -1,11 +1,12 @@
 from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 from langchain_huggingface import HuggingFacePipeline, ChatHuggingFace
 import torch
+from langchain.prompts import PromptTemplate, load_prompt
 
 
 class TowerInstructPipelineLangChain:
-
-    def __init__(self, model_id="Unbabel/TowerInstruct-Mistral-7B-v0.2", device="cuda", max_len=512):
+    def __init__(self, model_id="Unbabel/TowerInstruct-Mistral-7B-v0.2", device="cuda", max_len=512, prompt_file=None,
+                 batch_size=1000):
         self._id = model_id
         self._device = device
         self._max_len = max_len
@@ -15,9 +16,10 @@ class TowerInstructPipelineLangChain:
         self._hf_pipeline = pipeline("text-generation", model=self._model, tokenizer=self._tokenizer,
                                      device=0 if self._device == "cuda" else -1)
         self.llm = HuggingFacePipeline(pipeline=self._hf_pipeline)
+        self._prompt = load_prompt(prompt_file)
 
     def _create_prompt(self, text, src_lang, tgt_lang):
-        return f"Translate this from {src_lang} to {tgt_lang}:\n{text}\nTranslation:"
+        return self._prompt.format(text=text, src_lang=src_lang, tgt_lang=tgt_lang)
 
     def _clean_output(self, output, prompt):
         cleaned_output = output.replace(prompt, "").strip()

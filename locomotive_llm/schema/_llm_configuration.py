@@ -7,6 +7,7 @@ class LlmConfiguration:
     run_name: str = "default_run"
     git_commit: str = None
     mlflow_repository: str = "mlflow_repository"
+    prompt: str = "config/prompts/example_prompt.yml"
     use_langchain: bool = True
     use_towerinstruct: bool = True
     version: int = 1

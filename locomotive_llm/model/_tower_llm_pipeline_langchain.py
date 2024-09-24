@@ -6,7 +6,7 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 
 class TowerLlmPipelineLangChain:
     
-    def __init__(self, model_id="Unbabel/TowerInstruct-13B-v0.1", device="cpu", max_len=512):
+    def __init__(self, model_id="Unbabel/TowerInstruct-13B-v0.1", device="cpu", max_len=512, batch_size=1000):
 
         self._id = model_id
         self._device = device
