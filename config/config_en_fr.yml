@@ -4,10 +4,10 @@ use_langchain: True
 use_towerinstruct: True
 version: 1
 llm_model: "Unbabel/TowerInstruct-Mistral-7B-v0.2"
-prompt: "config/prompts/example_prompt.yml"
+prompt: "config/prompts/prompt_v1.yml"
 batch_size: 1024
 device: "cuda"
-src_code: "en_Latn"
+src_code: "eng_Latn"
 src_name: "English"
 tgt_code: "fra_Latn"
 tgt_name: "French"

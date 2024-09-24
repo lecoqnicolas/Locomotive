@@ -23,8 +23,8 @@ class TowerInstructPipelineLangChain:
 
     def _clean_output(self, output, prompt):
         cleaned_output = output.replace(prompt, "").strip()
-        #if "\n" in cleaned_output:
-        #    cleaned_output = cleaned_output.split("\n")[0].strip()
+        if "\n" in cleaned_output:
+           cleaned_output = cleaned_output.split("\n")[0].strip()
         return cleaned_output
 
     def transform(self, texts, src_lang, tgt_lang):
@@ -34,7 +34,6 @@ class TowerInstructPipelineLangChain:
             prompt = self._create_prompt(text, src_lang, tgt_lang)
             outputs = self._hf_pipeline(prompt, max_new_tokens=100, do_sample=False)
             raw_response = outputs[0]["generated_text"]
-
             translation = self._clean_output(raw_response, prompt)
             results.append(translation)
 
