@@ -1,3 +1,5 @@
 from ._tower_lmm_pipeline import TowerLlmPipeline
 from ._tower_llm_pipeline_langchain import TowerLlmPipelineLangChain
 from ._tower_instruct_pipeline_langchain import TowerInstructPipelineLangChain
+from ._tower_lmm_instruct_pipeline import TowerLlmInstructPipeline
+from ._utils import get_pipeline
