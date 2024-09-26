@@ -19,7 +19,7 @@ torch.set_float32_matmul_precision('high')
 
 @dataclass
 class CometConfig:
-    sources: list[str]
+    sources: str
     translations: list[str]
     references: Path
     sacrebleu_dataset: str = None

@@ -71,7 +71,7 @@ def main(params: argparse.Namespace) -> None:
                 for t in translated_texts:
                     translation_file.write(t + "\n")
             logging.info("Starting COMET evaluation")
-            comet_conf = CometConfig(sources=[src_f], translations=[tra_f], references=ref_f, quiet=True,
+            comet_conf = CometConfig(sources=src_f, translations=[tra_f], references=ref_f, quiet=True,
                                      only_system=True)
             sys_scores = comet_eval(comet_conf)
             mlflow.log_metric("comet_score", sys_scores[0])
