@@ -19,10 +19,12 @@ def main(params: argparse.Namespace) -> None:
     print("Starting interactive mode")
     if params.manual_selection:
         # user selection of langs
-        config.src_name = input("Please select your source langage ")
+        config.src_name = input("Please select your source langage :")
         config.src_code = config.src_name
-        config.tgt_name = input("Please select your target langage ")
+        print(f"> {config.src_code} selected")
+        config.tgt_name = input("Please select your target langage :")
         config.tgt_code = config.tgt_name
+        print(f"> {config.tgt_code} selected")
     while True:
         try:
             text = input(f"({config.src_code})> ")
