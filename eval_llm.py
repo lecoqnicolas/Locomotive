@@ -42,6 +42,7 @@ def main(params: argparse.Namespace) -> None:
 
     with mlflow.start_run(run_name=config.run_name) as run:
         log_dataclass(config)
+        mlflow.log_param("eval_dataset", params.flores_dataset)
         # load flores dataset
         src_texts, tgt_texts = load_flores(config.src_code, config.tgt_code, params.flores_dataset)
 
