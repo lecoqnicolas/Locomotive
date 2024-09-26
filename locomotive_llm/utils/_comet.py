@@ -16,12 +16,13 @@ from pathlib import Path
 
 torch.set_float32_matmul_precision('high')
 
+
 @dataclass
 class CometConfig:
-    sources: list[Path]
-    translations: list[Path]
+    sources: list[str]
+    translations: list[str]
     references: Path
-    sacrebleu_dataset: str
+    sacrebleu_dataset: str = None
     batch_size: int = 16
     gpus: int = 1
     quiet: bool = False
@@ -35,8 +36,7 @@ class CometConfig:
     print_cache_info: bool = False
 
 
-def score_command(cfg: CometConfig):
-
+def comet_eval(cfg: CometConfig):
     if cfg.quiet:
         loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict]
         for logger in loggers:
@@ -162,7 +162,7 @@ def score_command(cfg: CometConfig):
                 errors.append(outputs.metadata.error_spans)
         data = new_data
 
-    files = [path_fr.rel_path for path_fr in cfg.translations]
+    files = [path_fr for path_fr in cfg.translations]
     data = {file: system_data.tolist() for file, system_data in zip(files, data)}
     for i in range(len(data[files[0]])):  # loop over (src, ref)
         for j in range(len(files)):  # loop of system
@@ -171,20 +171,20 @@ def score_command(cfg: CometConfig):
                 data[files[j]][i]["errors"] = errors[j][i]
 
             if not cfg.only_system:
-                print(
+                logging.info(
                     "{}\tSegment {}\tscore: {:.4f}".format(
                         files[j], i, seg_scores[j][i]
                     )
                 )
 
     for j in range(len(files)):
-        print("{}\tscore: {:.4f}".format(files[j], sys_scores[j]))
+        logging.info("{}\tscore: {:.4f}".format(files[j], sys_scores[j]))
 
     if cfg.to_json != "":
         with open(cfg.to_json, "w", encoding="utf-8") as outfile:
             json.dump(data, outfile, ensure_ascii=False, indent=4)
-        print("Predictions saved in: {}.".format(cfg.to_json))
+        logging.info("Predictions saved in: {}.".format(cfg.to_json))
 
     if cfg.print_cache_info:
-        print(model.retrieve_sentence_embedding.cache_info())
-    return sys_scores, seg_scores
+        logging.info(model.retrieve_sentence_embedding.cache_info())
+    return sys_scores

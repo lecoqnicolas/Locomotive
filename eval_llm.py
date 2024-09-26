@@ -10,12 +10,14 @@ import torch
 from locomotive_llm.eval import evaluate_bleu
 from locomotive_llm.load import load_flores, get_flores_file_path, load_config
 from locomotive_llm.model import get_pipeline
-from locomotive_llm.utils import log_dataclass
-
+from locomotive_llm.utils import log_dataclass, comet_eval, CometConfig
 torch.cuda.empty_cache()
 
 
 def main(params: argparse.Namespace) -> None:
+    # init logging
+    logging.basicConfig(level="DEBUG")
+
     # Do nothing if no evaluation was selected
     if not params.bleu and not params.comet:
         logging.error("Please select an evaluation method, bleu or comet")
@@ -66,12 +68,9 @@ def main(params: argparse.Namespace) -> None:
                 for t in translated_texts:
                     translation_file.write(t + "\n")
 
-            subprocess.run([
-                "comet-score",
-                "--sources", src_f,
-                "--translations", tra_f,
-                "--references", ref_f,
-                "--quiet", "--only_system"])
+            comet_conf = CometConfig(sources=[src_f], translations=[tra_f], references=ref_f, quiet=True, only_system=True)
+            sys_scores = comet_eval(comet_conf)
+            mlflow.log_metric("comet_score", sys_scores[0])
 
 
 if __name__ == "__main__":
