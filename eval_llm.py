@@ -50,11 +50,13 @@ def main(params: argparse.Namespace) -> None:
             src_texts = [src_texts[params.flores_id]]
             tgt_texts = [tgt_texts[params.flores_id]]
 
+        logging.info("Translating input texts")
         # translate the texts
         translated_texts = pipeline.transform(src_texts, config.src_name, config.tgt_name)
 
         # run the evaluations
         if params.bleu:
+            logging.info("Starting BLEU evaluation")
             bleu_score = evaluate_bleu(translated_texts, tgt_texts)
             logging.info(f"BLEU score: {bleu_score}")
             mlflow.log_metric("bleu_score", bleu_score)
@@ -67,8 +69,9 @@ def main(params: argparse.Namespace) -> None:
             with open(tra_f, "w", encoding="utf8") as translation_file:
                 for t in translated_texts:
                     translation_file.write(t + "\n")
-
-            comet_conf = CometConfig(sources=[src_f], translations=[tra_f], references=ref_f, quiet=True, only_system=True)
+            logging.info("Starting COMET evaluation")
+            comet_conf = CometConfig(sources=[src_f], translations=[tra_f], references=ref_f, quiet=True,
+                                     only_system=True)
             sys_scores = comet_eval(comet_conf)
             mlflow.log_metric("comet_score", sys_scores[0])
 
