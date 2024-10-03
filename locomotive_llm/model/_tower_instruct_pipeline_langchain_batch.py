@@ -6,7 +6,7 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 
 class TowerInstructPipelineLangChain:
     def __init__(self, model_id="Unbabel/TowerInstruct-Mistral-7B-v0.2", device="cuda", max_tokens=512, prompt_file=None,
-                 prompt_ignore=None):
+                 prompt_ignore=None, batch_size=50):
         self._id = model_id
         self._device = device
         self._max_tokens = max_tokens
@@ -15,7 +15,7 @@ class TowerInstructPipelineLangChain:
         self._model = AutoModelForCausalLM.from_pretrained(self._id, torch_dtype=torch.float16).to(self._device)
 
         self._hf_pipeline = pipeline("text-generation", model=self._model, tokenizer=self._tokenizer,
-                                     device=0 if self._device == "cuda" else -1)
+                                     device=0 if self._device == "cuda" else -1, batch_size=batch_size)
         self.llm = HuggingFacePipeline(pipeline=self._hf_pipeline)
         self._prompt = load_prompt(prompt_file)
         self._prompt_ignore = set(prompt_ignore) if prompt_ignore is not None else {}

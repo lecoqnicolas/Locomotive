@@ -26,14 +26,15 @@ def main(params: argparse.Namespace) -> None:
     if not params.bleu and not params.comet:
         logging.error("Please select an evaluation method, bleu or comet")
         exit(1)
-    
+
     try:
         config = load_config(params.config, params.reverse)
         pipeline_class = get_pipeline(config)
         pipeline = pipeline_class(model_id=config.llm_model,
-                                device="cuda" if torch.cuda.is_available() and not params.cpu else "cpu",
-                                prompt_file=config.prompt,
-                                prompt_ignore=config.ignore_prompt)
+                                  device="cuda" if torch.cuda.is_available() and not params.cpu else "cpu",
+                                  prompt_file=config.prompt,
+                                  prompt_ignore=config.ignore_prompt,
+                                  batch_size=config.batch_size)
 
         model_dirname = f"{config.src_code}_{config.tgt_code}-{config.version}"
         run_dir = Path("run") / model_dirname
@@ -53,15 +54,12 @@ def main(params: argparse.Namespace) -> None:
 
             logging.info("Translating input texts")
 
-            translated_texts = []
-            # Traduction par batch
-            for batch in batch_texts(src_texts, config.batch_size):
-                translated_texts += pipeline.transform(batch, config.src_name, config.tgt_name)
+            translated_texts = pipeline.transform(src_texts, config.src_name, config.tgt_name)
 
             torch.cuda.empty_cache()
 
             # Run the evaluations
-            valid_translations = [text for text in translated_texts if text]  
+            valid_translations = [text for text in translated_texts if text]
             if params.bleu:
                 logging.info("Starting BLEU evaluation")
                 bleu_score = evaluate_bleu(valid_translations, tgt_texts)
@@ -86,6 +84,7 @@ def main(params: argparse.Namespace) -> None:
         logging.error(f"An error occurred during the evaluation: {str(e)}")
         torch.cuda.empty_cache()
 
+
 if __name__ == "__main__":
     # Argument parser setup
     parser = argparse.ArgumentParser(description='Evaluate TowerLLM model')
@@ -94,7 +93,8 @@ if __name__ == "__main__":
     parser.add_argument('--bleu', action="store_true", help='Evaluate BLEU score.')
     parser.add_argument('--flores-id', type=int, default=None, help='Evaluate this FLORES sentence ID.')
     parser.add_argument('--flores_dataset', type=str, default="dev", help='Defines the FLORES200 dataset to translate.')
-    parser.add_argument('--translate_flores', action="store_true", help='Translate the FLORES200 corpus into a text file.')
+    parser.add_argument('--translate_flores', action="store_true",
+                        help='Translate the FLORES200 corpus into a text file.')
     parser.add_argument('--comet', action="store_true", help='Run COMET score command on the translated FLORES text.')
     parser.add_argument('--cpu', action="store_true", help='Force CPU use.')
     args = parser.parse_args()
