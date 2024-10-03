@@ -1,13 +1,16 @@
 import argparse
+from typing import NoReturn
 
 import torch
 
 from locomotive_llm.load import load_config
 from locomotive_llm.model import get_pipeline
+import gradio as gr
+
 torch.cuda.empty_cache()
 
 
-def main(params: argparse.Namespace) -> None:
+def main(params: argparse.Namespace) -> NoReturn:
     # Load model configuration
     config = load_config(params.config, params.reverse)
     pipeline_class = get_pipeline(config)
@@ -25,15 +28,27 @@ def main(params: argparse.Namespace) -> None:
         config.tgt_name = input("Please select your target langage :")
         config.tgt_code = config.tgt_name
         print(f"> {config.tgt_code} selected")
-    while True:
-        try:
-            text = input(f"({config.src_code})> ")
-        except KeyboardInterrupt:
-            print("")
-            exit(0)
 
-        translated_text = model.transform([text], config.src_name, config.tgt_name)
-        print(f"({config.tgt_code})> {translated_text[0]}")
+    if params.gui:
+        translator = gr.Interface(fn=lambda x: model.transform([x], config.src_name, config.tgt_name)[0],
+                                  inputs=[gr.Textbox(label=f"Please enter an {config.src_name} text:",
+                                                     placeholder="Text to translate")],
+                                  outputs=gr.Textbox(label=f"{config.tgt_name} translation :"),
+                                  title=f"Model {config.llm_model} : {config.src_name} to {config.tgt_name}"
+                                  )
+
+        translator.launch()
+
+    else:
+        while True:
+            try:
+                text = input(f"({config.src_code})> ")
+            except KeyboardInterrupt:
+                print("")
+                exit(0)
+
+            translated_text = model.transform([text], config.src_name, config.tgt_name)
+            print(f"({config.tgt_code})> {translated_text[0]}")
 
 
 if __name__ == "__main__":
@@ -49,6 +64,7 @@ if __name__ == "__main__":
     parser.add_argument('--cpu',
                         action="store_true",
                         help='Force CPU use. Default: %(default)s')
+    parser.add_argument('--gui', action="store_true", help="Enable gradio-powered gui", default=True)
     parser.add_argument('--manual_selection', action='store_true', help="Manual lang selection")
     args = parser.parse_args()
 

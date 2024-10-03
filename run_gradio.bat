@@ -1,0 +1,1 @@
+ ssh -L 7860:127.0.0.1:7860 debian@91.134.30.63 "source ~/miniconda3/etc/profile.d/conda.sh; cd ~/Locomotive; conda activate locomotive; python interactive_prompt.py"
