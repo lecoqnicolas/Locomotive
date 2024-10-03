@@ -5,7 +5,7 @@ import torch
 
 from locomotive_llm.load import load_config
 from locomotive_llm.model import get_pipeline
-import gradio as gr
+from locomotive_llm.ui import get_gui
 
 torch.cuda.empty_cache()
 
@@ -30,13 +30,7 @@ def main(params: argparse.Namespace) -> NoReturn:
         print(f"> {config.tgt_code} selected")
 
     if params.gui:
-        translator = gr.Interface(fn=lambda x: model.transform([x], config.src_name, config.tgt_name)[0],
-                                  inputs=[gr.Textbox(label=f"Please enter an {config.src_name} text:",
-                                                     placeholder="Text to translate")],
-                                  outputs=gr.Textbox(label=f"{config.tgt_name} translation :"),
-                                  title=f"Model {config.llm_model} : {config.src_name} to {config.tgt_name}"
-                                  )
-
+        translator = get_gui(model, config.llm_model)
         translator.launch()
 
     else:
