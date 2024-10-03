@@ -4,7 +4,8 @@ import torch
 from langchain.prompts import load_prompt
 
 class TowerInstructPipelineLangChain:
-    def __init__(self, model_id="Unbabel/TowerInstruct-13B-v0.1", device="cuda", max_len=512, prompt_file=None,batch_size= 32):
+    def __init__(self, model_id="Unbabel/TowerInstruct-Mistral-7B-v0.2", device="cuda", max_len=512, prompt_file=None,
+                 prompt_ignore=None):
         self._id = model_id
         self._device = device
         self._max_len = max_len
@@ -16,9 +17,10 @@ class TowerInstructPipelineLangChain:
                                      device=0 if self._device == "cuda" else -1)
         self.llm = HuggingFacePipeline(pipeline=self._hf_pipeline)
         self._prompt = load_prompt(prompt_file)
+        self._prompt_ignore = prompt_ignore if prompt_ignore else {}
 
-    def _create_prompt(self, text, src_lang, tgt_lang):
-        return self._prompt.format(text=text, src_lang=src_lang, tgt_lang=tgt_lang)
+    def _create_prompt(self, texts, src_lang, tgt_lang):
+        return [self._prompt.format(text=text, src_lang=src_lang, tgt_lang=tgt_lang) for text in texts]
 
     def _clean_output(self, output, prompt):
         cleaned_output = output.replace(prompt, "").strip()
@@ -26,14 +28,22 @@ class TowerInstructPipelineLangChain:
            cleaned_output = cleaned_output.split("\n")[0].strip()
         return cleaned_output
 
+    def _filter_texts(self, text):
+        return text in self._prompt_ignore
         
     def transform(self, texts, src_lang, tgt_lang):
+        prompts = self._create_prompt(texts, src_lang, tgt_lang)
+        outputs = self._hf_pipeline(prompts, max_new_tokens=100, do_sample=False)
         results = []
-        for text in texts:
-            prompt = self._create_prompt(text, src_lang, tgt_lang)
-            outputs = self._hf_pipeline(prompt, max_new_tokens=100, do_sample=False)
-            raw_response = outputs[0]["generated_text"]
-            translation = self._clean_output(raw_response, prompt)
-            results.append(translation)
+        for i, output in enumerate(outputs):
+            try:
+                if "generated_text" in output:
+                    cleaned_output = self._clean_output(output["generated_text"], prompts[i])
+                else:
+                    cleaned_output = "" 
+            except Exception as e:
+                print(f"An error occurred while processing text {i}: {e}")
+                cleaned_output = ""
+            results.append(cleaned_output)
+        
         return results
-

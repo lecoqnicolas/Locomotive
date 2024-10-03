@@ -4,7 +4,6 @@ from ._tower_lmm_pipeline import TowerLlmPipeline
 from ._tower_instruct_pipeline_langchain import TowerInstructPipelineLangChain
 from ._tower_llm_pipeline_langchain import TowerLlmPipelineLangChain
 
-
 def get_pipeline(config: LlmConfiguration):
     # load model
     if config.use_towerinstruct and config.use_langchain:

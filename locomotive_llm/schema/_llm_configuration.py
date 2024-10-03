@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-
+from typing import List
 
 @dataclass
 class LlmConfiguration:
@@ -18,3 +18,4 @@ class LlmConfiguration:
     src_name: str = "Enlish"
     tgt_code: str = "fra_Latn"
     tgt_name: str = "French"
+    ignore_prompt: List[str] = None
