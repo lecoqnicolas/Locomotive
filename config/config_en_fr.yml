@@ -5,7 +5,8 @@ use_towerinstruct: True
 version: 1
 llm_model: "Unbabel/TowerInstruct-Mistral-7B-v0.2"
 prompt: "config/prompts/prompt_v1.yml"
-batch_size: 1024
+batch_size: 2
+max_token: 150
 device: "cuda"
 src_code: "eng_Latn"
 src_name: "English"

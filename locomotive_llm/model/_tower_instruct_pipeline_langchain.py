@@ -3,15 +3,17 @@ from langchain_huggingface import HuggingFacePipeline, ChatHuggingFace
 import torch
 from langchain.prompts import load_prompt
 
+
 class TowerInstructPipelineLangChain:
-    def __init__(self, model_id="Unbabel/TowerInstruct-13B-v0.1", device="cuda", max_len=512, prompt_file=None,batch_size= 32):
+    def __init__(self, model_id="Unbabel/TowerInstruct-13B-v0.1", device="cuda", max_tokens=512, prompt_file=None,
+                 batch_size=32):
         self._id = model_id
         self._device = device
-        self._max_len = max_len
+        self._max_len = max_tokens
         self._tokenizer = AutoTokenizer.from_pretrained(self._id)
-       
+
         self._model = AutoModelForCausalLM.from_pretrained(self._id, torch_dtype=torch.float16).to(self._device)
-        
+
         self._hf_pipeline = pipeline("text-generation", model=self._model, tokenizer=self._tokenizer,
                                      device=0 if self._device == "cuda" else -1)
         self.llm = HuggingFacePipeline(pipeline=self._hf_pipeline)
@@ -23,10 +25,9 @@ class TowerInstructPipelineLangChain:
     def _clean_output(self, output, prompt):
         cleaned_output = output.replace(prompt, "").strip()
         if "\n" in cleaned_output:
-           cleaned_output = cleaned_output.split("\n")[0].strip()
+            cleaned_output = cleaned_output.split("\n")[0].strip()
         return cleaned_output
 
-        
     def transform(self, texts, src_lang, tgt_lang):
         results = []
         for text in texts:
@@ -36,4 +37,3 @@ class TowerInstructPipelineLangChain:
             translation = self._clean_output(raw_response, prompt)
             results.append(translation)
         return results
-

@@ -1,16 +1,16 @@
 import argparse
 import logging
 import os
-import subprocess
 from pathlib import Path
 
 import mlflow
 import torch
-import asyncio
+
 from locomotive_llm.eval import evaluate_bleu
 from locomotive_llm.load import load_flores, get_flores_file_path, load_config
 from locomotive_llm.model import get_pipeline
 from locomotive_llm.utils import log_dataclass, comet_eval, CometConfig
+
 
 def main(params: argparse.Namespace) -> None:
     # init logging
@@ -74,8 +74,9 @@ def main(params: argparse.Namespace) -> None:
                 sys_scores = comet_eval(comet_conf)
                 mlflow.log_metric("comet_score", sys_scores[0])
     except Exception as e:
-        logging.error(f"An error occurred during the evaluation: {str(e)}")
         torch.cuda.empty_cache()
+        raise Exception(f"An error occurred during the evaluation: {str(e)}") from e
+
 
 if __name__ == "__main__":
     # Argument parser setup
@@ -113,4 +114,4 @@ if __name__ == "__main__":
         help='Max batch size for translation. Default: %(default)s')
     args = parser.parse_args()
 
-main(args)
+    main(args)

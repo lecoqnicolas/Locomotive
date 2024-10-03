@@ -1,21 +1,22 @@
 import argparse
 import logging
 import os
-import subprocess
 from pathlib import Path
 
 import mlflow
 import torch
-import asyncio
+
 from locomotive_llm.eval import evaluate_bleu
 from locomotive_llm.load import load_flores, get_flores_file_path, load_config
 from locomotive_llm.model import get_pipeline
 from locomotive_llm.utils import log_dataclass, comet_eval, CometConfig
 
+
 def batch_texts(texts, batch_size):
     """Divise les textes en batchs de taille batch_size"""
     for i in range(0, len(texts), batch_size):
         yield texts[i:i + batch_size]
+
 
 def main(params: argparse.Namespace) -> None:
     # init logging
@@ -32,7 +33,6 @@ def main(params: argparse.Namespace) -> None:
         pipeline = pipeline_class(model_id=config.llm_model,
                                 device="cuda" if torch.cuda.is_available() and not params.cpu else "cpu",
                                 prompt_file=config.prompt,
-                                batch_size=config.batch_size,
                                 prompt_ignore=config.ignore_prompt)
 
         model_dirname = f"{config.src_code}_{config.tgt_code}-{config.version}"
@@ -52,25 +52,14 @@ def main(params: argparse.Namespace) -> None:
                 tgt_texts = [tgt_texts[params.flores_id]]
 
             logging.info("Translating input texts")
-            translated_texts = [None] * len(src_texts)
-            valid_indices = []
-            valid_src_texts = []
-            for i, text in enumerate(src_texts):
-                if text.strip():
-                    valid_src_texts.append(text)
-                    valid_indices.append(i)
 
+            translated_texts = []
             # Traduction par batch
-            for batch in batch_texts(valid_src_texts, params.batch_size):
-                batch_results = pipeline.transform(batch, config.src_name, config.tgt_name)
-                torch.cuda.empty_cache()
+            for batch in batch_texts(src_texts, config.batch_size):
+                translated_texts += pipeline.transform(batch, config.src_name, config.tgt_name)
 
-                # Réinsérer les traductions dans les positions d'origine
-                for idx, result in enumerate(batch_results):
-                    if result is not None and result.strip():
-                        translated_texts[valid_indices[len(valid_src_texts) - len(batch) + idx]] = result
-                    else:
-                        translated_texts[valid_indices[len(valid_src_texts) - len(batch) + idx]] = ""
+            torch.cuda.empty_cache()
+
             # Run the evaluations
             valid_translations = [text for text in translated_texts if text]  
             if params.bleu:
@@ -108,7 +97,6 @@ if __name__ == "__main__":
     parser.add_argument('--translate_flores', action="store_true", help='Translate the FLORES200 corpus into a text file.')
     parser.add_argument('--comet', action="store_true", help='Run COMET score command on the translated FLORES text.')
     parser.add_argument('--cpu', action="store_true", help='Force CPU use.')
-    parser.add_argument('--batch_size', type=int, default=32, help='Max batch size for translation.')
     args = parser.parse_args()
 
     main(args)

@@ -13,6 +13,7 @@ class LlmConfiguration:
     version: int = 1
     llm_model: str = "Unbabel/TowerInstruct-Mistral-7B-v0.2"
     batch_size: int = 1024
+    max_token: int = 512
     device: str = "cuda"
     src_code: str = "en_Latn"
     src_name: str = "Enlish"
