@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import List
 
+
 @dataclass
 class LlmConfiguration:
     experiment_name: str = "default_experiment"
@@ -14,6 +15,7 @@ class LlmConfiguration:
     llm_model: str = "Unbabel/TowerInstruct-Mistral-7B-v0.2"
     batch_size: int = 1024
     max_token: int = 512
+    response_parsing_method: str = "keep_first_line"
     device: str = "cuda"
     src_code: str = "en_Latn"
     src_name: str = "Enlish"

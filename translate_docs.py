@@ -1,21 +1,18 @@
 import argparse
 import logging
 import os
-import torch
-from pathlib import Path
 import time
-import mlflow
+import torch
+from docx import Document
+
 from locomotive_llm.load import load_config
 from locomotive_llm.model import get_pipeline
-from locomotive_llm.utils import log_dataclass
-
-from docx import Document
 
 
 def read_docx(file_path):
     doc = Document(file_path)
-    full_text = []
     return "\n".join([para.text for para in doc.paragraphs])
+
 
 def write_docx(translated_text, output_path):
     doc = Document()
@@ -33,13 +30,16 @@ def write_txt(translated_text, output_path):
     with open(output_path, 'w', encoding='utf-8') as file:
         file.write(translated_text)
 
+
 def clean_text(text, phrase_to_remove):
     return text.replace(phrase_to_remove, '').strip()
+
 
 def batch_texts(texts, batch_size):
     """Divides texts into batches of batch_size."""
     for i in range(0, len(texts), batch_size):
         yield texts[i:i + batch_size]
+
 
 def translate_document(pipeline, text, batch_size, src_lang, tgt_lang):
     # Splitting the text into batches for translation
@@ -65,7 +65,8 @@ def main(params: argparse.Namespace) -> None:
     pipeline = pipeline_class(model_id=config.llm_model,
                               device="cuda" if torch.cuda.is_available() and not params.cpu else "cpu",
                               prompt_file=config.prompt,
-                              batch_size=config.batch_size)
+                              batch_size=config.batch_size,
+                              output_parser=config.response_parsing_method)
 
     input_file = params.input_file
     file_extension = os.path.splitext(input_file)[1].lower()

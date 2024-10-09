@@ -17,23 +17,25 @@ def main(params: argparse.Namespace) -> NoReturn:
     model = pipeline_class(model_id=config.llm_model,
                            device="cuda" if torch.cuda.is_available() and not params.cpu else "cpu",
                            prompt_file=config.prompt,
-                           max_tokens=config.max_token)
+                           max_tokens=config.max_token,
+                            output_parser=config.response_parsing_method)
 
     print("Starting interactive mode")
     if params.manual_selection:
-        # user selection of langs
-        config.src_name = input("Please select your source langage :")
+        # user-defined selection of source and destination languages
+        config.src_name = input("Please select your source language :")
         config.src_code = config.src_name
         print(f"> {config.src_code} selected")
-        config.tgt_name = input("Please select your target langage :")
+        config.tgt_name = input("Please select your target language :")
         config.tgt_code = config.tgt_name
         print(f"> {config.tgt_code} selected")
 
     if params.gui:
+        # Gradio
         translator = get_gui(model, config.llm_model)
         translator.launch()
-
     else:
+        # Command line
         while True:
             try:
                 text = input(f"({config.src_code})> ")
