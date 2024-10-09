@@ -1,11 +1,12 @@
 experiment_name: "TowerInstruct-13B-0.1"
-run_name: "deu_fr_v1_devtest"
+run_name: "deu_fr_v2_devtest"
 use_langchain: True
 use_towerinstruct: True
-version: 1
+version: 2
 llm_model: "Unbabel/TowerInstruct-13B-v0.1"
-prompt: "config/prompts/prompt_v1.yml"
-batch_size: 1024
+prompt: "config/prompts/prompt_v2.yml"
+batch_size: 10
+max_token: 150
 device: "cuda"
 src_code: "deu_Latn"
 src_name: "German"

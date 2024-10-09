@@ -58,7 +58,7 @@ if __name__ == "__main__":
     parser.add_argument('--cpu',
                         action="store_true",
                         help='Force CPU use. Default: %(default)s')
-    parser.add_argument('--gui', action="store_true", help="Enable gradio-powered gui", default=True)
+    parser.add_argument('--gui', action="store_true", help="Enable gradio-powered gui", default=False)
     parser.add_argument('--manual_selection', action='store_true', help="Manual lang selection")
     args = parser.parse_args()
 

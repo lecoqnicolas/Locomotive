@@ -15,11 +15,7 @@ from docx import Document
 def read_docx(file_path):
     doc = Document(file_path)
     full_text = []
-    for para in doc.paragraphs:
-        full_text.append(para.text)
-    text = "\n".join(full_text)
-    logging.debug(f"Read DOCX content: {text}")
-    return text
+    return "\n".join([para.text for para in doc.paragraphs])
 
 def write_docx(translated_text, output_path):
     doc = Document()
@@ -40,11 +36,15 @@ def write_txt(translated_text, output_path):
 def clean_text(text, phrase_to_remove):
     return text.replace(phrase_to_remove, '').strip()
 
+def batch_texts(texts, batch_size):
+    """Divides texts into batches of batch_size."""
+    for i in range(0, len(texts), batch_size):
+        yield texts[i:i + batch_size]
 
 def translate_document(pipeline, text, batch_size, src_lang, tgt_lang):
     # Splitting the text into batches for translation
     lines = [line for line in text.split("\n") if line.strip()]
-    batches = [lines[i:i + batch_size] for i in range(0, len(lines), batch_size)]
+    batches = list(batch_texts(lines, batch_size))
     translated_batches = []
     
     for idx, batch in enumerate(batches):
