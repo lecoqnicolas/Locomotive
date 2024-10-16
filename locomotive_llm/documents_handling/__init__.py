@@ -1,1 +1,0 @@
-from .docxloader import DocxLoader

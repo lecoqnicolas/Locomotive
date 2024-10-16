@@ -9,3 +9,5 @@ data
 *.model
 *.vocab
 *.pt
+mlruns
+mlflow_repository

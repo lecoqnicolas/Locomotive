@@ -3,6 +3,7 @@ from docx import Document
 from langchain_core.document_loaders import BaseLoader
 from langchain_core.documents import Document as LangchainDocument
 
+
 class DocxLoader(BaseLoader):
     def __init__(self, file_path: str):
         self.file_path = file_path

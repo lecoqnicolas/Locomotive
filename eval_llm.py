@@ -6,7 +6,7 @@ from pathlib import Path
 import mlflow
 import torch
 
-from locomotive_llm.eval import evaluate_bleu
+from locomotive_llm.eval import eval_sentences_bleu
 from locomotive_llm.load import load_flores, get_flores_file_path, load_config
 from locomotive_llm.model import get_pipeline
 from locomotive_llm.utils import log_dataclass, comet_eval, CometConfig
@@ -63,7 +63,7 @@ def main(params: argparse.Namespace) -> None:
             valid_translations = [text for text in translated_texts if text]
             if params.bleu:
                 logging.info("Starting BLEU evaluation")
-                bleu_score = evaluate_bleu(valid_translations, tgt_texts)
+                bleu_score = eval_sentences_bleu(valid_translations, tgt_texts)
                 logging.info(f"BLEU score: {bleu_score}")
                 mlflow.log_metric("bleu_score", bleu_score)
 
