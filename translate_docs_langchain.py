@@ -3,16 +3,30 @@ import logging
 import os
 import time
 import torch
+from langchain_community.document_loaders import TextLoader 
 from docx import Document
-
+from locomotive_llm.documents_handling import DocxLoader
 from locomotive_llm.load import load_config
 from locomotive_llm.model import get_pipeline
 
+def read_docx_with_langchain(file_path):
+    """Reads a .docx file using the custom LangChain loader."""
+    loader = DocxLoader(file_path)
+    documents = loader.load()
+    return "\n".join([doc.page_content for doc in documents])
 
-def read_docx(file_path):
-    doc = Document(file_path)
-    return "\n".join([para.text for para in doc.paragraphs])
 
+def read_document_with_langchain(file_path):
+    """Reads .docx or .txt file."""
+    file_extension = os.path.splitext(file_path)[1].lower()
+    if file_extension == ".docx":
+        return read_docx_with_langchain(file_path)
+    elif file_extension == ".txt":
+        loader = TextLoader(file_path)
+        documents = loader.load()
+        return "\n".join([doc.page_content for doc in documents])
+    else:
+        raise ValueError(f"Unsupported file format: {file_extension}")
 
 def write_docx(translated_text, output_path):
     doc = Document()
@@ -20,29 +34,16 @@ def write_docx(translated_text, output_path):
         doc.add_paragraph(paragraph)
     doc.save(output_path)
 
-
-def read_txt(file_path):
-    with open(file_path, 'r', encoding='utf-8') as file:
-        return file.read()
-
-
 def write_txt(translated_text, output_path):
     with open(output_path, 'w', encoding='utf-8') as file:
         file.write(translated_text)
-
-
-def clean_text(text, phrase_to_remove):
-    return text.replace(phrase_to_remove, '').strip()
-
 
 def batch_texts(texts, batch_size):
     """Divides texts into batches of batch_size."""
     for i in range(0, len(texts), batch_size):
         yield texts[i:i + batch_size]
 
-
 def translate_document(pipeline, text, batch_size, src_lang, tgt_lang):
-    # Splitting the text into batches for translation
     lines = [line for line in text.split("\n") if line.strip()]
     batches = list(batch_texts(lines, batch_size))
     translated_batches = []
@@ -57,7 +58,6 @@ def translate_document(pipeline, text, batch_size, src_lang, tgt_lang):
     
     return "\n".join(translated_batches)
 
-
 def main(params: argparse.Namespace) -> None:
     logging.basicConfig(level="DEBUG")
     config = load_config(params.config, params.reverse)
@@ -69,14 +69,12 @@ def main(params: argparse.Namespace) -> None:
                               output_parser=config.response_parsing_method)
 
     input_file = params.input_file
-    file_extension = os.path.splitext(input_file)[1].lower()
     
-    if file_extension == ".docx":
-        text = read_docx(input_file)
-    elif file_extension == ".txt":
-        text = read_txt(input_file)
-    else:
-        logging.error("Unsupported file format. Only .docx and .txt files are supported.")
+    # Use python-docx for .docx files and langchain_community for .txt
+    try:
+        text = read_document_with_langchain(input_file)
+    except ValueError as e:
+        logging.error(str(e))
         exit(1)
 
     # Translate the text
@@ -85,14 +83,14 @@ def main(params: argparse.Namespace) -> None:
     translated_text = translate_document(pipeline, text, config.batch_size, config.src_name, config.tgt_name)
     total_end_time = time.time()
     logging.info(f"Total translation time: {total_end_time - total_start_time:.2f} seconds.")
+    
     output_file = params.output_file
-    if file_extension == ".docx"  :
+    if input_file.endswith(".docx"):
         write_docx(translated_text, output_file)
-    elif file_extension == ".txt":
+    elif input_file.endswith(".txt"):
         write_txt(translated_text, output_file)
 
     logging.info(f"Translation completed. Output saved at {output_file}.")
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Translate a document using TowerLLM model')
