@@ -13,13 +13,6 @@ def read_docx_with_langchain(file_path):
     documents = loader.load()
     return "\n".join([doc.page_content for doc in documents])
 
-
-def read_docx_with_formatting(file_path):
-    doc = DocumentTemplate(file_path)
-    elements = doc.get_content()
-    return elements
-
-
 def read_txt(file_path):
     with open(file_path, 'r', encoding='utf-8') as file:
         return file.read()
@@ -31,12 +24,10 @@ def read_txt_langchain(file_path):
     return "\n".join([doc.page_content for doc in documents])
 
 
-def read_doc(file_path, use_langchain_txt=True, preserve_formatting=False):
+def read_doc(file_path, use_langchain_txt=True):
     """Reads the ground truth document (either .docx or .txt) using appropriate loaders."""
     file_extension = Path(file_path).suffix
     if file_extension == ".docx":
-        if preserve_formatting:
-            return read_docx_with_formatting(file_path)
         return read_docx_with_langchain(file_path)  # Use the custom loader for .docx
     elif file_extension == ".txt":
         if use_langchain_txt:

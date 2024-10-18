@@ -4,22 +4,9 @@ import time
 
 import torch
 
-from locomotive_llm.load import load_config, read_doc
+from locomotive_llm.load import load_config, read_doc, DocumentTemplate
 from locomotive_llm.model import get_pipeline
 from locomotive_llm.save import write_doc
-
-
-def translate_document_with_formatting(pipeline, element_list, src_lang, tgt_lang):
-    translations = []
-    for el in element_list:
-        content = el["content"]
-        if len(content) > 0:
-            print(content)
-            translated_paragraphs = pipeline.transform(content, src_lang, tgt_lang)
-            translations.append(translated_paragraphs)
-        else:
-            translations.append("")
-    return translations
 
 
 def main(params: argparse.Namespace) -> None:
@@ -31,23 +18,34 @@ def main(params: argparse.Namespace) -> None:
                               prompt_file=config.prompt,
                               batch_size=config.batch_size,
                               output_parser=config.response_parsing_method)
-
-    text = read_doc(params.input_file, use_langchain_txt=config.langchain_parsing,
+    if config.preserve_formatting:
+        doc = DocumentTemplate(params.input_file)
+        texts = doc.get_content()
+    else:
+        texts = read_doc(params.input_file, use_langchain_txt=config.langchain_parsing,
                     preserve_formatting=config.preserve_formatting)
 
     # Translate the text
     logging.info("Starting translation of the document.")
     total_start_time = time.time()
     if config.preserve_formatting:
-        translated_text= translate_document_with_formatting(pipeline, text ,config.src_name, config.tgt_name)
+        # translate content per content
+        contents = [el["content"] for el in texts]
+        translated_text = pipeline.transform(contents, config.src_name, config.tgt_name)
+        for i, el in enumerate(texts):
+            el["content"] = translated_text[i]
     else:
-        lines = [line for line in text.split("\n") if line.strip()]
+        # translate line by line
+        lines = [line for line in texts.split("\n") if line.strip()]
         translated_sentences = pipeline.transform(lines, config.src_name, config.tgt_name)
         translated_text = "\n".join(translated_sentences)
 
-
     logging.info(f"Total translation time: {time.time() - total_start_time:.2f} seconds.")
-    write_doc(translated_text, params.output_file, config.preserve_formatting)
+    if config.preserve_formatting:
+        doc.map_translations(texts)
+        doc.save(params.output_file)
+    else:
+        write_doc(translated_text, params.output_file, config.preserve_formatting)
     
     logging.info(f"Translation completed. Output saved at {params.output_file}.")
 

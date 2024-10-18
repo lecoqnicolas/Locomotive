@@ -22,6 +22,8 @@ def eval_text_bleu(translated_text, reference_text):
     bleu = corpus_bleu(translated, reference)
     logging.info(f"BLEU score: {bleu.score}")
     return bleu.score
+
+
 def eval_text_bleu_docs(translated_text, reference_text):
     """
     Evaluate a text line by line using BLEU score
