@@ -11,6 +11,7 @@ class LlmConfiguration:
     prompt: str = "config/prompts/example_prompt.yml"
     use_langchain: bool = True
     use_towerinstruct: bool = True
+    use_context: bool = True
     preserve_formatting: bool= True
     langchain_parsing: bool= False
     version: int = 1
