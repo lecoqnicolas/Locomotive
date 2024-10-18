@@ -18,7 +18,8 @@ def main(params: argparse.Namespace) -> NoReturn:
                            device="cuda" if torch.cuda.is_available() and not params.cpu else "cpu",
                            prompt_file=config.prompt,
                            max_tokens=config.max_token,
-                            output_parser=config.response_parsing_method)
+                            output_parser=config.response_parsing_method, 
+                            use_context= config.use_context)
 
     print("Starting interactive mode")
     if params.manual_selection:

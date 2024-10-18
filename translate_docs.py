@@ -17,7 +17,7 @@ def main(params: argparse.Namespace) -> None:
                               device="cuda" if torch.cuda.is_available() and not params.cpu else "cpu",
                               prompt_file=config.prompt,
                               batch_size=config.batch_size,
-                              output_parser=config.response_parsing_method, prompt_ignore=config.ignore_prompt)
+                              output_parser=config.response_parsing_method, prompt_ignore=config.ignore_prompt, use_context=config.use_context)
     if config.preserve_formatting:
         doc = DocumentTemplate(params.input_file)
         texts = doc.get_content()
