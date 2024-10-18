@@ -1,6 +1,5 @@
 import logging
 from pathlib import Path
-from locomotive_llm.model import get_pipeline, DocumentTemplate
 from docx import Document
 from langchain_community.document_loaders import TextLoader
 
