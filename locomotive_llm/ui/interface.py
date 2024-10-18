@@ -22,7 +22,7 @@ def call_button(pipeline, source, target, text, file):
         text = pipeline.transform([text], source, target)[0]
         path = "cache/output.txt"
         write_doc(text, path)
-    return text, "path"
+    return text, path
 
 
 def get_gui(model, model_name):
