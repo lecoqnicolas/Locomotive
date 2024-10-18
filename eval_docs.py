@@ -21,7 +21,7 @@ def main(params: argparse.Namespace) -> None:
 
     with mlflow.start_run(run_name=f"{params.input_file}_{params.ground_truth}_{params.source}") as run:
         #log_dataclass(config)
-        mlflow.log_param("eval_dataset", params.flores_dataset)
+        mlflow.log_param("eval_dataset", params.ground_truth)
         # Read the source, translated and reference texts
         translated_text = read_doc(params.input_file)
         reference_text = read_doc(params.ground_truth)
