@@ -14,11 +14,9 @@ class DocumentTemplate:
         self._nb_para = len(elements)
 
         for table in self._doc.tables:
-            table_data = []
             for row in table.rows:
-                row_data = [cell.text for cell in row.cells]
-                table_data.append(row_data)
-            elements.append({'type': 'table', 'content': table_data})
+                for cell in row.cells:
+                    elements.append({'type': 'table', 'content': cell.text})
         return elements
 
     def map_translations(self, translations):

@@ -1,4 +1,3 @@
-import logging
 from pathlib import Path
 from docx import Document
 from langchain_community.document_loaders import TextLoader
@@ -11,6 +10,7 @@ def read_docx_with_langchain(file_path):
     loader = DocxLoader(file_path)
     documents = loader.load()
     return "\n".join([doc.page_content for doc in documents])
+
 
 def read_txt(file_path):
     with open(file_path, 'r', encoding='utf-8') as file:
