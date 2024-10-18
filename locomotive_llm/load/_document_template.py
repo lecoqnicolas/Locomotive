@@ -25,10 +25,10 @@ class DocumentTemplate:
                 para.text = translations[i]
 
         for j, table in enumerate(self._doc.tables):
-            for row in table.rows:
-                for cell in row.cells:
+            for k, row in enumerate(table.rows):
+                for l, cell in enumerate(row.cells):
                     if len(translations[self._nb_para+j]) > 0:
-                        cell.text = translations[self._nb_para+j]
+                        cell.text = translations[self._nb_para+j+k+l]
 
     def save(self, file_path):
         self._doc.save(file_path)

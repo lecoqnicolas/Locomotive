@@ -27,6 +27,7 @@ class TowerInstructPipelineLangChain:
 
     def _is_text_valid(self, text: str):
         print("text valid :",text)
+        print(self._prompt_ignore)
         return text not in self._prompt_ignore
 
     def transform(self, texts: list[str], src_lang, tgt_lang):

@@ -17,13 +17,12 @@ def main(params: argparse.Namespace) -> None:
                               device="cuda" if torch.cuda.is_available() and not params.cpu else "cpu",
                               prompt_file=config.prompt,
                               batch_size=config.batch_size,
-                              output_parser=config.response_parsing_method)
+                              output_parser=config.response_parsing_method, prompt_ignore=config.ignore_prompt)
     if config.preserve_formatting:
         doc = DocumentTemplate(params.input_file)
         texts = doc.get_content()
     else:
-        texts = read_doc(params.input_file, use_langchain_txt=config.langchain_parsing,
-                    preserve_formatting=config.preserve_formatting)
+        texts = read_doc(params.input_file, use_langchain_txt=config.langchain_parsing)
 
     # Translate the text
     logging.info("Starting translation of the document.")
@@ -32,8 +31,8 @@ def main(params: argparse.Namespace) -> None:
         # translate content per content
         contents = [el["content"] for el in texts]
         translated_text = pipeline.transform(contents, config.src_name, config.tgt_name)
-        for i, el in enumerate(texts):
-            el["content"] = translated_text[i]
+        #for i, el in enumerate(texts):
+        #    el["content"] = translated_text[i]
     else:
         # translate line by line
         lines = [line for line in texts.split("\n") if line.strip()]
@@ -42,7 +41,7 @@ def main(params: argparse.Namespace) -> None:
 
     logging.info(f"Total translation time: {time.time() - total_start_time:.2f} seconds.")
     if config.preserve_formatting:
-        doc.map_translations(texts)
+        doc.map_translations(translated_text)
         doc.save(params.output_file)
     else:
         write_doc(translated_text, params.output_file, config.preserve_formatting)
