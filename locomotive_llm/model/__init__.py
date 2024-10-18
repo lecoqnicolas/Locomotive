@@ -1,2 +1,3 @@
 from ._tower_instruct_pipeline_langchain import TowerInstructPipelineLangChain
 from ._utils import get_pipeline
+from ._document_template import DocumentTemplate

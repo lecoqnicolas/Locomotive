@@ -26,7 +26,10 @@ class TowerInstructPipelineLangChain:
         return [self._prompt.format(text=text, src_lang=src_lang, tgt_lang=tgt_lang) for text in texts]
 
     def _is_text_valid(self, text):
+        if isinstance(text, list):
+            text = " ".join(text)
         return text not in self._prompt_ignore
+
 
     def transform(self, texts, src_lang, tgt_lang):
         valid_mask = [self._is_text_valid(text) for text in texts]

@@ -11,16 +11,7 @@ def write_docx(translated_text, output_path):
 
 def write_docx_with_formatting(translated_elements, output_path):
     doc = Document()
-
-    for element in translated_elements:
-        if element['type'] == 'paragraph':
-            doc.add_paragraph(element['content'])
-        elif element['type'] == 'table':
-            table = doc.add_table(rows=len(element['content']), cols=len(element['content'][0]))
-            for i, row in enumerate(element['content']):
-                for j, cell_text in enumerate(row):
-                    table.cell(i, j).text = cell_text
-
+    doc.map_translations(translated_elements)
     doc.save(output_path)
 
 

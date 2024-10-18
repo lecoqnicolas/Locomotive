@@ -1,6 +1,6 @@
 import logging
 from pathlib import Path
-
+from locomotive_llm.model import get_pipeline, DocumentTemplate
 from docx import Document
 from langchain_community.document_loaders import TextLoader
 
@@ -15,20 +15,8 @@ def read_docx_with_langchain(file_path):
 
 
 def read_docx_with_formatting(file_path):
-    """Reads a .docx file and preserves the structure (tables, paragraphs, etc.)."""
-    doc = Document(file_path)
-    elements = []
-
-    for para in doc.paragraphs:
-        elements.append({'type': 'paragraph', 'content': para.text})
-
-    for table in doc.tables:
-        table_data = []
-        for row in table.rows:
-            row_data = [cell.text for cell in row.cells]
-            table_data.append(row_data)
-        elements.append({'type': 'table', 'content': table_data})
-
+    doc = DocumentTemplate(file_path)
+    elements = doc.get_content()
     return elements
 
 
@@ -43,7 +31,7 @@ def read_txt_langchain(file_path):
     return "\n".join([doc.page_content for doc in documents])
 
 
-def read_doc(file_path, use_langchain_txt=False, preserve_formatting=True):
+def read_doc(file_path, use_langchain_txt=True, preserve_formatting=False):
     """Reads the ground truth document (either .docx or .txt) using appropriate loaders."""
     file_extension = Path(file_path).suffix
     if file_extension == ".docx":

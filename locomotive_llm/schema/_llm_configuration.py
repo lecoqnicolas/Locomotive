@@ -11,6 +11,8 @@ class LlmConfiguration:
     prompt: str = "config/prompts/example_prompt.yml"
     use_langchain: bool = True
     use_towerinstruct: bool = True
+    preserve_formatting: bool= True
+    langchain_parsing: bool= False
     version: int = 1
     llm_model: str = "Unbabel/TowerInstruct-Mistral-7B-v0.2"
     batch_size: int = 1024
