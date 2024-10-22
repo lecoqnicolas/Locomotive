@@ -7,7 +7,7 @@ from ..postprocess import get_output_parsing_method
 
 class TowerInstructPipelineLangChain:
     def __init__(self, model_id="Unbabel/TowerInstruct-Mistral-7B-v0.2", device="cuda", max_tokens=512, prompt_file=None,
-                 prompt_ignore: list = None, batch_size: int = 50, output_parser: str = "keep_first_line", use_context: bool = False):
+                 prompt_ignore: list = None, batch_size: int = 50, output_parser: str = "json", use_context: bool = False, separateur_context: str = ' '):
         self._id = model_id
         self._device = device
         self._max_tokens = max_tokens
@@ -22,66 +22,54 @@ class TowerInstructPipelineLangChain:
         self._prompt_ignore = set(prompt_ignore) if prompt_ignore is not None else {}
         self._output_parser = get_output_parsing_method(output_parser)
         self.use_context = use_context
+        self._separateur_context = separateur_context
 
-    def _create_prompt(self, texts, prev_contexts, src_lang, tgt_lang):
+    def _create_prompt_with_contexte(self, texts, src_lang, tgt_lang, prev_contexts=None):
         prompts = []
         for text, context in zip(texts, prev_contexts):
-
-            full_text = " ".join(context + [text])
-            prompt = self._prompt.format(text=full_text, src_lang=src_lang, tgt_lang=tgt_lang)
+            full_contexte = self._separateur_context.join(context)
+            prompt = self._prompt.format(text=text, src_lang=src_lang, tgt_lang=tgt_lang, context=full_contexte)
             prompts.append(prompt)
         return prompts
+
+    def _create_prompt(self, texts, src_lang, tgt_lang):
+        return [self._prompt.format(text=text, src_lang=src_lang, tgt_lang=tgt_lang) for text in texts]
 
     def _is_text_valid(self, text: str):
         return text not in self._prompt_ignore
 
+    def _process_pipeline(self, prompts):
+        if prompts:
+            return self._hf_pipeline(prompts, max_new_tokens=self._max_tokens, do_sample=False)
+        return []
+
+    def _get_results(self, valid_mask, prompts, outputs):
+        results = []
+        output_idx = 0
+        for is_valid in valid_mask:
+            if is_valid:
+                if output_idx < len(outputs) and "generated_text" in outputs[output_idx][0]:
+                    cleaned_output = self._output_parser(outputs[output_idx][0]["generated_text"], prompts[output_idx])
+                else:
+                    cleaned_output = ""
+                output_idx += 1
+            else:
+                cleaned_output = ""
+            results.append(cleaned_output)
+        return results
+
     def transform(self, texts: list[str], src_lang, tgt_lang, prev_contexts: list[list[str]] = None):
+        valid_mask = [self._is_text_valid(text) for text in texts]
+        valid_texts = [text for text in texts if self._is_text_valid(text)]
+
         if self.use_context:
             if prev_contexts is None:
                 prev_contexts = [[] for _ in texts]
-            
-            valid_mask = [self._is_text_valid(text) for text in texts]
-            valid_texts = [text for text in texts if self._is_text_valid(text)]
             valid_prev_contexts = [prev_context for idx, prev_context in enumerate(prev_contexts) if valid_mask[idx]]
-            if valid_texts:
-                prompts = self._create_prompt(valid_texts, valid_prev_contexts, src_lang, tgt_lang)
-                outputs = self._hf_pipeline(prompts, max_new_tokens=self._max_tokens, do_sample=False)
-            else:
-                outputs = []
-                prompts = []
-            results = []
-            output_idx = 0
-            for is_valid in valid_mask:
-                if is_valid:
-                    if output_idx < len(outputs) and "generated_text" in outputs[output_idx][0]:
-                        cleaned_output = self._output_parser(outputs[output_idx][0]["generated_text"], prompts[output_idx])
-                    else:
-                        cleaned_output = ""
-                    output_idx += 1
-                else:
-                    cleaned_output = ""
-                results.append(cleaned_output)
+            prompts = self._create_prompt_with_contexte(valid_texts, src_lang, tgt_lang, valid_prev_contexts)
         else:
-            valid_mask = [self._is_text_valid(text) for text in texts]
-            valid_texts = [text for text in texts if self._is_text_valid(text)]
-            if valid_texts:
-                prompts = self._create_prompt(valid_texts, [[] for _ in valid_texts], src_lang, tgt_lang)  # Pas de contexte
-                outputs = self._hf_pipeline(prompts, max_new_tokens=self._max_tokens, do_sample=False)
-            else:
-                outputs = []
-                prompts = []
+            prompts = self._create_prompt(valid_texts, src_lang, tgt_lang)
 
-            results = []
-            output_idx = 0
-            for is_valid in valid_mask:
-                if is_valid:
-                    if output_idx < len(outputs) and "generated_text" in outputs[output_idx][0]:
-                        cleaned_output = self._output_parser(outputs[output_idx][0]["generated_text"], prompts[output_idx])
-                    else:
-                        cleaned_output = ""
-                    output_idx += 1
-                else:
-                    cleaned_output = ""
-                results.append(cleaned_output)
-        
+        outputs = self._process_pipeline(prompts)
+        results = self._get_results(valid_mask, prompts, outputs)
         return results

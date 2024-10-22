@@ -28,8 +28,6 @@ class DocumentTemplate:
         for table in self._doc.tables:
             for row in table.rows:
                 for cell in row.cells:
-                    if "des marches de l’escalier en bois" in translations[element_count]:
-                        print("here")
                     if len(translations[element_count]) > 0:
                         cell.text = translations[element_count]
                     element_count += 1

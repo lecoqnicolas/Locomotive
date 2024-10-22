@@ -12,6 +12,7 @@ class LlmConfiguration:
     use_langchain: bool = True
     use_towerinstruct: bool = True
     use_context: bool = True
+    separateur_context: str= ' '
     preserve_formatting: bool= True
     langchain_parsing: bool= False
     version: int = 1

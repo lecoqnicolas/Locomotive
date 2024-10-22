@@ -17,24 +17,12 @@ def eval_text_bleu(translated_text, reference_text):
     """
     Evaluate a text line by line using bleu score
     """
-    reference = [reference_text.split("\n")]
+    reference = [[ref] for ref in reference_text.split("\n")]
     translated = translated_text.split("\n")
     bleu = corpus_bleu(translated, reference)
+    print(reference)
+    print(translated)
     logging.info(f"BLEU score: {bleu.score}")
     return bleu.score
 
-
-def eval_text_bleu_docs(translated_text, reference_text):
-    """
-    Evaluate a text line by line using BLEU score
-    """
-    if isinstance(reference_text, list) and isinstance(translated_text, list):
-        reference = [[ref] for ref in reference_text]
-        translated = translated_text
-    else:
-        reference = [[ref] for ref in reference_text.split("\n") if ref.strip()] 
-        translated = [line for line in translated_text.split("\n") if line.strip()]
-    bleu = corpus_bleu(translated, reference)
-    logging.info(f"BLEU score: {bleu.score}")
-    return bleu.score
 

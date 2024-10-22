@@ -1,6 +1,6 @@
 from pathlib import Path
 from docx import Document
-from langchain_community.document_loaders import TextLoader
+from langchain_community.document_loaders import TextLoader, PyPDFLoader
 
 from ._docxloader import DocxLoader
 
@@ -22,12 +22,20 @@ def read_txt_langchain(file_path):
     documents = loader.load()
     return "\n".join([doc.page_content for doc in documents])
 
+def read_pdf_with_langchain(file_path):
+    """Reads a .pdf file using the PyPDFLoader"""
+    loader = PyPDFLoader(file_path)
+    documents = loader.load()
+    return "\n".join([doc.page_content for doc in documents])
+
 
 def read_doc(file_path, use_langchain_txt=True):
-    """Reads the ground truth document (either .docx or .txt) using appropriate loaders."""
+    """Reads the ground truth document (either .docx or .txt or .pdf) using appropriate loaders."""
     file_extension = Path(file_path).suffix
     if file_extension == ".docx":
         return read_docx_with_langchain(file_path)  # Use the custom loader for .docx
+    elif file_extension == '.pdf':
+        return read_pdf_with_langchain(file_path)
     elif file_extension == ".txt":
         if use_langchain_txt:
             return read_txt_langchain(file_path)
@@ -35,4 +43,4 @@ def read_doc(file_path, use_langchain_txt=True):
             return read_txt(file_path)  # Use the standard function for .txt
     else:
         raise NotImplementedError(f"Unsupported file format {file_extension} for file {file_path}, "
-                                  f"Only .docx and .txt files are supported.")
+                                  f"Only .docx and .txt and .pdf files are supported.")
