@@ -6,8 +6,9 @@ from ..postprocess import get_output_parsing_method
 
 
 class TowerInstructPipelineLangChain:
-    def __init__(self, model_id="Unbabel/TowerInstruct-Mistral-7B-v0.2", device="cuda", max_tokens=512, prompt_file=None,
-                 prompt_ignore: list = None, batch_size: int = 50, output_parser: str = "json", use_context: bool = False, separateur_context: str = ' '):
+    def __init__(self, model_id="Unbabel/TowerInstruct-Mistral-7B-v0.2", device="cuda", max_tokens=512,
+                 prompt_file=None, prompt_ignore: list = None, batch_size: int = 50, output_parser: str = "json",
+                 use_context: bool = False, separateur_context: str = ' ', context_window=0):
         self._id = model_id
         self._device = device
         self._max_tokens = max_tokens
@@ -21,14 +22,14 @@ class TowerInstructPipelineLangChain:
         self._prompt = load_prompt(prompt_file)
         self._prompt_ignore = set(prompt_ignore) if prompt_ignore is not None else {}
         self._output_parser = get_output_parsing_method(output_parser)
-        self.use_context = use_context
+        self._use_context = use_context
         self._separateur_context = separateur_context
+        self._context_window = context_window
 
     def _create_prompt_with_contexte(self, texts, src_lang, tgt_lang, prev_contexts=None):
         prompts = []
         for text, context in zip(texts, prev_contexts):
-            full_contexte = self._separateur_context.join(context)
-            prompt = self._prompt.format(text=text, src_lang=src_lang, tgt_lang=tgt_lang, context=full_contexte)
+            prompt = self._prompt.format(text=text, src_lang=src_lang, tgt_lang=tgt_lang, context=context)
             prompts.append(prompt)
         return prompts
 
@@ -58,18 +59,23 @@ class TowerInstructPipelineLangChain:
             results.append(cleaned_output)
         return results
 
-    def transform(self, texts: list[str], src_lang, tgt_lang, prev_contexts: list[list[str]] = None):
+    def transform(self, texts: list[str], src_lang, tgt_lang, prev_contexts: list[str] = None):
         valid_mask = [self._is_text_valid(text) for text in texts]
         valid_texts = [text for text in texts if self._is_text_valid(text)]
 
-        if self.use_context:
+        if self._use_context:
+            # context-assisted translation
             if prev_contexts is None:
-                prev_contexts = [[] for _ in texts]
+                # if no context was provided, create one based on previous sentences received
+                prev_contexts = [texts[i-self._context_window:i] for i in range(len(texts))]
+                # merge the sentences over context_window for each context
+                prev_contexts = [self._separateur_context.join(context) if len(context) else ""
+                                 for context in prev_contexts]
             valid_prev_contexts = [prev_context for idx, prev_context in enumerate(prev_contexts) if valid_mask[idx]]
             prompts = self._create_prompt_with_contexte(valid_texts, src_lang, tgt_lang, valid_prev_contexts)
         else:
+            # basic translation
             prompts = self._create_prompt(valid_texts, src_lang, tgt_lang)
 
         outputs = self._process_pipeline(prompts)
-        results = self._get_results(valid_mask, prompts, outputs)
-        return results
+        return self._get_results(valid_mask, prompts, outputs)

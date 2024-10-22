@@ -1,11 +1,14 @@
 from ..schema import LlmConfiguration
 from ._tower_instruct_pipeline_langchain import TowerInstructPipelineLangChain
+from ._fake_pipeline import FakePipeline
+import logging
 
 
 def get_pipeline(config: LlmConfiguration):
     # load model
-    if config.use_towerinstruct and config.use_langchain:
-        pipeline_class = TowerInstructPipelineLangChain
+    if config.pipeline == "fake":
+        logging.info("Using fake pipeline")
+        pipeline_class = FakePipeline
     else:
-        raise NotImplementedError("Not pipeline found for config")
+        pipeline_class = TowerInstructPipelineLangChain
     return pipeline_class

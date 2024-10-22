@@ -9,10 +9,10 @@ class LlmConfiguration:
     git_commit: str = None
     mlflow_repository: str = "mlflow_repository"
     prompt: str = "config/prompts/example_prompt.yml"
-    use_langchain: bool = True
-    use_towerinstruct: bool = True
+    pipeline: str = "tower_instruct"
     use_context: bool = True
-    separateur_context: str= ' '
+    separateur_context: str = ' '
+    context_window: int = 2
     preserve_formatting: bool= True
     langchain_parsing: bool= False
     version: int = 1

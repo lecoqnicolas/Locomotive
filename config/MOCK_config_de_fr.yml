@@ -1,6 +1,6 @@
 experiment_name: "TowerInstruct-13B-0.1"
 run_name: "deu_fr_v2_devtest"
-pipeline: "instruct_langchain"
+pipeline: "fake"
 version: 2
 llm_model: "Unbabel/TowerInstruct-13B-v0.1"
 prompt: "config/prompts/prompt_v2.yml"

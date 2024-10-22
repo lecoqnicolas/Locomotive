@@ -1,6 +1,6 @@
 from docx import Document
 from pathlib import Path
-from fpdf import FPDF
+#from fpdf import FPDF
 
 def write_docx(translated_text, output_path):
     doc = Document()
@@ -21,7 +21,7 @@ def write_txt(translated_text, output_path):
 
 
 def write_pdf(translated_text, output_path):
-    pdf = FPDF()
+    pdf = None #FPDF()
     pdf.set_auto_page_break(auto=True, margin=15)
     pdf.add_page()
     pdf.set_font("Arial", size=12)
