@@ -1,6 +1,6 @@
 from docx import Document
 from pathlib import Path
-#from fpdf import FPDF
+from fpdf import FPDF
 
 def write_docx(translated_text, output_path):
     doc = Document()
@@ -21,7 +21,7 @@ def write_txt(translated_text, output_path):
 
 
 def write_pdf(translated_text, output_path):
-    pdf = None #FPDF()
+    pdf = FPDF()
     pdf.set_auto_page_break(auto=True, margin=15)
     pdf.add_page()
     pdf.set_font("Arial", size=12)
@@ -45,4 +45,5 @@ def write_doc(translated_text, output_file, output_format=None, preserve_formatt
     elif output_format == ".pdf":
         write_pdf(translated_text, output_file)
     else:
-        raise NotImplementedError(f"Unsupported output format: {output_format}. Only .docx, .txt, and .pdf are supported.")
+        raise NotImplementedError(f"Unsupported output format: {output_format}. "
+                                  f"Only .docx, .txt, and .pdf are supported.")
