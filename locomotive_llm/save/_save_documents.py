@@ -31,7 +31,6 @@ def write_pdf(translated_text, output_path):
 
     pdf.output(output_path)
 
-
 def write_doc(translated_text, output_file, output_format=None, preserve_formatting=False):
     if output_format is None:
         output_format = Path(output_file).suffix

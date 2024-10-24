@@ -6,11 +6,11 @@ import mlflow
 import torch
 
 from locomotive_llm.eval import eval_text_bleu, eval_text_comet
-from locomotive_llm.load import load_config, read_doc, DocumentTemplate
+from locomotive_llm.load import load_config, read_doc, DocumentTemplate, PDFDocumentTemplate
 from locomotive_llm.model import get_pipeline
 from locomotive_llm.save import write_doc
 from locomotive_llm.utils import log_dataclass
-
+from pathlib import Path
 
 def main(params: argparse.Namespace) -> None:
     logging.basicConfig(level="DEBUG")
@@ -23,10 +23,16 @@ def main(params: argparse.Namespace) -> None:
                               output_parser=config.response_parsing_method, prompt_ignore=config.ignore_prompt,
                               use_context=config.use_context, separateur_context=config.separateur_context,
                               context_window=config.context_window)
+    file_extension = Path(params.input_file).suffix
     if config.preserve_formatting:
-        doc = DocumentTemplate(params.input_file)
-        texts = doc.get_content()
-        lines = [el["content"] for el in texts]
+        if file_extension ==".docx":
+            doc = DocumentTemplate(params.input_file)
+            texts = doc.get_content()
+            lines = [el["content"] for el in texts]
+        elif file_extension =='.pdf':
+            pdf_doc = PDFDocumentTemplate(params.input_file)
+            elements = pdf_doc.get_content()
+            lines = [el['content'] for el in elements]
     else:
         texts = read_doc(params.input_file, use_langchain_txt=config.langchain_parsing)
         lines = [line for line in texts.split("\n") if line.strip()]
@@ -49,8 +55,12 @@ def main(params: argparse.Namespace) -> None:
         logging.info(f"Total translation time: {time.time() - total_start_time:.2f} seconds.")
         if params.output_file is not None:
             if config.preserve_formatting:
-                doc.map_translations(translated_sentences)
-                doc.save(params.output_file)
+                if file_extension ==".docx":
+                    doc.map_translations(translated_sentences)
+                    doc.save(params.output_file)
+                elif file_extension =='.pdf':
+                    pdf_doc.map_translations(translated_sentences)
+                    pdf_doc.save(params.output_file)
             else:
                 write_doc(translated_text, params.output_file, preserve_formatting=config.preserve_formatting)
 
