@@ -10,7 +10,7 @@ TARGET_LANGUAGES = ["English", "German", "French", "Spanish", "Chinese", "Portug
 
 def call_button(pipeline, source, target, text, file):
     if file is not None:
-        doc = DocumentTemplate(file)
+        doc = DocumentTemplate(file.name)
         texts = doc.get_content()
         contents = [el["content"] for el in texts]
         translated_text = pipeline.transform(contents, source, target)
@@ -32,7 +32,7 @@ def get_gui(model, model_name):
                                 gr.Textbox(
                                     label=f"Text to translate",
                                     placeholder="Text to translate"
-                                ), gr.UploadButton("Click here to uploade a document")],
+                                ), gr.File(label="Upload a document")],
                         outputs=[gr.Textbox(label=f"Translation :"), gr.DownloadButton("Download translation")],
                         title=f"Model {model_name} : multilingual translation"
                         )

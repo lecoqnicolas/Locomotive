@@ -15,11 +15,13 @@ def main(params: argparse.Namespace) -> NoReturn:
     config = load_config(params.config, params.reverse)
     pipeline_class = get_pipeline(config)
     model = pipeline_class(model_id=config.llm_model,
-                           device="cuda" if torch.cuda.is_available() and not params.cpu else "cpu",
-                           prompt_file=config.prompt,
-                           max_tokens=config.max_token,
-                            output_parser=config.response_parsing_method, 
-                            use_context= config.use_context)
+                              device="cuda" if torch.cuda.is_available() and not params.cpu else "cpu",
+                              prompt_file=config.prompt,
+                              batch_size=config.batch_size,
+                              output_parser=config.response_parsing_method, prompt_ignore=config.ignore_prompt,
+                              use_context=config.use_context, separateur_context=config.separateur_context,
+                              context_window=config.context_window)
+
 
     print("Starting interactive mode")
     if params.manual_selection:
@@ -53,7 +55,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Evaluate TowerLLM model')
     parser.add_argument('--config',
                         type=str,
-                        default="config/config_en_fr.yml",
+                        default="config/config_de_fr_mistral_document.yml",
                         help='Path to model-config.json. Default: %(default)s')
     parser.add_argument('--reverse',
                         action='store_true',
