@@ -47,7 +47,7 @@ def main(params: argparse.Namespace) -> None:
         doc.map_translations(translated_text)
         doc.save(params.output_file)
     else:
-        write_doc(translated_text, params.output_file, config.preserve_formatting)
+        write_doc(translated_text, params.output_file, preserve_formatting=config.preserve_formatting)
     
     logging.info(f"Translation completed. Output saved at {params.output_file}.")
 

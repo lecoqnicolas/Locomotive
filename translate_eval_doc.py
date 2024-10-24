@@ -62,7 +62,7 @@ def main(params: argparse.Namespace) -> None:
                     pdf_doc.map_translations(translated_sentences)
                     pdf_doc.save(params.output_file)
             else:
-                write_doc(translated_text, params.output_file, config.preserve_formatting)
+                write_doc(translated_text, params.output_file, preserve_formatting=config.preserve_formatting)
 
         logging.info(f"Translation completed. Output saved at {params.output_file}.")
         # Calculate BLEU score

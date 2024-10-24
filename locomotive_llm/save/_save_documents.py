@@ -44,4 +44,5 @@ def write_doc(translated_text, output_file, output_format=None, preserve_formatt
     elif output_format == ".pdf":
         write_pdf(translated_text, output_file)
     else:
-        raise NotImplementedError(f"Unsupported output format: {output_format}. Only .docx, .txt, and .pdf are supported.")
+        raise NotImplementedError(f"Unsupported output format: {output_format}. "
+                                  f"Only .docx, .txt, and .pdf are supported.")
