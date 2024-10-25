@@ -1,16 +1,20 @@
+import os
+from pathlib import Path
 
+import numpy as np
 import torch
+import triton_python_backend_utils as pb_utils
 
 from locomotive_llm.load import load_config
 from locomotive_llm.model import get_pipeline
 
-import numpy as np
-import triton_python_backend_utils as pb_utils
-
 
 class TritonPythonModel:
     def initialize(self, args):
-        self._config = load_config("config.yaml")
+        file_path = os.path.realpath(__file__)
+        self._file_dir = Path(os.sep.join(file_path.split(os.sep)[:-1]))
+        self._configuration_path = self._file_dir / "config.yaml"
+        self._config = load_config(self._configuration_path)
         pipeline_class = get_pipeline(self._config)
         self._model = pipeline_class(model_id=self._config.llm_model,
                                device="cuda" if torch.cuda.is_available() else "cpu",

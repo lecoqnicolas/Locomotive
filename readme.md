@@ -173,3 +173,16 @@
     # in another terminal test our python model
     cd python_backend
     python3 examples/add_sub/client.py
+
+## Packaging an env
+Create a new env, 
+  - export PYTHONNOUSERSITE=True
+  - # create the env following above method
+  - # test it
+  - conda-pack
+  - cp traduction_env.tar.gz /models/sentence_trad/traduction_env.tar.gz
+  - /models/sentence_trad/traduction_env
+  - tar -xvf /models/sentence_trad/traduction_env.tar.gz -C /models/sentence_trad/traduction_env
+
+  - for langchain, emacs /models/sentence_trad/traduction_env/lib/python3.10/site-packages/pydantic/_internal/_typing_extra.py
+    - et ajouter typeerror en exception a la method eval lenient

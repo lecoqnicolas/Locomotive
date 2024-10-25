@@ -49,8 +49,8 @@ def main():
         ),
     ]
     input_tensors[0].set_data_from_numpy(text_obj)
-    input_tensors[1].set_data_from_numpy(["English"])
-    input_tensors[2].set_data_from_numpy(["French"])
+    input_tensors[1].set_data_from_numpy(np.array(["English"], dtype="object"))
+    input_tensors[2].set_data_from_numpy(np.array(["French"], dtype="object"))
 
     # Set outputs
     output = [
