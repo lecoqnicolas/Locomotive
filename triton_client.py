@@ -36,6 +36,8 @@ def main():
     
     # Inputs
     prompts = ["Hello world"]
+    print(f"Sentence to translate :")
+    print(f"{prompts[0]}")
     text_obj = np.array([prompts], dtype="object")
 
     # Set Inputs
@@ -63,7 +65,8 @@ def main():
     query_response = client.infer(
         model_name="sentence_trad", inputs=input_tensors, outputs=output
     )
-    print(query_response)
+    #print(query_response)
+    print("Triton server answer :") 
     print(str(query_response.as_numpy("translation")[0].decode('UTF-8')))
     #print(str(query_response.as_numpy("translation")[0]))
     
