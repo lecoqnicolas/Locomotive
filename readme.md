@@ -179,10 +179,11 @@ Create a new env,
   - export PYTHONNOUSERSITE=True
   - # create the env following above method
   - # test it
+  - conda install -c conda-forge libstdcxx-ng=12 -y
   - conda-pack
   - cp traduction_env.tar.gz /models/sentence_trad/traduction_env.tar.gz
   - /models/sentence_trad/traduction_env
   - tar -xvf /models/sentence_trad/traduction_env.tar.gz -C /models/sentence_trad/traduction_env
-
+  
   - for langchain, emacs /models/sentence_trad/traduction_env/lib/python3.10/site-packages/pydantic/_internal/_typing_extra.py
     - et ajouter typeerror en exception a la method eval lenient

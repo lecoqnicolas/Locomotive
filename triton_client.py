@@ -29,9 +29,20 @@ import tritonclient.grpc as tclient
 from tritonclient.utils import np_to_triton_dtype
 
 
+def async_callback(result, error):
+    #print(query_response)
+    if error is not None:
+        print(f"Error reception from server : {str(error)}")
+    if result is not None:
+        print("Triton server answer :")
+        print(str(result.as_numpy("translation")[0].decode('UTF-8')))
+    #print(str(query_response.as_numpy("translation")[0]))
+
+
 def main():
-    
+    # to test the http protocol
     #client = tclient.InferenceServerClient(url="localhost:8000")
+    # grpc url should be prefered
     client = tclient.InferenceServerClient(url="localhost:8001")
     
     # Inputs
@@ -62,13 +73,11 @@ def main():
     ]
 
     # Query
-    query_response = client.infer(
-        model_name="sentence_trad", inputs=input_tensors, outputs=output
+    client.async_infer(
+        model_name="sentence_trad", inputs=input_tensors, outputs=output, callback=async_callback
     )
-    #print(query_response)
-    print("Triton server answer :") 
-    print(str(query_response.as_numpy("translation")[0].decode('UTF-8')))
-    #print(str(query_response.as_numpy("translation")[0]))
+
+
     
 
 
