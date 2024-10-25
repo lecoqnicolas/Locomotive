@@ -1,4 +1,16 @@
-sudo apt update
+## Installation
+- Tested with cuda 12.4.1 on debian 12.
+- Conda installation :
+ 
+    conda env create -f conda.yaml
+    conda activate traduction_env
+
+## Deployement
+
+### Installation triton :
+- For debian 12 (no docker install) :
+
+    sudo apt update
     sudo apt-get install linux-headers-`uname -r`
     sudo update-grub
     sudo apt-get install git

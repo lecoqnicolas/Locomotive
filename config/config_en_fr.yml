@@ -11,3 +11,4 @@ src_code: "eng_Latn"
 src_name: "English"
 tgt_code: "fra_Latn"
 tgt_name: "French"
+ignore_prompt: ["", " ", "\n", " \n"]
