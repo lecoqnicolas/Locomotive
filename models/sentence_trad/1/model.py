@@ -1,12 +1,13 @@
+
+import torch
 import os
 from pathlib import Path
 
-import numpy as np
-import torch
-import triton_python_backend_utils as pb_utils
-
 from locomotive_llm.load import load_config
 from locomotive_llm.model import get_pipeline
+
+import numpy as np
+import triton_python_backend_utils as pb_utils
 
 
 class TritonPythonModel:
@@ -33,13 +34,13 @@ class TritonPythonModel:
             print(text_tensor.as_numpy(), flush=True)
             print(src_name.as_numpy(), flush=True)
             print(tgt_name.as_numpy(), flush=True)
-            translated_text = self._model.transform(text_tensor.as_numpy()[0], src_name.as_numpy[0], tgt_name.as_numpy[0])
-
+            translated_text = self._model.transform([text.decode("UTF-8") for text in text_tensor.as_numpy()[0]], src_name.as_numpy()[0][0].decode("UTF-8"), tgt_name.as_numpy()[0][0].decode("UTF-8"))
+            print(translated_text, flush=True)
             inference_response = pb_utils.InferenceResponse(
                 output_tensors=[
                     pb_utils.Tensor(
                         "translation",
-                        np.array(translated_text),
+                        np.array(translated_text, dtype="object"),
                     )
                 ]
             )

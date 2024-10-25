@@ -25,44 +25,48 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import numpy as np
-import tritonclient.http as httpclient
+import tritonclient.grpc as tclient
 from tritonclient.utils import np_to_triton_dtype
 
 
 def main():
-    client = httpclient.InferenceServerClient(url="localhost:8000")
-
+    
+    #client = tclient.InferenceServerClient(url="localhost:8000")
+    client = tclient.InferenceServerClient(url="localhost:8001")
+    
     # Inputs
-    prompts = ["This is a string"]
+    prompts = ["Hello world"]
     text_obj = np.array([prompts], dtype="object")
 
     # Set Inputs
     input_tensors = [
-        httpclient.InferInput(
+        tclient.InferInput(
             "text_to_translate", text_obj.shape, np_to_triton_dtype(text_obj.dtype)
         ),
-        httpclient.InferInput(
+        tclient.InferInput(
             "src_name", text_obj.shape, np_to_triton_dtype(text_obj.dtype)
         ),
-        httpclient.InferInput(
+        tclient.InferInput(
             "tgt_name", text_obj.shape, np_to_triton_dtype(text_obj.dtype)
         ),
     ]
     input_tensors[0].set_data_from_numpy(text_obj)
-    input_tensors[1].set_data_from_numpy(np.array(["English"], dtype="object"))
-    input_tensors[2].set_data_from_numpy(np.array(["French"], dtype="object"))
+    input_tensors[1].set_data_from_numpy(np.array([["English"]], dtype="object"))
+    input_tensors[2].set_data_from_numpy(np.array([["French"]], dtype="object"))
 
     # Set outputs
     output = [
-        httpclient.InferRequestedOutput("translation")
+        tclient.InferRequestedOutput("translation")
     ]
 
     # Query
     query_response = client.infer(
-        model_name="model_template", inputs=input_tensors, outputs=output
+        model_name="sentence_trad", inputs=input_tensors, outputs=output
     )
-
-    print(query_response.as_numpy("template_output_string"))
+    print(query_response)
+    print(str(query_response.as_numpy("translation")[0].decode('UTF-8')))
+    #print(str(query_response.as_numpy("translation")[0]))
+    
 
 
 if __name__ == "__main__":
