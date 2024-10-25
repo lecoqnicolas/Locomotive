@@ -1,4 +1,16 @@
-sudo apt update
+## Installation
+- Tested with cuda 12.4.1 on debian 12.
+- Conda installation :
+ 
+    conda env create -f conda.yaml
+    conda activate traduction_env
+
+## Deployement
+
+### Installation triton :
+- For debian 12 (no docker install) :
+
+    sudo apt update
     sudo apt-get install linux-headers-`uname -r`
     sudo update-grub
     sudo apt-get install git
@@ -47,6 +59,7 @@ sudo apt update
     python3.10 -m pip install onnx_graphsurgeon-0.5.0-py2.py3-none-any.whl
     # verify it works with compiling sample_onxx then running in ~/TensorRT-10.0.1.6/ : ./bin/sample_onnx_mnist
     #
+    cd
     git clone https://github.com/triton-inference-server/server.git
     cd server
     # to work with cuda 12.4.1 (https://docs.nvidia.com/deeplearning/triton-inference-server/archives/triton-inference-server-2470/release-notes/rel-24-05.html)
@@ -93,9 +106,8 @@ sudo apt update
     # cmake --version check version
     # server build
     cd ../server/
-    # TEST
+    # TEST libz2, libsql3, tk et libxml dev
     sudo apt install libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev curl libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
-    cd python_backend
     # the two exports may not be necessary
     export TRITON_SERVER_VERSION=24.05
     export NVIDIA_TRITON_SERVER_VERSION=2.46.0
@@ -108,6 +120,7 @@ sudo apt update
     sudo dpkg -i cuda-keyring_1.1-1_all.deb
     sudo apt-get update
     sudo apt-get install -y datacenter-gpu-manager
+    # TODO : add to bashrc
     export LD_LIBRARY_PATH="/usr/local/cuda-12/lib64:$LD_LIBRARY_PATH"
     export PATH="/usr/local/cuda-12/bin:$PATH"
     export CUDA_HOME=/usr/local/cuda-12
@@ -142,7 +155,7 @@ sudo apt update
     cd ..
     git clone https://github.com/triton-inference-server/python_backend -b r24.05
     mkdir build
-    # IMPORTANT : remove -WERROR on the two folowwing lines
+    # IMPORTANT : remove -WError on the two folowing lines
     # ./CMakeLists.txt:258:    -Wall -Wextra -Wno-unused-parameter -Wno-type-limits -Werror>
     # ./CMakeLists.txt:266:    -fvisibility=hidden -Wall -Wextra -Wno-unused-parameter -Wno-type-limits -Werror>
     cd build

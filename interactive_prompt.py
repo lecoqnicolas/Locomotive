@@ -55,7 +55,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Evaluate TowerLLM model')
     parser.add_argument('--config',
                         type=str,
-                        default="config/config_de_fr_mistral_document.yml",
+                        default="config/config_en_fr.yml",
                         help='Path to model-config.json. Default: %(default)s')
     parser.add_argument('--reverse',
                         action='store_true',
