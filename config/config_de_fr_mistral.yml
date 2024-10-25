@@ -1,0 +1,15 @@
+experiment_name: "InstructMistral0.2"
+run_name: "deu_fr_corrected_bleu"
+use_context: True
+separateur_context: "\n"
+version: 1
+llm_model: "Unbabel/TowerInstruct-Mistral-7B-v0.2"
+prompt: "config/prompts/prompt_v1.yml"
+batch_size: 100
+max_token: 150
+device: "cuda"
+src_code: "deu_Latn"
+src_name: "German"
+tgt_code: "fra_Latn"
+tgt_name: "French"
+ignore_prompt: ["\n", "", " "]
