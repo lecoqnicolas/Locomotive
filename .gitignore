@@ -11,3 +11,5 @@ data
 *.pt
 mlruns
 mlflow_repository
+*.tar.gz
+*.tar
