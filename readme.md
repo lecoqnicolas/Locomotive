@@ -152,8 +152,9 @@
     cp -r /home/debian/server/build/tritonserver/install/include/triton/core /opt/tritonserver/include/triton/core
     cp /home/debian/server/LICENSE /opt/tritonserver
     cp /home/debian/server/TRITON_VERSION /opt/tritonserver
-    cd ..
+    cd 
     git clone https://github.com/triton-inference-server/python_backend -b r24.05
+    cd python_backend
     mkdir build
     # IMPORTANT : remove -WError on the two folowing lines
     # ./CMakeLists.txt:258:    -Wall -Wextra -Wno-unused-parameter -Wno-type-limits -Werror>
@@ -161,6 +162,7 @@
     cd build
     cmake -DTRITON_ENABLE_GPU=ON -DTRITON_BACKEND_REPO_TAG=r24.05 -DTRITON_COMMON_REPO_TAG=r24.05 -DTRITON_CORE_REPO_TAG=r24.05 -DCMAKE_INSTALL_PREFIX:PATH=/opt/tritonserver -DPython_EXECUTABLE=/usr/local/bin/python3 ..
     make install
+    sudo apt install libevent_dev
     # let's test it
     # add a demo python model
     cd

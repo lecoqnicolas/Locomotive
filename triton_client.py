@@ -77,9 +77,5 @@ def main():
         model_name="sentence_trad", inputs=input_tensors, outputs=output, callback=async_callback
     )
 
-
-    
-
-
 if __name__ == "__main__":
     main()
