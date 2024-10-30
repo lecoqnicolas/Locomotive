@@ -10,14 +10,20 @@ class TowerInstructPipelineLangChain:
                  prompt_file=None, prompt_ignore: list = None, batch_size: int = 50, output_parser: str = "json",
                  use_context: bool = False, separateur_context: str = ' ', context_window=0):
         self._id = model_id
-        self._device = device
+        if isinstance(device, str):
+            if device.lower() == "cpu":
+                self._device = -1  # -1 pour CPU dans le pipeline de Hugging Face
+            else:
+                self._device = int(device)  # 0 ou 1 pour les GPU
+        else:
+            self._device = device 
         self._max_tokens = max_tokens
         self._tokenizer = AutoTokenizer.from_pretrained(self._id)
-
-        self._model = AutoModelForCausalLM.from_pretrained(self._id, torch_dtype=torch.float16).to(self._device)
+        torch_dtype = torch.float32 if self._device == -1 else torch.float16
+        self._model = AutoModelForCausalLM.from_pretrained(self._id, torch_dtype=torch_dtype)
 
         self._hf_pipeline = pipeline("text-generation", model=self._model, tokenizer=self._tokenizer,
-                                     device=0 if self._device == "cuda" else -1, batch_size=batch_size)
+                                     device=self._device, batch_size=batch_size)
         self.llm = HuggingFacePipeline(pipeline=self._hf_pipeline)
         self._prompt = load_prompt(prompt_file)
         self._prompt_ignore = set(prompt_ignore) if prompt_ignore is not None else {}
