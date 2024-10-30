@@ -32,12 +32,15 @@ class TritonPythonModel:
             text_tensor = pb_utils.get_input_tensor_by_name(request, "text_to_translate")
             src_name = pb_utils.get_input_tensor_by_name(request, "src_name")
             tgt_name = pb_utils.get_input_tensor_by_name(request, "tgt_name")
-
-            documents = text_tensor.as_numpy().tolist()
+            print("Model received", flush=True)
+            print(text_tensor.as_numpy(), flush=True)
+            print(src_name.as_numpy(), flush=True)
+            print(tgt_name.as_numpy(), flush=True)
+            texts = [text.decode("UTF-8") for text in text_tensor.as_numpy()[0]]
             src_lang = src_name.as_numpy()[0][0].decode("UTF-8")
             tgt_lang = tgt_name.as_numpy()[0][0].decode("UTF-8")
 
-            translated_text = self.translate_documents(documents, src_lang, tgt_lang)
+            translated_text = self._pipeline.transform(texts, src_lang, tgt_lang)
 
             inference_response = pb_utils.InferenceResponse(
                 output_tensors=[

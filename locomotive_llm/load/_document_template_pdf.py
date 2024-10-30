@@ -22,8 +22,8 @@ class PDFDocumentTemplate:
                             #format same than input
                         
                 for char in page.chars:
-                    font = char.get('fontname', "Arial")  # Font name
-                    size = char.get('size', 12)        # Font size
+                    font = char.get('fontname', "Arial")
+                    size = char.get('size', 12)
                     current_char_y = char['top'] 
                     if previous_char_y is not None and abs(current_char_y - previous_char_y) > 5:
                         line_content = ''.join([el['char'] for el in line_elements])

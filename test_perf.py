@@ -5,9 +5,9 @@ import time
 import threading
 
 #Parameters
-NUM_REQUESTS = [1, 10]
-BATCH_SIZE = 1 
-DELAY = 0.1
+NUM_REQUESTS = [100]
+BATCH_SIZE = 50 
+DELAY = 0
 
 class Counter:
     def __init__(self):
@@ -22,14 +22,15 @@ def async_callback(counter, result, error):
         translation = result.as_numpy("translation")[0].decode('UTF-8')
         counter.count_pos += 1
         print("Translation:", translation)
+        print(len(result.as_numpy("translation")))
 
 def send_request(client, batch_size, counter, prompt="Despite the numerous challenges we faced throughout our journey, including unexpected weather conditions, logistical difficulties, and the need to adapt to different cultures and languages, we managed to persevere and achieve our goals, demonstrating the power of teamwork, determination, and resilience in the face of adversity."):
     text_obj = np.array([[prompt for _ in range(batch_size)]], dtype="object")
 
     input_tensors = [
         tclient.InferInput("text_to_translate", text_obj.shape, np_to_triton_dtype(text_obj.dtype)),
-        tclient.InferInput("src_name", text_obj.shape, np_to_triton_dtype(text_obj.dtype)),
-        tclient.InferInput("tgt_name", text_obj.shape, np_to_triton_dtype(text_obj.dtype)),
+        tclient.InferInput("src_name", [1,1], np_to_triton_dtype(text_obj.dtype)),
+        tclient.InferInput("tgt_name", [1,1], np_to_triton_dtype(text_obj.dtype)),
     ]
     input_tensors[0].set_data_from_numpy(text_obj)
     input_tensors[1].set_data_from_numpy(np.array([["English"]], dtype="object"))
@@ -38,7 +39,7 @@ def send_request(client, batch_size, counter, prompt="Despite the numerous chall
     output = [tclient.InferRequestedOutput("translation")]
 
     client.async_infer(
-        model_name="sentence_trad", inputs=input_tensors, outputs=output, callback=lambda res, err: async_callback(counter, res, err)
+        model_name="sentence_trad", inputs=input_tensors, outputs=output, callback=lambda result, error: async_callback(counter, result, error)
     )
 
 def test_concurrent_requests(client, num_requests, batch_size, delay=0):
