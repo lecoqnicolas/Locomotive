@@ -1,7 +1,5 @@
 from pathlib import Path
-from docx import Document
 from langchain_community.document_loaders import TextLoader, PyPDFLoader
-import pdfplumber
 from ._docxloader import DocxLoader
 
 
@@ -22,11 +20,13 @@ def read_txt_langchain(file_path):
     documents = loader.load()
     return "\n".join([doc.page_content for doc in documents])
 
+
 def read_pdf_with_langchain(file_path):
     """Reads a .pdf file using the PyPDFLoader"""
     loader = PyPDFLoader(file_path)
     documents = loader.load()
     return "\n".join([doc.page_content for doc in documents])
+
 
 def read_doc(file_path, use_langchain_txt=True):
     """Reads the ground truth document (either .docx or .txt or .pdf) using appropriate loaders."""
