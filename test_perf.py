@@ -9,15 +9,21 @@ NUM_REQUESTS = [1, 10]
 BATCH_SIZE = 1 
 DELAY = 0.1
 
+class Counter:
+    def __init__(self):
+        self.count_pos = 0
+        self.count_neg = 0
 
-def async_callback(result, error):
+def async_callback(counter, result, error):
     if error is not None:
         print(f"Error from server: {str(error)}")
+        counter.count_neg += 1
     elif result is not None:
         translation = result.as_numpy("translation")[0].decode('UTF-8')
+        counter.count_pos += 1
         print("Translation:", translation)
 
-def send_request(client, batch_size, prompt="Despite the numerous challenges we faced throughout our journey, including unexpected weather conditions, logistical difficulties, and the need to adapt to different cultures and languages, we managed to persevere and achieve our goals, demonstrating the power of teamwork, determination, and resilience in the face of adversity."):
+def send_request(client, batch_size, counter, prompt="Despite the numerous challenges we faced throughout our journey, including unexpected weather conditions, logistical difficulties, and the need to adapt to different cultures and languages, we managed to persevere and achieve our goals, demonstrating the power of teamwork, determination, and resilience in the face of adversity."):
     text_obj = np.array([[prompt for _ in range(batch_size)]], dtype="object")
 
     input_tensors = [
@@ -32,24 +38,24 @@ def send_request(client, batch_size, prompt="Despite the numerous challenges we 
     output = [tclient.InferRequestedOutput("translation")]
 
     client.async_infer(
-        model_name="sentence_trad", inputs=input_tensors, outputs=output, callback=async_callback
+        model_name="sentence_trad", inputs=input_tensors, outputs=output, callback=lambda res, err: async_callback(counter, res, err)
     )
 
-class Counter:
-    def __init__(self):
-        self.count = 0
-        
 def test_concurrent_requests(client, num_requests, batch_size, delay=0):
-    threads = []
+
     counter = Counter()
     start_time = time.time()
     for i in range(num_requests):
         send_request(client, batch_size, counter)
+        time.sleep(delay)
 
-    while counter.count < num_requests:
-        sleep(0.01)
+    while counter.count_neg+counter.count_pos < num_requests:
+        time.sleep(0.1)
+        print(f"neg {counter.count_neg}, pos {counter.count_pos} on {num_requests}")
+
     end_time = time.time()
     print(f"Time taken for {num_requests} requests: {end_time - start_time:.2f} seconds")
+
 
 def main():
     url = "localhost:8001"
@@ -60,7 +66,6 @@ def main():
         print(f"\nTesting with {num_requests} requests:")
         test_concurrent_requests(client, num_requests, BATCH_SIZE, delay=DELAY)
 
-    # test batch size
-    
+
 if __name__ == "__main__":
     main()

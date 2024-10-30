@@ -34,7 +34,9 @@ class TritonPythonModel:
             print(text_tensor.as_numpy(), flush=True)
             print(src_name.as_numpy(), flush=True)
             print(tgt_name.as_numpy(), flush=True)
-            translated_text = self._model.transform([text.decode("UTF-8") for text in text_tensor.as_numpy()[0]], src_name.as_numpy()[0][0].decode("UTF-8"), tgt_name.as_numpy()[0][0].decode("UTF-8"))
+            translated_text = self._model.transform([text.decode("UTF-8") for text in text_tensor.as_numpy()[0]],
+                                                    src_name.as_numpy()[0][0].decode("UTF-8"),
+                                                    tgt_name.as_numpy()[0][0].decode("UTF-8"))
             print(translated_text, flush=True)
             inference_response = pb_utils.InferenceResponse(
                 output_tensors=[
