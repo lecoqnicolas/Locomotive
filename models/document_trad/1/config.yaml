@@ -1,0 +1,18 @@
+experiment_name: "eval_document"
+run_name: "deu_fr_v1_doc_pdf"
+preserve_formatting:  True
+langchain_parsing: False
+use_context: False
+context_window: 2
+separateur_context: "\n"
+version: 1
+llm_model: "Unbabel/TowerInstruct-Mistral-7B-v0.2"
+prompt: "/models/document_trad/1/prompt_v1.yml"
+batch_size: 10
+max_token: 150
+device: "cuda"
+src_code: "deu_Latn"
+src_name: "German"
+tgt_code: "fra_Latn"
+tgt_name: "French"
+ignore_prompt: ["\n", "", " "]
