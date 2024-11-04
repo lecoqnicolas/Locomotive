@@ -17,7 +17,7 @@ def main(params: argparse.Namespace) -> None:
     config = load_config(params.config, params.reverse)
     pipeline_class = get_pipeline(config)
     pipeline = pipeline_class(model_id=config.llm_model,
-                              device="cuda" if torch.cuda.is_available() and not params.cpu else "cpu",
+                              device=config.device,
                               prompt_file=config.prompt,
                               batch_size=config.batch_size,
                               output_parser=config.response_parsing_method, prompt_ignore=config.ignore_prompt,
