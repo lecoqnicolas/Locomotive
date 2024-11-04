@@ -32,15 +32,16 @@ class TowerInstructPipelineLangChain:
         self._separateur_context = separateur_context
         self._context_window = context_window
 
-    def _create_prompt_with_contexte(self, texts, src_lang, tgt_lang, prev_contexts=None):
+    def _create_prompt_with_contexte(self, texts, src_langs, tgt_langs, prev_contexts=None):
         prompts = []
-        for text, context in zip(texts, prev_contexts):
+        for text, src_lang, tgt_lang, context in zip(texts, prev_contexts, src_langs, tgt_langs):
             prompt = self._prompt.format(text=text, src_lang=src_lang, tgt_lang=tgt_lang, context=context)
             prompts.append(prompt)
         return prompts
 
-    def _create_prompt(self, texts, src_lang, tgt_lang):
-        return [self._prompt.format(text=text, src_lang=src_lang, tgt_lang=tgt_lang) for text in texts]
+    def _create_prompt(self, texts, src_langs, tgt_langs):
+        return [self._prompt.format(text=text, src_lang=src, tgt_lang=tgt)
+                for text, src, tgt in zip(texts, src_langs, tgt_langs)]
 
     def _is_text_valid(self, text: str):
         return text not in self._prompt_ignore
@@ -65,10 +66,17 @@ class TowerInstructPipelineLangChain:
             results.append(cleaned_output)
         return results
 
-    def transform(self, texts: list[str], src_lang, tgt_lang, prev_contexts: list[str] = None):
+    def transform(self, texts: list[str], src_lang: list | str, tgt_lang: list | str, prev_contexts: list[str] = None):
         valid_mask = [self._is_text_valid(text) for text in texts]
         valid_texts = [text for text in texts if self._is_text_valid(text)]
-
+        if isinstance(src_lang, list):
+            valid_src_lang = [lang for lang, text in zip(src_lang, texts) if self._is_text_valid(text)]
+        else:
+            valid_src_lang = [src_lang for text in texts if self._is_text_valid(text)]
+        if isinstance(tgt_lang, list):
+            valid_tgt_lang = [lang for lang, text in zip(tgt_lang, texts) if self._is_text_valid(text)]
+        else:
+            valid_tgt_lang = [tgt_lang for text in texts if self._is_text_valid(text)]
         if self._use_context:
             # context-assisted translation
             if prev_contexts is None:
@@ -78,10 +86,10 @@ class TowerInstructPipelineLangChain:
                 prev_contexts = [self._separateur_context.join(context) if len(context) else ""
                                  for context in prev_contexts]
             valid_prev_contexts = [prev_context for idx, prev_context in enumerate(prev_contexts) if valid_mask[idx]]
-            prompts = self._create_prompt_with_contexte(valid_texts, src_lang, tgt_lang, valid_prev_contexts)
+            prompts = self._create_prompt_with_contexte(valid_texts, valid_src_lang, valid_tgt_lang, valid_prev_contexts)
         else:
             # basic translation
-            prompts = self._create_prompt(valid_texts, src_lang, tgt_lang)
+            prompts = self._create_prompt(valid_texts, valid_src_lang, valid_tgt_lang)
 
         outputs = self._process_pipeline(prompts)
         return self._get_results(valid_mask, prompts, outputs)

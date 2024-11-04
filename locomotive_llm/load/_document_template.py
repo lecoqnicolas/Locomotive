@@ -31,5 +31,6 @@ class DocumentTemplate:
                     if len(translations[element_count]) > 0:
                         cell.text = translations[element_count]
                     element_count += 1
+
     def save(self, file_path):
         self._doc.save(file_path)
