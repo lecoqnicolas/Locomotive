@@ -6,6 +6,7 @@ from locomotive_llm.load import DocumentTemplate, PDFDocumentTemplate, read_doc
 from locomotive_llm.save import write_doc
 import time
 
+
 def async_callback(output_path, doc_template, result, error):
     if error is not None:
         print(f"Error received from server: {str(error)}")
@@ -24,6 +25,7 @@ def async_callback(output_path, doc_template, result, error):
             write_doc("\n".join(translated_text), output_path)
             print(f"Text translation saved to {output_path}")
 
+
 def load_document(path):
     file_extension = Path(path).suffix
     if file_extension == ".docx":
@@ -35,6 +37,7 @@ def load_document(path):
     else:
         texts = read_doc(path, use_langchain_txt=True)
         return [line for line in texts.split("\n") if line.strip()]
+
 
 def main():
     client = tclient.InferenceServerClient(url="localhost:8001")
@@ -76,6 +79,7 @@ def main():
 
     print("Doing other stuff while the answer is computed")
     time.sleep(60)  # Wait for async task to complete
+
 
 if __name__ == "__main__":
     main()
