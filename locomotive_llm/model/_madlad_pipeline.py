@@ -35,7 +35,7 @@ class MadladPipeline:
         else:
             self._device = device 
         self._max_tokens = max_tokens
-
+        self._batch_size = batch_size
         logging.info(f"Loading model {model_id} on device: {device}")
         
         self._tokenizer = T5Tokenizer.from_pretrained(self._id)
@@ -54,11 +54,34 @@ class MadladPipeline:
         code = match_code_language(tgt_lang)
         tag_prefix = f"<2{code}>"
         return [f"{tag_prefix} {text}" for text in texts]
+    def _process_batch(self, batch):
+        token_lengths = [len(self._tokenizer(text, return_tensors="pt").input_ids[0]) for text in batch]
+        max_eln = max(token_lengths)
+        input_ids = self._tokenizer(batch, return_tensors="pt", padding=True, truncation=False).input_ids.to(self._model.device)
+        outputs = self._model.generate(input_ids=input_ids, max_length=max_eln)
+        
+        return [self._tokenizer.decode(output, skip_special_tokens=True).strip() for output in outputs]
 
-    def transform(self, texts: list[str], src_lang: str, tgt_lang: str):
+
+    def transform(self, texts: list[str],src_name:str, tgt_lang: str):
+        # Filter valid texts
         valid_texts = [text for text in texts if self._is_text_valid(text)]
         prepared_texts = self._prepare_inputs(valid_texts, tgt_lang)
-        input_ids = self._tokenizer(prepared_texts, return_tensors="pt", padding = True, truncation=True).input_ids.to(self._model.device)
-        outputs = self._model.generate(input_ids=input_ids, max_new_tokens=self._max_tokens)
-        translations = [self._tokenizer.decode(output, skip_special_tokens=True).strip() for output in outputs]
-        return translations
+        translations = []
+
+        for i in range(0, len(prepared_texts), self._batch_size):
+            batch = prepared_texts[i:i + self._batch_size]
+            batch_translations = self._process_batch(batch)
+            translations.extend(batch_translations)
+        results = []
+        valid_idx = 0
+        for text in texts:
+            if self._is_text_valid(text):
+                results.append(translations[valid_idx])
+                valid_idx += 1
+            else:
+                results.append("")
+        logging.info(f"Original length: {len(texts)}")
+        logging.info(f"Filtered length (valid_texts): {len(valid_texts)}")
+        logging.info(f"Translations: {len(translations)}")
+        return results
