@@ -6,7 +6,7 @@ llm_model: "Unbabel/TowerInstruct-Mistral-7B-v0.2"
 prompt: "config/prompts/prompt_v1.yml"
 batch_size: 50
 max_token: 150
-device: "cuda"
+device: 0
 src_code: "eng_Latn"
 src_name: "English"
 tgt_code: "fra_Latn"

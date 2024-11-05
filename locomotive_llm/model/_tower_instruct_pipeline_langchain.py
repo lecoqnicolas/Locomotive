@@ -18,12 +18,12 @@ class TowerInstructPipelineLangChain:
         else:
             self._device = device 
         self._max_tokens = max_tokens
-        self._tokenizer = AutoTokenizer.from_pretrained(self._id)
         torch_dtype = torch.float32 if self._device == -1 else torch.float16
+        self._tokenizer = AutoTokenizer.from_pretrained(self._id)
         self._model = AutoModelForCausalLM.from_pretrained(self._id, torch_dtype=torch_dtype)
-
         self._hf_pipeline = pipeline("text-generation", model=self._model, tokenizer=self._tokenizer,
-                                     device=self._device, batch_size=batch_size)
+                                         device=self._device, batch_size=batch_size)
+      
         self.llm = HuggingFacePipeline(pipeline=self._hf_pipeline)
         self._prompt = load_prompt(prompt_file)
         self._prompt_ignore = set(prompt_ignore) if prompt_ignore is not None else {}

@@ -4,9 +4,10 @@ use_context: True
 separateur_context: "\n"
 version: 1
 llm_model: "Unbabel/TowerInstruct-Mistral-7B-v0.2"
+model_type : "madlad"
 prompt: "config/prompts/prompt_v1.yml"
 batch_size: 100
-max_token: 150
+max_token: 50
 device: 0 #1 or 0 or "cpu"
 src_code: "deu_Latn"
 src_name: "German"
