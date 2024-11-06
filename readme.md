@@ -160,7 +160,8 @@
     # ./CMakeLists.txt:258:    -Wall -Wextra -Wno-unused-parameter -Wno-type-limits -Werror>
     # ./CMakeLists.txt:266:    -fvisibility=hidden -Wall -Wextra -Wno-unused-parameter -Wno-type-limits -Werror>
     cd build
-    cmake -DTRITON_ENABLE_GPU=ON -DTRITON_BACKEND_REPO_TAG=r24.05 -DTRITON_COMMON_REPO_TAG=r24.05 -DTRITON_CORE_REPO_TAG=r24.05 -DCMAKE_INSTALL_PREFIX:PATH=/opt/tritonserver -DPython_EXECUTABLE=/usr/local/bin/python3 ..
+    export LDFLAGS="-rdynamic"
+    cmake -DTRITON_ENABLE_GPU=ON -DTRITON_BACKEND_REPO_TAG=r24.05 -DTRITON_COMMON_REPO_TAG=r24.05 -DTRITON_CORE_REPO_TAG=r24.05 -DCMAKE_INSTALL_PREFIX:PATH=/opt/tritonserver -DPYBIND11_FINDPYTHON=ON -DPython_EXECUTABLE=/usr/local/bin/python3.10 ..
     make install
     sudo apt install libevent_dev
     # let's test it
@@ -185,8 +186,9 @@ Create a new env :
   - # test it
   - conda install -c conda-forge libstdcxx-ng=12 -y
   - conda-pack
-  - mettre l'archive obtenue dans ./models/sentence_trad/ 
+  - mettre l'archive obtenue dans ./models/sentence_trad/ (ou à l'endroit ou votre model l'attendra)
 
+deploy the new env
   La suite est maintenant faite par le script deploy_triton en précisant deploy_env :
   - cp traduction_env.tar.gz /models/sentence_trad/traduction_env.tar.gz
   - /models/sentence_trad/traduction_env
