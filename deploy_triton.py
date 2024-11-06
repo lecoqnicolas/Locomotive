@@ -4,6 +4,8 @@ import argparse
 import logging
 from pathlib import Path
 import subprocess
+import fileinput
+import sys
 
 
 SOURCE_DEPENDANCIES = {
@@ -14,7 +16,30 @@ SOURCE_DEPENDANCIES = {
 CUSTOM_ENV = {
     "sentence_trad": "models/sentence_trad/traduction_env.tar.gz"
 }
+
 TRITON_CONFIG_FILE = "config.pbtxt"
+
+
+def fix_pydantic_for_langchain3_triton(env_directory: Path):
+    """
+    Modify lenient_enval pydantic call to support
+    """
+    file = Path(env_directory) /'lib/python3.10/site-packages/pydantic/_internal/_typing_extra.py'
+    new_line = "    except NameError(NameError, TypeError):"
+    line_to_replace = "    except NameError:"
+    success = False
+    for i, line in enumerate(fileinput.input(file, inplace=1)):
+        if line_to_replace in line:
+            line = line.replace(line_to_replace,new_line)
+            success = True
+        # print is redirected to the file
+        print(line, end='')
+    return success
+
+
+POST_ENV_ACTION = {
+    "sentence_trad": fix_pydantic_for_langchain3_triton
+}
 
 
 def deploy_triton(arg):
@@ -77,11 +102,17 @@ def deploy_triton(arg):
                     prefix = Path(CUSTOM_ENV[elmt.name]).stem.split('.')[0]
                     logging.info(f"Extracting env {prefix} to {dest_model_dir/prefix}")
                     if (dest_model_dir / prefix).is_dir():
-                        shutil.rmtree(dest_model_dir / prefix)
+                        shutil.rmtree(dest_model_dir / prefix, ignore_errors=True)
                     os.makedirs(dest_model_dir/prefix, exist_ok=True)
                     subprocess.run(["tar", "-xvf", dest_model_dir / Path(CUSTOM_ENV[elmt.name]).name,
                                     "-C", dest_model_dir/prefix])
                     os.remove(dest_model_dir / Path(CUSTOM_ENV[elmt.name]).name)
+                    if elmt.name in POST_ENV_ACTION:
+                        result = POST_ENV_ACTION[elmt.name](dest_model_dir/prefix)
+                        if result:
+                            logging.info("Post env installation actions performed succesfully")
+                        else:
+                            logging.info("Post env installation actions failed")
             else:
                 logging.info(f"No custom env specified for model {elmt.name}")
 
