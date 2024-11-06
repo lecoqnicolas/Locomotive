@@ -42,9 +42,9 @@ class TritonPythonModel:
             print(src_name.as_numpy(), flush=True)
             print(tgt_name.as_numpy(), flush=True)
             request_sizes.append(text_tensor.as_numpy().shape[0])
-            texts.extend([text.decode("UTF-8") for text in text_tensor.as_numpy()])
-            languages_src.extend([name.decode("UTF-8") for name in src_name.as_numpy()])
-            languages_dest.extend([name.decode("UTF-8") for name in tgt_name.as_numpy()])
+            texts.extend([text[0].decode("UTF-8") for text in text_tensor.as_numpy()])
+            languages_src.extend([name[0].decode("UTF-8") for name in src_name.as_numpy()])
+            languages_dest.extend([name[0].decode("UTF-8") for name in tgt_name.as_numpy()])
         translated_text = self._model.transform(texts,
                                                 languages_src,
                                                 languages_dest)

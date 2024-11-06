@@ -1,3 +1,4 @@
+
 import numpy as np
 import tritonclient.grpc as tclient
 from tritonclient.utils import np_to_triton_dtype
@@ -24,19 +25,21 @@ def main():
     print(f"Sentences to translate :")
     print(f"{prompts}")
     text_obj = np.array(prompts, dtype="object")
+    text_obj = text_obj.reshape([-1,1])
     src_obj = np.array(["English", "English"], dtype="object")
+    src_obj = src_obj.reshape([-1,1])
     tgt_obj = np.array(["French", "German"], dtype="object")
-    
+    tgt_obj = tgt_obj.reshape([-1,1])
     # Set Inputs
     input_tensors = [
         tclient.InferInput(
             "text_to_translate", text_obj.shape, np_to_triton_dtype(text_obj.dtype)
         ),
         tclient.InferInput(
-            "src_name", text_obj.shape, np_to_triton_dtype(text_obj.dtype)
+            "src_name", src_obj.shape, np_to_triton_dtype(text_obj.dtype)
         ),
         tclient.InferInput(
-            "tgt_name", text_obj.shape, np_to_triton_dtype(text_obj.dtype)
+            "tgt_name", tgt_obj.shape, np_to_triton_dtype(text_obj.dtype)
         ),
     ]
     input_tensors[0].set_data_from_numpy(text_obj)

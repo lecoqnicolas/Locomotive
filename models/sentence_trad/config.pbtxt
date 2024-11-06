@@ -1,29 +1,29 @@
 name: "sentence_trad"
 backend: "python"
-max_batch_size: 0
+max_batch_size: 50
 
 input [
   {
     name: "text_to_translate"
     data_type: TYPE_STRING
-    dims: [-1]
+    dims:[1]
   },
   {
     name: "src_name"
     data_type: TYPE_STRING
-    dims: [-1]
+    dims: [1]
   },
   {
     name: "tgt_name"
     data_type: TYPE_STRING
-    dims: [-1]
+    dims: [1]
   }
 ]
 output [
   {
     name: "translation"
     data_type: TYPE_STRING
-    dims: [-1]
+    dims: [1]
   }
 ]
 parameters: {
@@ -35,3 +35,6 @@ instance_group [{
 	kind: KIND_GPU
 	gpus: [ 0 ]
 }]
+dynamic_batching {
+	max_queue_delay_microseconds: 100
+}

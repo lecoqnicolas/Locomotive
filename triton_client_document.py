@@ -46,11 +46,11 @@ def main():
 
     doc_path = "documents/input/DE_version_doc1.docx"
     raw_content, doc_template = load_document(doc_path)
-    all_lines = [el["content"] for el in raw_content] if doc_path.endswith(('.docx', '.pdf')) else raw_content
+    all_lines = [[el["content"]] for el in raw_content] if doc_path.endswith(('.docx', '.pdf')) else raw_content
 
     text_obj = np.array(all_lines, dtype="object")
-    src_obj = np.array(["German" for _ in all_lines], dtype="object")
-    tgt_obj = np.array(["French" for _ in all_lines], dtype="object")
+    src_obj = np.array([["German"] for _ in all_lines], dtype="object")
+    tgt_obj = np.array([["French"] for _ in all_lines], dtype="object")
     print(text_obj)
     print(src_obj)
     print(tgt_obj)
