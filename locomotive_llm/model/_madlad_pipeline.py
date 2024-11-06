@@ -81,7 +81,4 @@ class MadladPipeline:
                 valid_idx += 1
             else:
                 results.append("")
-        logging.info(f"Original length: {len(texts)}")
-        logging.info(f"Filtered length (valid_texts): {len(valid_texts)}")
-        logging.info(f"Translations: {len(translations)}")
         return results
