@@ -25,7 +25,7 @@ def fix_pydantic_for_langchain3_triton(env_directory: Path):
     Modify lenient_enval pydantic call to support
     """
     file = Path(env_directory) /'lib/python3.10/site-packages/pydantic/_internal/_typing_extra.py'
-    new_line = "    except NameError(NameError, TypeError):"
+    new_line = "    except (NameError, TypeError):"
     line_to_replace = "    except NameError:"
     success = False
     for i, line in enumerate(fileinput.input(file, inplace=1)):
