@@ -14,7 +14,7 @@ class TritonPythonModel:
         self._config = load_config(self._configuration_path)
 
         pipeline_class = get_pipeline(self._config)
-        self._pipeline = pipeline_class(
+        self._model = pipeline_class(
             model_id=self._config.llm_model,
             device=self._config.device,
             prompt_file=self._config.prompt,
