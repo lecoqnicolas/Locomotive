@@ -54,6 +54,7 @@ class MadladPipeline:
         code = match_code_language(tgt_lang)
         tag_prefix = f"<2{code}>"
         return [f"{tag_prefix} {text}" for text in texts]
+
     def _process_batch(self, batch):
         token_lengths = [len(self._tokenizer(text, return_tensors="pt").input_ids[0]) for text in batch]
         max_eln = max(token_lengths)
