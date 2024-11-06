@@ -29,15 +29,17 @@ def async_callback(counter, result, error):
 
 def send_request(client, batch_size, counter, prompt="Despite the numerous challenges we faced throughout our journey, including unexpected weather conditions, logistical difficulties, and the need to adapt to different cultures and languages, we managed to persevere and achieve our goals, demonstrating the power of teamwork, determination, and resilience in the face of adversity."):
     text_obj = np.array([[prompt for _ in range(batch_size)]], dtype="object")
-
+    src_obj = np.array([["English" for _ in range(batch_size)]], dtype="object")
+    tgt_obj = np.array([["French" for _ in range(batch_size)]], dtype="object")
+    
     input_tensors = [
         tclient.InferInput("text_to_translate", text_obj.shape, np_to_triton_dtype(text_obj.dtype)),
-        tclient.InferInput("src_name", [1,1], np_to_triton_dtype(text_obj.dtype)),
-        tclient.InferInput("tgt_name", [1,1], np_to_triton_dtype(text_obj.dtype)),
+        tclient.InferInput("src_name", src_obj.shape, np_to_triton_dtype(text_obj.dtype)),
+        tclient.InferInput("tgt_name", tgt_obj.shape, np_to_triton_dtype(text_obj.dtype)),
     ]
     input_tensors[0].set_data_from_numpy(text_obj)
-    input_tensors[1].set_data_from_numpy(np.array([["English"]], dtype="object"))
-    input_tensors[2].set_data_from_numpy(np.array([["French"]], dtype="object"))
+    input_tensors[1].set_data_from_numpy(src_obj)
+    input_tensors[2].set_data_from_numpy(tgt_obj)
 
     output = [tclient.InferRequestedOutput("translation")]
 

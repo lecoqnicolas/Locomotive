@@ -11,7 +11,7 @@ class LlmConfiguration:
     prompt: str = "config/prompts/example_prompt.yml"
     pipeline: str = "tower_instruct"
     model_type: str = "tower"
-    use_context: bool = True
+    use_context: bool = False
     separateur_context: str = ' '
     context_window: int = 2
     preserve_formatting: bool= True

@@ -34,7 +34,7 @@ class TowerInstructPipelineLangChain:
 
     def _create_prompt_with_contexte(self, texts, src_langs, tgt_langs, prev_contexts=None):
         prompts = []
-        for text, src_lang, tgt_lang, context in zip(texts, prev_contexts, src_langs, tgt_langs):
+        for text, context, src_lang, tgt_lang in zip(texts, prev_contexts, src_langs, tgt_langs):
             prompt = self._prompt.format(text=text, src_lang=src_lang, tgt_lang=tgt_lang, context=context)
             prompts.append(prompt)
         return prompts
@@ -69,6 +69,7 @@ class TowerInstructPipelineLangChain:
     def transform(self, texts: list[str], src_lang: list | str, tgt_lang: list | str, prev_contexts: list[str] = None):
         valid_mask = [self._is_text_valid(text) for text in texts]
         valid_texts = [text for text in texts if self._is_text_valid(text)]
+        
         if isinstance(src_lang, list):
             valid_src_lang = [lang for lang, text in zip(src_lang, texts) if self._is_text_valid(text)]
         else:
@@ -90,6 +91,5 @@ class TowerInstructPipelineLangChain:
         else:
             # basic translation
             prompts = self._create_prompt(valid_texts, valid_src_lang, valid_tgt_lang)
-
         outputs = self._process_pipeline(prompts)
         return self._get_results(valid_mask, prompts, outputs)

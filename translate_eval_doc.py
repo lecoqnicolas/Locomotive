@@ -31,6 +31,8 @@ def main(params: argparse.Namespace) -> None:
             lines = [el["content"] for el in texts]
         elif file_extension =='.pdf':
             pdf_doc = PDFDocumentTemplate(params.input_file)
+            if not hasattr(pdf_doc, 'content') or not pdf_doc.content:
+               raise ValueError("Mapping failed: 'content' is empty after mapping translations.")
             elements = pdf_doc.get_content()
             lines = [el['content'] for el in elements]
     else:

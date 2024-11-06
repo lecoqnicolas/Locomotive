@@ -2,7 +2,7 @@ experiment_name: "eval_document"
 run_name: "deu_fr_v1_doc_pdf"
 preserve_formatting:  True
 langchain_parsing: False
-use_context: False
+use_context: True
 context_window: 2
 separateur_context: "\n"
 version: 1

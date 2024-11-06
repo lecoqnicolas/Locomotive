@@ -24,8 +24,10 @@ def main():
     prompts = ["Hello world"]
     print(f"Sentence to translate :")
     print(f"{prompts[0]}")
-    text_obj = np.array([prompts], dtype="object")
-
+    text_obj = np.array(prompts, dtype="object")
+    src_obj = np.array(["English"], dtype="object")
+    tgt_obj = np.array(["French"], dtype="object")
+    
     # Set Inputs
     input_tensors = [
         tclient.InferInput(
@@ -39,8 +41,8 @@ def main():
         ),
     ]
     input_tensors[0].set_data_from_numpy(text_obj)
-    input_tensors[1].set_data_from_numpy(np.array([["English"]], dtype="object"))
-    input_tensors[2].set_data_from_numpy(np.array([["French"]], dtype="object"))
+    input_tensors[1].set_data_from_numpy(src_obj)
+    input_tensors[2].set_data_from_numpy(tgt_obj)
 
     # Set outputs
     output = [

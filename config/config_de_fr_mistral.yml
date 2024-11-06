@@ -1,6 +1,6 @@
 experiment_name: "InstructMistral0.2"
 run_name: "deu_fr_corrected_bleu"
-use_context: True
+use_context: False
 separateur_context: "\n"
 version: 1
 llm_model: "Unbabel/TowerInstruct-Mistral-7B-v0.2"
