@@ -33,6 +33,7 @@ class TritonPythonModel:
         texts = []
         languages_src = []
         languages_dest = []
+        
         for request in requests:
             text_tensor = pb_utils.get_input_tensor_by_name(request, "text_to_translate")
             src_name = pb_utils.get_input_tensor_by_name(request, "src_name")

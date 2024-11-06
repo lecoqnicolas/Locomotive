@@ -10,9 +10,8 @@ def async_callback(result, error):
         print(f"Error reception from server : {str(error)}")
     if result is not None:
         print("Triton server answer :")
-        print(str(result.as_numpy("translation")[0].decode('UTF-8')))
-    #print(str(query_response.as_numpy("translation")[0]))
-
+        for item in result.as_numpy("translation"):
+            print(item.decode("UTF-8"))
 
 def main():
     # to test the http protocol
@@ -21,12 +20,12 @@ def main():
     client = tclient.InferenceServerClient(url="localhost:8001")
     
     # Inputs
-    prompts = ["Hello world"]
-    print(f"Sentence to translate :")
-    print(f"{prompts[0]}")
+    prompts = ["Hello world", "not hellow world"]
+    print(f"Sentences to translate :")
+    print(f"{prompts}")
     text_obj = np.array(prompts, dtype="object")
-    src_obj = np.array(["English"], dtype="object")
-    tgt_obj = np.array(["French"], dtype="object")
+    src_obj = np.array(["English", "English"], dtype="object")
+    tgt_obj = np.array(["French", "German"], dtype="object")
     
     # Set Inputs
     input_tensors = [

@@ -51,7 +51,9 @@ def main():
     text_obj = np.array(all_lines, dtype="object")
     src_obj = np.array(["German" for _ in all_lines], dtype="object")
     tgt_obj = np.array(["French" for _ in all_lines], dtype="object")
-
+    print(text_obj)
+    print(src_obj)
+    print(tgt_obj)
     # Set Inputs
     input_tensors = [
         tclient.InferInput(
