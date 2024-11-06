@@ -6,6 +6,7 @@ use_context: False
 context_window: 2
 separateur_context: "\n"
 version: 1
+pipeline: "tower"
 llm_model: "Unbabel/TowerInstruct-Mistral-7B-v0.2"
 prompt: "config/prompts/prompt_v1.yml"
 batch_size: 10

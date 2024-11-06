@@ -7,10 +7,10 @@ context_window: 2
 separateur_context: "\n"
 version: 1
 llm_model: "Unbabel/TowerInstruct-Mistral-7B-v0.2"
-prompt: "/models/document_trad/1/prompt_v1.yml"
+prompt: "/models/document_trad/1/prompt.yml"
 batch_size: 10
 max_token: 150
-device: "cuda"
+device: 0
 src_code: "deu_Latn"
 src_name: "German"
 tgt_code: "fra_Latn"

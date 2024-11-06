@@ -45,7 +45,7 @@ class MadladPipeline:
             torch_dtype=torch.float16
         )
 
-        self._prompt_ignore = set(prompt_ignore) if prompt_ignore else set()
+        self._prompt_ignore = set(prompt_ignore) if prompt_ignore is not None else {}
 
     def _is_text_valid(self, text: str):
         return text not in self._prompt_ignore

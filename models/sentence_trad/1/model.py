@@ -1,4 +1,7 @@
-
+import sys
+print(sys.path)
+print(sys.version)
+print(sys.executable)
 import torch
 import os
 from pathlib import Path
@@ -18,7 +21,7 @@ class TritonPythonModel:
         self._config = load_config(self._configuration_path)
         pipeline_class = get_pipeline(self._config)
         self._model = pipeline_class(model_id=self._config.llm_model,
-                               device="cuda" if torch.cuda.is_available() else "cpu",
+                               device=self._config.device,
                                prompt_file=self._config.prompt,
                                max_tokens=self._config.max_token,
                                output_parser=self._config.response_parsing_method,
@@ -38,10 +41,10 @@ class TritonPythonModel:
             print(text_tensor.as_numpy(), flush=True)
             print(src_name.as_numpy(), flush=True)
             print(tgt_name.as_numpy(), flush=True)
-            request_sizes.append(text_tensor.as_numpy()[0])
-            texts.extend([text.decode("UTF-8") for text in text_tensor.as_numpy()[0]])
-            languages_src.append([src_name.as_numpy()[0][0].decode("UTF-8") for _ in range(request_sizes[-1])])
-            languages_dest.append([tgt_name.as_numpy()[0][0].decode("UTF-8") for _ in range(request_sizes[-1])])
+            request_sizes.append(text_tensor.as_numpy().shape[0])
+            texts.extend([text.decode("UTF-8") for text in text_tensor.as_numpy()])
+            languages_src.extend([name.decode("UTF-8") for name in src_name.as_numpy()])
+            languages_dest.extend([name.decode("UTF-8") for name in tgt_name.as_numpy()])
         translated_text = self._model.transform(texts,
                                                 languages_src,
                                                 languages_dest)

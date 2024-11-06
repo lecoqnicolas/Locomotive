@@ -16,7 +16,7 @@ class TritonPythonModel:
         pipeline_class = get_pipeline(self._config)
         self._pipeline = pipeline_class(
             model_id=self._config.llm_model,
-            device="cuda" if torch.cuda.is_available() else "cpu",
+            device=self._config.device,
             prompt_file=self._config.prompt,
             batch_size=self._config.batch_size,
             output_parser=self._config.response_parsing_method,
