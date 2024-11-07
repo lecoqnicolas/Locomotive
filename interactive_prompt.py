@@ -22,7 +22,11 @@ def main(params: argparse.Namespace) -> NoReturn:
                               use_context=config.use_context, separateur_context=config.separateur_context,
                               context_window=config.context_window)
 
-
+    if torch.cuda.is_available():
+        device_name = torch.cuda.get_device_name(config.device) if config.device != "cpu" else "CPU"
+        print(f"Using GPU: {device_name}")
+    else:
+        print("Using CPU")
     print("Starting interactive mode")
     if params.manual_selection:
         # user-defined selection of source and destination languages

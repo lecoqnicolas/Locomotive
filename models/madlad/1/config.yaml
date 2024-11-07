@@ -1,0 +1,14 @@
+experiment_name: "Madlad400"
+run_name: "deu_fr_madlad"
+use_context: False
+preserve_formatting:  True
+separateur_context: "\n"
+version: 1
+llm_model: "google/madlad400-10b-mt"
+pipeline : "madlad400"
+batch_size: 10
+max_token: 50
+device: 0 #1 or 0 or "cpu"
+tgt_code: "fra_Latn"
+tgt_name: "French"
+ignore_prompt: ["\n", "", " "]

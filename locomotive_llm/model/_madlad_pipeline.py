@@ -16,7 +16,9 @@ language_names = {
     "ja": "Japanese",
     "ru": "Russian"
 }
-def match_code_language(src_name: str):
+def match_code_language(src_name):
+    if isinstance(src_name, list):
+        src_name = src_name[0]
     for code, name in language_names.items():
         if name.lower() == src_name.lower():
             return code
@@ -30,10 +32,13 @@ class MadladPipeline:
         if isinstance(device, str):
             if device.lower() == "cpu":
                 self._device = -1 
+            elif device.startswith("cuda"):
+                self._device = torch.cuda.current_device()  # Automatically select the current GPU
             else:
-                self._device = int(device)
+                raise ValueError(f"Unsupported device: {device}")
         else:
-            self._device = device 
+
+            self._device = int(device)
         self._max_tokens = max_tokens
         self._batch_size = batch_size
         logging.info(f"Loading model {model_id} on device: {device}")
@@ -41,8 +46,8 @@ class MadladPipeline:
         self._tokenizer = T5Tokenizer.from_pretrained(self._id)
         self._model = T5ForConditionalGeneration.from_pretrained(
             self._id,
-            device_map="auto",
-            torch_dtype=torch.float16
+            device_map= "cpu" if self._device == -1 else "auto",
+            torch_dtype=torch.float32 if self._device == -1 else torch.float16
         )
 
         self._prompt_ignore = set(prompt_ignore) if prompt_ignore is not None else {}

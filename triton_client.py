@@ -3,7 +3,7 @@ import numpy as np
 import tritonclient.grpc as tclient
 from tritonclient.utils import np_to_triton_dtype
 import time
-
+import argparse
 
 def async_callback(result, error):
     #print(query_response)
@@ -14,21 +14,21 @@ def async_callback(result, error):
         for item in result.as_numpy("translation"):
             print(item.decode("UTF-8"))
 
-def main():
+def main(model_name):
     # to test the http protocol
     #client = tclient.InferenceServerClient(url="localhost:8000")
     # grpc url should be prefered
     client = tclient.InferenceServerClient(url="localhost:8001")
     
     # Inputs
-    prompts = ["Hello world", "not hellow world"]
+    prompts = ["Hello world"]
     print(f"Sentences to translate :")
     print(f"{prompts}")
     text_obj = np.array(prompts, dtype="object")
     text_obj = text_obj.reshape([-1,1])
-    src_obj = np.array(["English", "English"], dtype="object")
+    src_obj = np.array(["English"], dtype="object")
     src_obj = src_obj.reshape([-1,1])
-    tgt_obj = np.array(["French", "German"], dtype="object")
+    tgt_obj = np.array(["French"], dtype="object")
     tgt_obj = tgt_obj.reshape([-1,1])
     # Set Inputs
     input_tensors = [
@@ -53,7 +53,7 @@ def main():
 
     # Query
     client.async_infer(
-        model_name="sentence_trad", inputs=input_tensors, outputs=output, callback=async_callback
+        model_name, inputs=input_tensors, outputs=output, callback=async_callback
     )
 
     print("Doing other stuff while the answer is computed")
@@ -61,4 +61,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="Triton client for model inference")
+    parser.add_argument("--model_name", type=str, required=True, help="Name of the model to use for inference")
+    args = parser.parse_args()
+    
+    main(args.model_name)
