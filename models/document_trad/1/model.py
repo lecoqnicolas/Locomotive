@@ -14,17 +14,16 @@ class TritonPythonModel:
         self._config = load_config(self._configuration_path)
 
         pipeline_class = get_pipeline(self._config)
-        self._model = pipeline_class(
-            model_id=self._config.llm_model,
-            device=self._config.device,
-            prompt_file=self._config.prompt,
-            batch_size=self._config.batch_size,
-            output_parser=self._config.response_parsing_method,
-            prompt_ignore=self._config.ignore_prompt,
-            use_context=self._config.use_context,
-            separateur_context=self._config.separateur_context,
-            context_window=self._config.context_window,
-        )
+        self._model = pipeline_class(model_id=self._config.llm_model,
+                                     device=self._config.device,
+                                     prompt_file=self._config.prompt,
+                                     batch_size=self._config.batch_size,
+                                     output_parser=self._config.response_parsing_method,
+                                     prompt_ignore=self._config.ignore_prompt,
+                                     use_context=self._config.use_context,
+                                     separateur_context=self._config.separateur_context,
+                                     context_window=self._config.context_window,
+                                     max_tokens=self._config.max_token)
 
     def execute(self, requests):
         responses = []
