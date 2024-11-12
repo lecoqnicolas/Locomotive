@@ -28,7 +28,7 @@ class MadladPipeline:
 
         self._preprocessor = BasicPreprocessor(prompt_file, prompt_ignore, use_lang_code=True)
         # madlad output is already parsed : postprocessing parser should be identity
-        self._output_parser = BasicPostProcessor(LlmResponseParser.identity)
+        self._output_parser = BasicPostProcessor(LlmResponseParser.identity, output_field=None)
 
     def transform(self, texts: list[str], src_lang: str | list[str], tgt_lang: str | list[str]):
         translations = []
