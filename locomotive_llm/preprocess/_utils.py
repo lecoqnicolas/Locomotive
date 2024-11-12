@@ -8,7 +8,7 @@ def is_text_valid(text: str, unvalid_prompts: set) -> bool:
 def filter_clean_langs(lang_list:  str | list[str], valid_mask: list[bool], output_lang_code: bool)\
         -> list[str]:
     if isinstance(lang_list, list):
-        valid_src_lang = [lang for i, lang, text in enumerate(lang_list) if valid_mask[i]]
+        valid_src_lang = [lang for i, lang in enumerate(lang_list) if valid_mask[i]]
     else:
         valid_src_lang = [lang_list for idx in range(len(valid_mask)) if valid_mask[idx]]
     # convert lang names to code if asked
