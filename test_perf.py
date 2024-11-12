@@ -7,7 +7,7 @@ import argparse
 # Parameters
 NUM_REQUESTS = [100]
 BATCH_SIZE = 1
-DELAY = 1
+DELAY = 0
 
 
 class Counter:

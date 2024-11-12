@@ -11,7 +11,7 @@ def async_callback(result, error):
     if result is not None:
         
         translated_text = str(result.as_numpy("translation")[0].decode('UTF-8'))
-        print(f"{translated_text}")
+        print(f"\n(French)>{translated_text} \n(English)>")
     #print(str(query_response.as_numpy("translation")[0]))
 
 
@@ -26,7 +26,7 @@ def main(model_name):
     translations = []
     try:
         while True:
-            text = input(f"({src_name})> ")
+            text = input(f"({src_name})>")
             if text.lower() == 'exit':
                 print("Exiting translation interactive mode.")
                 break
