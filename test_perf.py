@@ -5,9 +5,9 @@ import time
 import argparse
 
 # Parameters
-NUM_REQUESTS = [1]
+NUM_REQUESTS = [100]
 BATCH_SIZE = 1
-DELAY = 0
+DELAY = 1
 
 
 class Counter:

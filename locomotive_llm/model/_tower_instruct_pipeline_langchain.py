@@ -12,11 +12,14 @@ class TowerInstructPipelineLangChain:
         self._id = model_id
         if isinstance(device, str):
             if device.lower() == "cpu":
-                self._device = -1  # -1 pour CPU dans le pipeline de Hugging Face
+                self._device = -1 
+            elif device.startswith("cuda"):
+                self._device = torch.cuda.current_device()
             else:
-                self._device = int(device)  # 0 ou 1 pour les GPU
+                raise ValueError(f"Unsupported device: {device}")
         else:
-            self._device = device 
+
+            self._device = int(device)
         self._max_tokens = max_tokens
         torch_dtype = torch.float32 if self._device == -1 else torch.float16
         self._tokenizer = AutoTokenizer.from_pretrained(self._id)
@@ -26,7 +29,7 @@ class TowerInstructPipelineLangChain:
       
         self.llm = HuggingFacePipeline(pipeline=self._hf_pipeline)
         self._prompt = load_prompt(prompt_file)
-        self._prompt_ignore = set(prompt_ignore) if prompt_ignore is not None else {}
+        self._prompt_ignore = set(str(item) for item in (prompt_ignore or []))
         self._output_parser = get_output_parsing_method(output_parser)
         self._use_context = use_context
         self._separateur_context = separateur_context
@@ -44,7 +47,7 @@ class TowerInstructPipelineLangChain:
                 for text, src, tgt in zip(texts, src_langs, tgt_langs)]
 
     def _is_text_valid(self, text: str):
-        return text not in self._prompt_ignore
+        return isinstance(text, str) and text not in self._prompt_ignore
 
     def _process_pipeline(self, prompts):
         if prompts:
@@ -84,8 +87,7 @@ class TowerInstructPipelineLangChain:
                 # if no context was provided, create one based on previous sentences received
                 prev_contexts = [texts[i-self._context_window:i] for i in range(len(texts))]
                 # merge the sentences over context_window for each context
-                prev_contexts = [self._separateur_context.join(context) if len(context) else ""
-                                 for context in prev_contexts]
+                prev_contexts = [self._separateur_context.join(map(str, context)) if len(context) else "" for context in prev_contexts]
             valid_prev_contexts = [prev_context for idx, prev_context in enumerate(prev_contexts) if valid_mask[idx]]
             prompts = self._create_prompt_with_contexte(valid_texts, valid_src_lang, valid_tgt_lang, valid_prev_contexts)
         else:

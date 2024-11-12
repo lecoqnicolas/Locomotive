@@ -3,3 +3,4 @@ from ._config import load_config
 from ._docs import read_docx_with_langchain, read_txt, read_doc
 from ._document_template import DocumentTemplate
 from ._document_template_pdf import PDFDocumentTemplate
+#from ._document_template_pdf_v2 import PDFDocumentTemplate

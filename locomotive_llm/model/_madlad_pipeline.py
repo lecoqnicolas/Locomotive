@@ -50,14 +50,20 @@ class MadladPipeline:
             torch_dtype=torch.float32 if self._device == -1 else torch.float16
         )
 
-        self._prompt_ignore = set(prompt_ignore) if prompt_ignore is not None else {}
+        self._prompt_ignore = set(str(item) for item in (prompt_ignore or []))
+        self._use_context = use_context
+        self._separateur_context = separateur_context
+        self._context_window = context_window
 
     def _is_text_valid(self, text: str):
-        return text not in self._prompt_ignore
+        return isinstance(text, str) and text not in self._prompt_ignore
 
-    def _prepare_inputs(self, texts, tgt_lang):
+    def _prepare_inputs(self, texts, tgt_lang, context=None):
         code = match_code_language(tgt_lang)
         tag_prefix = f"<2{code}>"
+        if context:
+            texts = [f"{context} {text}" for text in texts]
+
         return [f"{tag_prefix} {text}" for text in texts]
 
     def _process_batch(self, batch):
@@ -69,16 +75,24 @@ class MadladPipeline:
         return [self._tokenizer.decode(output, skip_special_tokens=True).strip() for output in outputs]
 
 
-    def transform(self, texts: list[str],src_name:str, tgt_lang: str):
-        # Filter valid texts
-        valid_texts = [text for text in texts if self._is_text_valid(text)]
-        prepared_texts = self._prepare_inputs(valid_texts, tgt_lang)
+    def transform(self, texts: list[str], src_name: str, tgt_lang: str):
+        valid_texts = [text for text in texts if isinstance(text, str) and self._is_text_valid(text)]
         translations = []
+        context = None
 
-        for i in range(0, len(prepared_texts), self._batch_size):
-            batch = prepared_texts[i:i + self._batch_size]
-            batch_translations = self._process_batch(batch)
+        # Process each batch and include context if needed
+        for i in range(0, len(valid_texts), self._batch_size):
+            batch = valid_texts[i:i + self._batch_size]
+
+            # If use_context is True, add the context
+            if self._use_context:
+                context_window_start = max(0, i - self._context_window)
+                context = self._separateur_context.join(valid_texts[context_window_start:i])
+
+            prepared_texts = self._prepare_inputs(batch, tgt_lang, context)
+            batch_translations = self._process_batch(prepared_texts)
             translations.extend(batch_translations)
+
         results = []
         valid_idx = 0
         for text in texts:
