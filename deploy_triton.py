@@ -10,7 +10,8 @@ import sys
 
 SOURCE_DEPENDANCIES = {
     "document_trad": ["./locomotive_llm"],
-    "sentence_trad": ["./locomotive_llm"]
+    "sentence_trad": ["./locomotive_llm"],
+    "madlad": ["./locomotive_llm"]
 }
 
 CUSTOM_ENV = {

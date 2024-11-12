@@ -5,7 +5,7 @@ version: 1
 llm_model: "Unbabel/TowerInstruct-Mistral-7B-v0.2"
 prompt: "config/prompts/prompt_v1.yml"
 batch_size: 50
-max_token: 150
+max_token: 512
 device: 0
 src_code: "eng_Latn"
 src_name: "English"

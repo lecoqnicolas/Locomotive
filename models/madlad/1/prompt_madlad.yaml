@@ -1,0 +1,7 @@
+input_variables:
+- src_lang
+- tgt_lang
+- text
+output_parser: null
+template: "<2{tgt_lang}> {text}"
+template_format: f-string
