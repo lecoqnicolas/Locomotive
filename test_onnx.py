@@ -9,7 +9,7 @@ from locomotive_llm.postprocess import BasicPostProcessor, LlmResponseParser
 
 def translate_texts(texts, src_lang, tgt_lang, model, tokenizer, device):
     #prompt_template = "Only answer with the traduction. Never explain or detail your answers. Translate the following text from {src_lang} to {tgt_lang} :\n{src_lang}: {text}\n{tgt_lang}:"
-    prompt_template = "./config/prompt_v1.yml"
+    prompt_template = "./config/prompt_madlad.yml"
     prepro = BasicPreprocessor(prompt_file=prompt_template, ignore_prompts=[" ", "\n", " \n", "  "])
     prompts, valid_mask = prepro.transform(texts, src_lang, tgt_lang)
     inputs = tokenizer(prompts, return_tensors="pt", padding=True).to(device)

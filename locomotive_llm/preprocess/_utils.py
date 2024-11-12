@@ -10,7 +10,7 @@ def filter_clean_langs(lang_list:  str | list[str], valid_mask: list[bool], outp
     if isinstance(lang_list, list):
         valid_src_lang = [lang for i, lang, text in enumerate(lang_list) if valid_mask[i]]
     else:
-        valid_src_lang = [lang_list for idx in range(len(lang_list)) if valid_mask[idx]]
+        valid_src_lang = [lang_list for idx in range(len(valid_mask)) if valid_mask[idx]]
     # convert lang names to code if asked
     if output_lang_code:
         valid_src_lang = [langcodes.find(lang).language for lang in valid_src_lang]
