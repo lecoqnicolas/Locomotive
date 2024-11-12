@@ -2,7 +2,7 @@ import json
 import re
 
 
-def _clean_output(output, prompt):
+def clean_output(output, prompt):
     cleaned_output = output.replace(prompt, "").strip()
     if "\n" in cleaned_output:
         cleaned_output = cleaned_output.split("\n")[0].strip()
@@ -10,7 +10,11 @@ def _clean_output(output, prompt):
     return cleaned_output
 
 
-def _clean_translation_output(output, prompt):
+def identity(output, prompt):
+    return output
+
+
+def clean_translation_output(output, prompt):
     # Find translations in the output
     matches = re.findall(r'"translated_text":\s*"([^"]*)"', output)
 
@@ -26,7 +30,7 @@ def _clean_translation_output(output, prompt):
     return None
 
 
-def _clean_output_json(output, prompt):
+def clean_output_json(output, prompt):
     json_output = ""
 
     # Find the first and last braces to extract potential JSON

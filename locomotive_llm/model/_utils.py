@@ -1,8 +1,24 @@
-from ..schema import LlmConfiguration
-from ._tower_instruct_pipeline_langchain import TowerInstructPipelineLangChain
-from ._madlad_pipeline import MadladPipeline
-from ._fake_pipeline import FakePipeline
 import logging
+
+import torch
+
+from ._fake_pipeline import FakePipeline
+from ._madlad_pipeline import MadladPipeline
+from ._tower_instruct_pipeline_langchain import TowerInstructPipelineLangChain
+from ..schema import LlmConfiguration
+
+
+def get_device(device):
+    if isinstance(device, str):
+        if device.lower() == "cpu":
+            device = -1
+        elif device.startswith("cuda"):
+            device = torch.cuda.current_device()
+        else:
+            raise ValueError(f"Unsupported device: {device}")
+    else:
+        device = int(device)
+    return device
 
 
 def get_pipeline(config: LlmConfiguration):

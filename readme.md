@@ -196,3 +196,11 @@ deploy the new env
   - for langchain, emacs /models/sentence_trad/traduction_env/lib/python3.10/site-packages/pydantic/_internal/_typing_extra.py
     - et ajouter typeerror en exception a la method eval_type_lenient (l258):
           except (NameError, TypeError):
+
+Export onnx:
+  pip install optimum[exporters]
+  python -m pip install --upgrade onnxruntime-gpu
+  optimum-cli export onnx --model Unbabel/TowerInstruct-Mistral-7B-v0.2  tower_onnx/ --task text-generation
+  
+  test_onnx.py
+  

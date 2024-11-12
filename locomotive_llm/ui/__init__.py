@@ -1,1 +1,1 @@
-from .interface import get_gui
+from ._interface import get_gui

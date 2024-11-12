@@ -15,12 +15,14 @@ def main(params: argparse.Namespace) -> NoReturn:
     config = load_config(params.config, params.reverse)
     pipeline_class = get_pipeline(config)
     model = pipeline_class(model_id=config.llm_model,
-                              device=config.device,
-                              prompt_file=config.prompt,
-                              batch_size=config.batch_size,
-                              output_parser=config.response_parsing_method, prompt_ignore=config.ignore_prompt,
-                              use_context=config.use_context, separateur_context=config.separateur_context,
-                              context_window=config.context_window)
+                           device=config.device,
+                           prompt_file=config.prompt,
+                           batch_size=config.batch_size,
+                           output_parser=config.response_parsing_method,
+                           prompt_ignore=config.ignore_prompt,
+                           use_context=config.use_context,
+                           separateur_context=config.separateur_context,
+                           context_window=config.context_window)
 
     if torch.cuda.is_available():
         device_name = torch.cuda.get_device_name(config.device) if config.device != "cpu" else "CPU"

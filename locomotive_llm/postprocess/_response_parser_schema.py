@@ -1,6 +1,6 @@
 import logging
 from enum import Enum, auto
-from ._response_parsing_methods import _clean_output, _clean_output_json, _clean_translation_output
+from ._response_parsing_methods import clean_output, clean_output_json, clean_translation_output, identity
 from typing import Callable
 
 
@@ -9,12 +9,14 @@ class LlmResponseParser(Enum):
     keep_first_line = auto()
     bracket_regexp = auto()
     json = auto()
+    identity = auto()
 
 
 METHOD_MAPPING = {
-    LlmResponseParser.keep_first_line: _clean_output,
-    LlmResponseParser.bracket_regexp: _clean_translation_output,
-    LlmResponseParser.json: _clean_output_json
+    LlmResponseParser.keep_first_line: clean_output,
+    LlmResponseParser.bracket_regexp: clean_translation_output,
+    LlmResponseParser.json: clean_output_json,
+    LlmResponseParser.identity: identity
 }
 
 

@@ -1,16 +1,16 @@
 import argparse
 import logging
 import time
+from pathlib import Path
 
 import mlflow
-import torch
 
 from locomotive_llm.eval import eval_text_bleu, eval_text_comet
 from locomotive_llm.load import load_config, read_doc, DocumentTemplate, PDFDocumentTemplate
 from locomotive_llm.model import get_pipeline
 from locomotive_llm.save import write_doc
 from locomotive_llm.utils import log_dataclass
-from pathlib import Path
+
 
 def main(params: argparse.Namespace) -> None:
     logging.basicConfig(level="DEBUG")
@@ -20,16 +20,18 @@ def main(params: argparse.Namespace) -> None:
                               device=config.device,
                               prompt_file=config.prompt,
                               batch_size=config.batch_size,
-                              output_parser=config.response_parsing_method, prompt_ignore=config.ignore_prompt,
-                              use_context=config.use_context, separateur_context=config.separateur_context,
+                              output_parser=config.response_parsing_method,
+                              prompt_ignore=config.ignore_prompt,
+                              use_context=config.use_context,
+                              separateur_context=config.separateur_context,
                               context_window=config.context_window)
     file_extension = Path(params.input_file).suffix
     if config.preserve_formatting:
-        if file_extension ==".docx":
+        if file_extension == ".docx":
             doc = DocumentTemplate(params.input_file)
             texts = doc.get_content()
             lines = [el["content"] for el in texts]
-        elif file_extension =='.pdf':
+        elif file_extension == '.pdf':
             pdf_doc = PDFDocumentTemplate(params.input_file)
             elements = pdf_doc.get_content()
             print(f"Nombre d'éléments extraits du PDF : {len(elements)}")
@@ -43,7 +45,6 @@ def main(params: argparse.Namespace) -> None:
     # init mlflow
     mlflow.set_tracking_uri(config.mlflow_repository)
     mlflow.set_experiment(config.experiment_name)
-    # ground and source must be provided
 
     with mlflow.start_run(run_name=config.run_name) as run:
         log_dataclass(config)
@@ -66,12 +67,10 @@ def main(params: argparse.Namespace) -> None:
                 write_doc(translated_text, params.output_file)
 
         logging.info(f"Translation completed. Output saved at {params.output_file}.")
-        # Calculate BLEU score
+
+        # Calculate COMET and BLEU score
         bleu_score = eval_text_bleu(translated_text, reference_text)
-
-        # Calculate COMET score
         comet_score = eval_text_comet(translated_text, reference_text, lines)['system_score']
-
         logging.info(f"Evaluation completed. BLEU: {bleu_score}, COMET: {comet_score}")
 
         # Log the metrics

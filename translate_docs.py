@@ -1,8 +1,6 @@
 import argparse
 import logging
 import time
-from pathlib import Path
-import torch
 
 from locomotive_llm.load import load_config, read_doc, DocumentTemplate
 from locomotive_llm.model import get_pipeline
@@ -14,14 +12,14 @@ def main(params: argparse.Namespace) -> None:
     config = load_config(params.config, params.reverse)
     pipeline_class = get_pipeline(config)
     pipeline = pipeline_class(model_id=config.llm_model,
-                              device="cuda" if torch.cuda.is_available() and not params.cpu else "cpu",
+                              device=config.device,
                               prompt_file=config.prompt,
                               batch_size=config.batch_size,
-                              output_parser=config.response_parsing_method, prompt_ignore=config.ignore_prompt,
-                              use_context=config.use_context, separateur_context= config.separateur_context,
+                              output_parser=config.response_parsing_method,
+                              prompt_ignore=config.ignore_prompt,
+                              use_context=config.use_context,
+                              separateur_context= config.separateur_context,
                               context_window=config.context_window)
-
-    file_extension = Path(params.input_file).suffix
 
     if config.preserve_formatting:
         doc = DocumentTemplate(params.input_file)
@@ -47,7 +45,7 @@ def main(params: argparse.Namespace) -> None:
         doc.map_translations(translated_text)
         doc.save(params.output_file)
     else:
-        write_doc(translated_text, params.output_file, preserve_formatting=config.preserve_formatting)
+        write_doc(translated_text, params.output_file)
     
     logging.info(f"Translation completed. Output saved at {params.output_file}.")
 
