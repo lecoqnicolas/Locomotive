@@ -3,7 +3,7 @@ from langchain_huggingface import HuggingFacePipeline
 from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 from ..postprocess import BasicPostProcessor
 from ..preprocess import ContextPreprocessor, BasicPreprocessor
-from ._utils import get_device
+from ..utils import get_device
 
 
 class TowerInstructPipelineLangChain:

@@ -3,7 +3,7 @@ import logging
 import torch
 from transformers import T5ForConditionalGeneration, T5Tokenizer
 
-from ._utils import get_device
+from ..utils import get_device
 from ..preprocess import BasicPreprocessor
 from ..postprocess import BasicPostProcessor, LlmResponseParser
 
