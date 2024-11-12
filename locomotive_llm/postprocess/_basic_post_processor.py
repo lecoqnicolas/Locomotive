@@ -15,7 +15,7 @@ class BasicPostProcessor:
         for is_valid in valid_mask:
             if is_valid:
                 if self._output_answer_field is None:
-                    cleaned_output = self._parsing_method(outputs[outputs_idx])
+                    cleaned_output = self._parsing_method(outputs[output_idx],  input_prompts[output_idx])
                 else:
                     cleaned_output = self._parsing_method(outputs[output_idx][0][self._output_answer_field], input_prompts[output_idx])
                 output_idx += 1
