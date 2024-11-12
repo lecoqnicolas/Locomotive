@@ -2,9 +2,9 @@ from ._response_parser_schema import get_output_parsing_method, LlmResponseParse
 
 
 class BasicPostProcessor:
-    def __init__(self, output_parsing_method: str| LlmResponseParser) -> None:
+    def __init__(self, output_parsing_method: str| LlmResponseParser, output_field="generated_text") -> None:
         self._parsing_method = get_output_parsing_method(output_parsing_method)
-        self._output_answer_field = "generated_text"
+        self._output_answer_field = output_field
 
     def transform(self, valid_mask: list[bool], input_prompts: list[str], outputs: list) -> list[str]:
         """
@@ -14,11 +14,10 @@ class BasicPostProcessor:
         output_idx = 0
         for is_valid in valid_mask:
             if is_valid:
-                if output_idx < len(outputs) and self._output_answer_field in outputs[output_idx][0]:
-                    cleaned_output = self._parsing_method(outputs[output_idx][0][self._output_answer_field],
-                                                          input_prompts[output_idx])
+                if self._output_answer_field is None:
+                    cleaned_output = self._parsing_method(outputs[outputs_idx])
                 else:
-                    cleaned_output = ""
+                    cleaned_output = self._parsing_method(outputs[output_idx][0][self._output_answer_field], input_prompts[output_idx])
                 output_idx += 1
             else:
                 cleaned_output = ""
