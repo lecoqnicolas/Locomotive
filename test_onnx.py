@@ -26,7 +26,7 @@ model.to(device)
 total_start_time = time.time()
 # Example
 src_lang = "English"
-tgt_lang = "Frdeench"
+tgt_lang = "French"
 text = ["My name is Arthur and I live in Paris"]
 
 translations = translate_texts(text, src_lang, tgt_lang, model, tokenizer, device)
