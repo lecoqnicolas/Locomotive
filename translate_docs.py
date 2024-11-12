@@ -18,8 +18,9 @@ def main(params: argparse.Namespace) -> None:
                               output_parser=config.response_parsing_method,
                               prompt_ignore=config.ignore_prompt,
                               use_context=config.use_context,
-                              separateur_context= config.separateur_context,
-                              context_window=config.context_window)
+                              separateur_context=config.separateur_context,
+                              context_window=config.context_window,
+                              max_tokens=config.max_token)
 
     if config.preserve_formatting:
         doc = DocumentTemplate(params.input_file)

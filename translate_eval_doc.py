@@ -20,6 +20,7 @@ def main(params: argparse.Namespace) -> None:
                               device=config.device,
                               prompt_file=config.prompt,
                               batch_size=config.batch_size,
+                              max_tokens=config.max_token,
                               output_parser=config.response_parsing_method,
                               prompt_ignore=config.ignore_prompt,
                               use_context=config.use_context,

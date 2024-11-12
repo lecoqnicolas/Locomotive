@@ -22,7 +22,8 @@ def main(params: argparse.Namespace) -> NoReturn:
                            prompt_ignore=config.ignore_prompt,
                            use_context=config.use_context,
                            separateur_context=config.separateur_context,
-                           context_window=config.context_window)
+                           context_window=config.context_window,
+                           max_tokens=config.max_token)
 
     if torch.cuda.is_available():
         device_name = torch.cuda.get_device_name(config.device) if config.device != "cpu" else "CPU"

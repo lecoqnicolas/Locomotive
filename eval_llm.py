@@ -35,7 +35,9 @@ def main(params: argparse.Namespace) -> None:
                                   prompt_file=config.prompt,
                                   prompt_ignore=config.ignore_prompt,
                                   batch_size=config.batch_size,
-                                  output_parser=config.response_parsing_method, use_context=config.use_context)
+                                  output_parser=config.response_parsing_method,
+                                  use_context=config.use_context,
+                                  max_tokens=config.max_token)
 
         model_dirname = f"{config.src_code}_{config.tgt_code}-{config.version}"
         run_dir = Path("run") / model_dirname
