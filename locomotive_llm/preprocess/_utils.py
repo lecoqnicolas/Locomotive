@@ -22,19 +22,9 @@ def clean_inputs(texts: list[str], src_lang: str | list[str], tgt_lang: str | li
     valid_mask = [is_text_valid(text, ignore_prompts) for text in texts]
     valid_texts = [text for i, text in enumerate(texts) if valid_mask[i]]
 
-    valid_src_lang = filter_clean_langs(valid_src_lang)
+    valid_src_lang = filter_clean_langs(src_lang, valid_mask, output_lang_code)
+    valid_tgt_lang = filter_clean_langs(tgt_lang, valid_mask, output_lang_code)
 
-    if isinstance(src_lang, list):
-        valid_src_lang = [lang for i, lang, text in enumerate(src_lang) if valid_mask[i]]
-    else:
-        valid_src_lang = [src_lang for idx in range(len(texts)) if valid_mask[idx]]
-    if use_lang_code:
-        valid_src_lang = [langcodes.find(lang).language for lang in valid_src_lang]
-
-    if isinstance(tgt_lang, list):
-        valid_tgt_lang = [lang for i, lang, text in enumerate(tgt_lang) if valid_mask[i]]
-    else:
-        valid_tgt_lang = [tgt_lang for idx in range(len(texts)) if valid_mask[idx]]
     return valid_mask, valid_texts, valid_src_lang, valid_tgt_lang
 
 
