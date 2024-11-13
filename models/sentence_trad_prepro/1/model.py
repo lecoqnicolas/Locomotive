@@ -59,7 +59,7 @@ class TritonPythonModel:
                     ),
                     pb_utils.Tensor(
                         "tokens",
-                        np.array(tokens[tot_size:tot_size + request_size], dtype="object"),
+                        np.array(tokens[tot_size:tot_size + request_size], dtype="float32"),
                     )
                 ]
             )

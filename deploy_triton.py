@@ -11,7 +11,8 @@ import sys
 SOURCE_DEPENDANCIES = {
     "document_trad": ["./locomotive_llm"],
     "sentence_trad": ["./locomotive_llm"],
-    "madlad": ["./locomotive_llm"]
+    "madlad": ["./locomotive_llm"],
+    "en_fr_seq2seq": ["./seq2seq_model"]
 }
 
 CUSTOM_ENV = {
