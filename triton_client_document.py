@@ -5,7 +5,7 @@ from pathlib import Path
 from locomotive_llm.load import DocumentTemplate, PDFDocumentTemplate, read_doc
 from locomotive_llm.save import write_doc
 import time
-
+import argparse
 
 def async_callback(output_path, doc_template, result, error):
     if error is not None:
@@ -39,7 +39,7 @@ def load_document(path):
         return [line for line in texts.split("\n") if line.strip()]
 
 
-def main():
+def main(model_name):
     client = tclient.InferenceServerClient(url="localhost:8001")
 
     output_file = "translated_doc1.docx"
@@ -75,7 +75,7 @@ def main():
 
     # Asynchronous Query
     client.async_infer(
-        model_name="document_trad",
+        model_name=model_name,
         inputs=input_tensors,
         outputs=output,
         callback=lambda result, error: async_callback(output_file, doc_template, result, error)
@@ -86,4 +86,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="Triton client for model inference")
+    parser.add_argument("--model_name", type=str, required=True, help="Name of the model to use for inference")
+    args = parser.parse_args()
+
+    main(args.model_name)

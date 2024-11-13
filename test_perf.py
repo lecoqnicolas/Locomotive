@@ -6,7 +6,7 @@ import argparse
 
 # Parameters
 NUM_REQUESTS = [100]
-BATCH_SIZE = 1
+BATCH_SIZE = 50
 DELAY = 0
 
 

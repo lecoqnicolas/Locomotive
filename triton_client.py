@@ -12,7 +12,7 @@ def async_callback(result, error):
     if result is not None:
         print("Triton server answer :")
         for item in result.as_numpy("translation"):
-            print(item.decode("UTF-8"))
+            print(item.decode('UTF-8'))
 
 
 def main(model_name):
