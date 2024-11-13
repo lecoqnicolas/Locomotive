@@ -26,7 +26,8 @@ def async_callback(counter, result, error):
         for item in result.as_numpy("valid_mask"):
             print(item)
         counter.count_pos += 1
-def test_sentence_trad(model_name):
+
+def test_model(model_name="sentence_trad_prepro"):
     # grpc url should be prefered
     client = tclient.InferenceServerClient(url="localhost:8001")
     
@@ -76,8 +77,5 @@ def test_sentence_trad(model_name):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Triton client for model inference")
-    parser.add_argument("--model_name", type=str, required=True, help="Name of the model to use for inference")
-    args = parser.parse_args()
     
-    test_sentence_trad(args.model_name)
+    test_model()
