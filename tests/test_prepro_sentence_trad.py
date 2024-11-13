@@ -80,4 +80,4 @@ if __name__ == "__main__":
     parser.add_argument("--model_name", type=str, required=True, help="Name of the model to use for inference")
     args = parser.parse_args()
     
-    main(args.model_name)
+    test_sentence_trad(args.model_name)
