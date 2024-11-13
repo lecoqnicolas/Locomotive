@@ -1,0 +1,50 @@
+name: "sentence_trad_bls"
+backend: "python"
+max_batch_size: 50
+
+input [
+  {
+    name: "text_to_translate"
+    data_type: TYPE_STRING
+    dims:[1]
+  },
+  {
+    name: "src_name"
+    data_type: TYPE_STRING
+    dims: [1]
+  },
+  {
+    name: "tgt_name"
+    data_type: TYPE_STRING
+    dims: [1]
+  }
+]
+output [
+  {
+    name: "prompts"
+    data_type: TYPE_STRING
+    dims: [1]
+  },
+  {
+    name: "tokens"
+    data_type: TYPE_BYTES
+    dims: [-1]
+  },
+  {
+    name: "valid_mask"
+    data_type: TYPE_BOOL
+    dims: [-1]
+  }
+]
+parameters: {
+  key: "EXECUTION_ENV_PATH",
+  value: {string_value: "$$TRITON_MODEL_DIRECTORY/traduction_env"}
+}
+instance_group [{
+	count: 1
+	kind: KIND_GPU
+	gpus: [ 0 ]
+}]
+dynamic_batching {
+	max_queue_delay_microseconds: 100
+}

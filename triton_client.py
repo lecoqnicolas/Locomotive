@@ -5,8 +5,8 @@ from tritonclient.utils import np_to_triton_dtype
 import time
 import argparse
 
+
 def async_callback(result, error):
-    #print(query_response)
     if error is not None:
         print(f"Error reception from server : {str(error)}")
     if result is not None:
@@ -14,9 +14,8 @@ def async_callback(result, error):
         for item in result.as_numpy("translation"):
             print(item.decode("UTF-8"))
 
+
 def main(model_name):
-    # to test the http protocol
-    #client = tclient.InferenceServerClient(url="localhost:8000")
     # grpc url should be prefered
     client = tclient.InferenceServerClient(url="localhost:8001")
     
