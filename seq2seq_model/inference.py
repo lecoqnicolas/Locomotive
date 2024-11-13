@@ -73,6 +73,7 @@ class Seq2SeqInference:
 if __name__ == "__main__":
     BASE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "seq2seq_model/translate-en_fr-1_10")
     inference_engine = Seq2SeqInference(BASE_DIR)
-    input_texts = ["Hello, my name Hugo and I live in Paris", "Hello, my name Hugo and I live in Paris"]
+    input_texts = ["Hello, my name Hugo and I live in Paris. And this is a second sentence",
+                   "Hello, my name Hugo and I live in Paris"]
     output = inference_engine.infer(input_texts)
     print("Inference output:", output)

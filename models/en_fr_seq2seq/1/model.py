@@ -32,7 +32,7 @@ class TritonPythonModel:
             languages_src.extend([name[0].decode("UTF-8") for name in src_name.as_numpy()])
             languages_dest.extend([name[0].decode("UTF-8") for name in tgt_name.as_numpy()])
         translated_text = self._inference_engine.infer(texts)
-        # inference engine create a list of (list of one sentence)
+        # original inference engine create a list of (list of one sentence)
         translated_text = [text[0] for text in translated_text]
         # unbatch and send each translation to the request
         print(translated_text, flush=True)
