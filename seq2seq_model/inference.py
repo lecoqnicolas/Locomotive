@@ -44,9 +44,7 @@ class Seq2SeqInference:
         Returns:
             list of list of str: Tokenized sentences as string tokens.
         """
-        tokenized_batch = [self.tokenizer.encode(sentence, out_type=str) for sentences in sentences_batch for sentence
-                           in sentences]
-        return tokenized_batch
+        return [[self.tokenizer.encode(sentence, out_type=str) for sentence in sentences] for sentences in sentences_batch]
 
     def infer(self, texts):
         """
@@ -62,10 +60,11 @@ class Seq2SeqInference:
         tokenized_inputs = self.tokenize_batch(sentences_batch)
 
         results = []
-        for tokens in tokenized_inputs:
-            output = self.translator.translate_batch([tokens])
-            decoded_output = [self.tokenizer.decode(ids) for ids in output[0].hypotheses]
-            results.append(decoded_output)
+        for tokenized_inputs in tokenized_sentences:
+            batch_output = self.translator.translate_batch(tokenized_inputs)
+            decoded_sentences = [self.tokenizer.decode(output.hypotheses[0]) for output in batch_output]
+            reconstructed_text = ' '.join(decoded_sentences).strip()
+            results.append(reconstructed_text)
 
         return results
 
