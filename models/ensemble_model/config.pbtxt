@@ -1,0 +1,101 @@
+name: "ensemble_model"
+platform: "ensemble"
+max_batch_size: 50
+
+input [
+  {
+    name: "text_to_translate"
+    data_type: TYPE_STRING
+    dims:[1]
+  },
+  {
+    name: "src_name"
+    data_type: TYPE_STRING
+    dims: [1]
+  },
+  {
+    name: "tgt_name"
+    data_type: TYPE_STRING
+    dims: [1]
+  }
+]
+output [
+  {
+    name: "translation"
+    data_type: TYPE_STRING
+    dims: [1]
+  }
+]
+
+ensemble_scheduling {
+  step [
+    {
+      model_name: "sentence_trad_prepro"
+      model_version: 1
+      input_map {
+        key: "text_to_translate"
+        value: "text_to_translate"
+
+      }
+      input_map {
+          key: "src_name"
+          value: "src_name"
+      }
+      input_map {
+          key: "tgt_name"
+          value: "tgt_name"
+  
+      }
+      output_map {
+        key: "prompts"
+        value: "prompts"
+      }
+      output_map {
+          key: "tokens"
+          value: "tokens"
+  
+      }
+      output_map {
+          key: "valid_mask"
+          value: "valid_mask"
+      }
+    },
+    {
+      model_name: "dummy_translation_model"
+      model_version: 1
+     
+      input_map {
+          key: "tokens"
+          value: "tokens"
+      }
+      
+    
+      output_map {
+          key: "translated_tokens"
+          value: "translated_tokens"
+      }
+    },
+    {
+      model_name: "sentence_trad_postpro"
+      model_version: 1
+      input_map {
+        key: "prompts"
+        value: "prompts"
+      }
+      input_map {
+          key: "translated_tokens"
+          value: "translated_tokens"
+  
+      }
+      input_map {
+          key: "valid_mask"
+          value: "valid_mask"
+      }
+      output_map {
+         key: "translation"
+         value: "translation"
+  
+      }
+    }
+  ]
+}

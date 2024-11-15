@@ -1,0 +1,34 @@
+name: "dummy_translation_model"
+backend: "python"
+input [
+ 
+  {
+    name: "tokens"
+    data_type: TYPE_INT64
+    dims: [1]
+  }
+  
+]
+output [
+  
+  {
+    name: "translated_tokens"
+    data_type: TYPE_INT64
+    dims: [1]
+  }
+  
+]
+parameters: {
+  key: "EXECUTION_ENV_PATH",
+  value: {string_value: "$$TRITON_MODEL_DIRECTORY/../sentence_trad/traduction_env"}
+}
+instance_group [
+  {
+    count: 1
+    kind: KIND_GPU
+    gpus: [0]
+  }
+]
+dynamic_batching {
+  max_queue_delay_microseconds: 100
+}

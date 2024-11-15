@@ -57,8 +57,7 @@ class Seq2SeqInference:
             list of list of str: Translated texts.
         """
         sentences_batch = self.segment_sentences(texts)
-        tokenized_inputs = self.tokenize_batch(sentences_batch)
-
+        tokenized_sentences = self.tokenize_batch(sentences_batch)
         results = []
         for tokenized_inputs in tokenized_sentences:
             batch_output = self.translator.translate_batch(tokenized_inputs)
@@ -73,6 +72,6 @@ if __name__ == "__main__":
     BASE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "translate-en_fr-1_10")
     inference_engine = Seq2SeqInference(BASE_DIR)
     input_texts = ["Hello, my name Hugo and I live in Paris. And this is a second sentence",
-                   "Hello, my name Hugo and I live in Paris"]
+                   "Hello, my name Hugo and I live in Paris", "Hello world"]
     output = inference_engine.infer(input_texts)
     print("Inference output:", output)

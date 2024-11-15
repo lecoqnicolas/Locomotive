@@ -20,7 +20,7 @@ def main(model_name):
     client = tclient.InferenceServerClient(url="localhost:8001")
     
     # Inputs
-    prompts = ["Hello world"]
+    prompts = ["Hello, my name is Triton"]
     print(f"Sentences to translate :")
     print(f"{prompts}")
     text_obj = np.array(prompts, dtype="object")

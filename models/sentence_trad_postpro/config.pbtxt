@@ -1,39 +1,29 @@
-name: "sentence_trad_prepro"
+name: "sentence_trad_postpro"
 backend: "python"
 max_batch_size: 50
 
 input [
-  {
-    name: "text_to_translate"
-    data_type: TYPE_STRING
-    dims:[1]
-  },
-  {
-    name: "src_name"
-    data_type: TYPE_STRING
-    dims: [1]
-  },
-  {
-    name: "tgt_name"
-    data_type: TYPE_STRING
-    dims: [1]
-  }
-]
-output [
   {
     name: "prompts"
     data_type: TYPE_STRING
     dims: [1]
   },
   {
-    name: "tokens"
-    data_type: TYPE_INT64
+    name: "translated_tokens"
+    data_type: TYPE_INT64 
     dims: [-1]
   },
   {
     name: "valid_mask"
     data_type: TYPE_BOOL
     dims: [-1]
+  }
+]
+output [
+  {
+    name: "translation"
+    data_type: TYPE_STRING
+    dims: [1]
   }
 ]
 parameters: {

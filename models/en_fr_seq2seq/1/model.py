@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 import numpy as np
 import triton_python_backend_utils as pb_utils
-from seq2seq_model.inference import Seq2SeqInference
+from seq2seq_model.inference_proposition import Seq2SeqInference
 
 
 class TritonPythonModel:
@@ -33,7 +33,7 @@ class TritonPythonModel:
             languages_dest.extend([name[0].decode("UTF-8") for name in tgt_name.as_numpy()])
         translated_text = self._inference_engine.infer(texts)
         # original inference engine create a list of (list of one sentence)
-        translated_text = [text[0] for text in translated_text]
+        #translated_text = [text[0] for text in translated_text]
         # unbatch and send each translation to the request
         print(translated_text, flush=True)
         tot_size = 0

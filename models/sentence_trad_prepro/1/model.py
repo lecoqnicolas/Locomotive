@@ -41,8 +41,14 @@ class TritonPythonModel:
             languages_src.extend([name[0].decode("UTF-8") for name in src_name.as_numpy()])
             languages_dest.extend([name[0].decode("UTF-8") for name in tgt_name.as_numpy()])
         prompts, valid_mask = self._preprocessor.transform(texts, languages_src, languages_dest)
-        tokens = self._tokenizer(prompts, return_tensors="pt", padding=True).to(self._device)
 
+        #prompts tokenization
+        tokens = self._tokenizer(prompts, return_tensors="pt", padding=True).to(self._device)
+        input_ids = tokens['input_ids']
+        input_ids_np = input_ids.cpu().numpy()
+
+        #traduction decoding
+        decoded_translations = [self._tokenizer.decode(ids, skip_special_tokens=True) for ids in input_ids_np]
         print(prompts, flush=True)
         print(tokens, flush=True)
         tot_size = 0
@@ -59,7 +65,7 @@ class TritonPythonModel:
                     ),
                     pb_utils.Tensor(
                         "tokens",
-                        np.array(tokens[tot_size:tot_size + request_size], dtype="float32"),
+                        np.array(input_ids_np[tot_size:tot_size + request_size], dtype="int64"),
                     )
                 ]
             )

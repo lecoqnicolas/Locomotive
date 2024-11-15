@@ -55,7 +55,7 @@ def deploy_triton(arg):
     for elmt in src_repository.glob("*"):
         if elmt.is_dir():
             if arg.model is not None and elmt.name != arg.model:
-                logging.info(f"Looking for {arg.model} : Skipping local model {arg.model}")
+                logging.info(f"Looking for {arg.model} : Skipping local model {elmt.name}")
                 continue
             logging.info("----------------------")
             logging.info(f"Found local model {elmt.name}")
@@ -68,7 +68,7 @@ def deploy_triton(arg):
                 versions = list()
 
             if len(versions) == 0:
-                logging.info(f"Skipping model {elmt.name} as no valid version was found")
+                logging.info(f"Skipping model {elmt.name} : no valid version was found")
                 continue
             logging.info(f"Deploying versions {versions} of {elmt.name} to triton model repository {target_repository}")
 
@@ -77,8 +77,9 @@ def deploy_triton(arg):
                 logging.info("------------")
                 logging.info(f"Deploying version {version} to {target_repository}")
                 dest_version_dir = dest_model_dir / version
-                if dest_model_dir.is_dir():
+                if dest_version_dir.is_dir():
                     shutil.rmtree(dest_version_dir)
+                #os.makedirs(dest_version_dir, exist_ok=True)
                 shutil.copytree(elmt/version, dest_version_dir)
                 if elmt.name in SOURCE_DEPENDANCIES:
                     for dep in SOURCE_DEPENDANCIES[elmt.name]:
