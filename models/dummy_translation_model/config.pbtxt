@@ -1,11 +1,13 @@
 name: "dummy_translation_model"
 backend: "python"
+max_batch_size: 50
+
 input [
  
   {
     name: "tokens"
     data_type: TYPE_INT64
-    dims: [1]
+    dims: [-1]
   }
   
 ]
@@ -14,7 +16,7 @@ output [
   {
     name: "translated_tokens"
     data_type: TYPE_INT64
-    dims: [1]
+    dims: [-1]
   }
   
 ]

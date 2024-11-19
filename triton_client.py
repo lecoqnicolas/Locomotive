@@ -35,7 +35,7 @@ def main(model_name):
             "text_to_translate", text_obj.shape, np_to_triton_dtype(text_obj.dtype)
         ),
         tclient.InferInput(
-            "src_name", src_obj.shape, np_to_triton_dtype(text_obj.dtype)
+            "src_name", src_obj.shape, np_to_triton_dtype(src_obj.dtype)
         ),
         tclient.InferInput(
             "tgt_name", tgt_obj.shape, np_to_triton_dtype(text_obj.dtype)

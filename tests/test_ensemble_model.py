@@ -16,9 +16,9 @@ class EnsembleModel:
             InferInput("tgt_name", [1], "STRING")
         ]
         
-        inputs[0].set_data_from_numpy(np.array([text_to_translate], dtype=np.object))
-        inputs[1].set_data_from_numpy(np.array([src_name], dtype=np.object))
-        inputs[2].set_data_from_numpy(np.array([tgt_name], dtype=np.object))
+        inputs[0].set_data_from_numpy(np.array([text_to_translate], dtype="object"))
+        inputs[1].set_data_from_numpy(np.array([src_name], dtype="object"))
+        inputs[2].set_data_from_numpy(np.array([tgt_name], dtype="object"))
 
         outputs = [
             InferRequestedOutput("prompts"),

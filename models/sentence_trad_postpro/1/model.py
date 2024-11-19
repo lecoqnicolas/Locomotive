@@ -27,9 +27,9 @@ class TritonPythonModel:
 
         for request in requests:
             # Extract input tensors
-            prompts = pb_utils.get_input_tensor_by_name(request, "prompts").as_numpy()
+            prompts = pb_utils.get_input_tensor_by_name(request, "prompts")
             tokens = pb_utils.get_input_tensor_by_name(request, "translated_tokens").as_numpy()
-            valid_mask = pb_utils.get_input_tensor_by_name(request, "valid_mask").as_numpy()
+            valid_mask = pb_utils.get_input_tensor_by_name(request, "valid_mask")
 
             # Decode tokens to text
             decoded_translations = [self._tokenizer.decode(token_ids, skip_special_tokens=True) for token_ids in tokens]

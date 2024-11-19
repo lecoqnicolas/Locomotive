@@ -35,7 +35,7 @@ def test_model(model_name="sentence_trad_postpro"):
     valid_mask_obj = valid_mask.reshape([1, -1])
     input_tensors = [
         tclient.InferInput("prompts", prompt_obj.shape, np_to_triton_dtype(prompt_obj.dtype)),
-        tclient.InferInput("tokens", tokens_obj.shape, np_to_triton_dtype(tokens_obj.dtype)),
+        tclient.InferInput("translated_tokens", tokens_obj.shape, np_to_triton_dtype(tokens_obj.dtype)),
         tclient.InferInput("valid_mask", valid_mask_obj.shape, np_to_triton_dtype(valid_mask_obj.dtype)),
     ]
     input_tensors[0].set_data_from_numpy(prompt_obj)
