@@ -38,7 +38,7 @@ def test_model(model_name="sentence_trad_postpro"):
     # Query
     client.async_infer(
         model_name, inputs=input_tensors, outputs=output,
-        callback=lambda result, error: get_callback_with_counter(counter)
+        callback=get_callback_with_counter(counter)
     )
 
     while counter.request_count < 1:

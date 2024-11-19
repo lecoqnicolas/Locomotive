@@ -57,7 +57,7 @@ class TritonPythonModel:
                 output_tensors=[
                     pb_utils.Tensor(
                         "valid_mask",
-                        np.array([valid_mask[tot_size:tot_size + request_size]], dtype="bool"),
+                        np.array(valid_mask[tot_size:tot_size + request_size], dtype="bool").reshape(request_size, -1),
                     ),
                     pb_utils.Tensor(
                         "prompts",

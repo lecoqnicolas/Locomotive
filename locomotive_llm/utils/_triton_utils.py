@@ -18,6 +18,6 @@ def get_callback_with_counter(counter: RequestCounter):
             counter.neg_count += 1
         else:
             for output in result.as_numpy("translation"):
-                logging.info(output)
+                logging.info(output.decode("UTF-8"))
             counter.pos_count += 1
     return counter_callback
