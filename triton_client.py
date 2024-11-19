@@ -1,62 +1,29 @@
-
-import numpy as np
-import tritonclient.grpc as tclient
-from tritonclient.utils import np_to_triton_dtype
-import time
 import argparse
+import logging
+import time
 
-
-def async_callback(result, error):
-    if error is not None:
-        print(f"Error reception from server : {str(error)}")
-    if result is not None:
-        print("Triton server answer :")
-        for item in result.as_numpy("translation"):
-            print(item.decode('UTF-8'))
+from locomotive_llm.utils import TritonLlmClient, RequestCounter, get_callback_with_counter
 
 
 def main(model_name):
-    # grpc url should be prefered
-    client = tclient.InferenceServerClient(url="localhost:8001")
+    logging.basicConfig()
+    logging.getLogger().setLevel(logging.DEBUG)
+    client = TritonLlmClient()
     
     # Inputs
     prompts = ["Hello, my name is Triton"]
-    print(f"Sentences to translate :")
-    print(f"{prompts}")
-    text_obj = np.array(prompts, dtype="object")
-    text_obj = text_obj.reshape([-1,1])
-    src_obj = np.array(["English"], dtype="object")
-    src_obj = src_obj.reshape([-1,1])
-    tgt_obj = np.array(["French"], dtype="object")
-    tgt_obj = tgt_obj.reshape([-1,1])
+    src = ["English"]
+    targets = ["French"]
+    logging.debug(f"Sentences to translate :")
+    logging.debug(f"{prompts}")
+    counter = RequestCounter()
+    callback = get_callback_with_counter(counter)
     # Set Inputs
-    input_tensors = [
-        tclient.InferInput(
-            "text_to_translate", text_obj.shape, np_to_triton_dtype(text_obj.dtype)
-        ),
-        tclient.InferInput(
-            "src_name", src_obj.shape, np_to_triton_dtype(src_obj.dtype)
-        ),
-        tclient.InferInput(
-            "tgt_name", tgt_obj.shape, np_to_triton_dtype(text_obj.dtype)
-        ),
-    ]
-    input_tensors[0].set_data_from_numpy(text_obj)
-    input_tensors[1].set_data_from_numpy(src_obj)
-    input_tensors[2].set_data_from_numpy(tgt_obj)
+    client.infer(model_name=model_name, texts=prompts, src_lang=src, tgt_lang=targets, callback=callback)
 
-    # Set outputs
-    output = [
-        tclient.InferRequestedOutput("translation")
-    ]
-
-    # Query
-    client.async_infer(
-        model_name, inputs=input_tensors, outputs=output, callback=async_callback
-    )
-
-    print("Doing other stuff while the answer is computed")
-    print(time.sleep(60))
+    logging.info("Doing other stuff while the answer is computed")
+    while counter.request_count < 1:
+        time.sleep(0.1)
 
 
 if __name__ == "__main__":

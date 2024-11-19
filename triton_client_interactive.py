@@ -1,67 +1,40 @@
-import numpy as np
-import tritonclient.grpc as tclient
-from tritonclient.utils import np_to_triton_dtype
-import time
 import argparse
+import logging
+import time
 
-def async_callback(result, error):
-    #print(query_response)
+from locomotive_llm.utils import TritonLlmClient, RequestCounter
+
+
+def async_callback(counter: RequestCounter, result, error):
     if error is not None:
         print(f"Error reception from server : {str(error)}")
-    if result is not None:
-        
+        counter.neg_count += 1
+    elif result is not None:
         translated_text = str(result.as_numpy("translation")[0].decode('UTF-8'))
-        print(f"+\n(French)>{translated_text} \n(English)>")
-    #print(str(query_response.as_numpy("translation")[0]))
+        print(f"+\n(French)>{translated_text} \n")
+        counter.pos_count += 1
 
 
 def main(model_name):
-    # to test the http protocol
-    #client = tclient.InferenceServerClient(url="localhost:8000")
-    # grpc url should be prefered
-    client = tclient.InferenceServerClient(url="localhost:8001")
+    client = TritonLlmClient()
+
     src_name = "English"
     tgt_name = "French"
     # Inputs
-    translations = []
     try:
         while True:
             text = input(f"({src_name})>")
             if text.lower() == 'exit':
                 print("Exiting translation interactive mode.")
                 break
-            text_obj = np.array([[text]], dtype="object")
-            src_lang = np.array([[src_name]], dtype="object")
-            tgt_lang = np.array([[tgt_name]], dtype="object")
+            counter = RequestCounter()
+            client.infer(model_name=model_name, texts=[text], src_lang=[src_name], tgt_lang=[tgt_name],
+                         callback=lambda result, error: async_callback(counter, result, error))
+            while counter.request_count < 1:
+                time.sleep(0.1)
 
-            # Set Inputs
-            input_tensors = [
-                tclient.InferInput(
-                    "text_to_translate", text_obj.shape, np_to_triton_dtype(text_obj.dtype)
-                ),
-                tclient.InferInput(
-                    "src_name", text_obj.shape, np_to_triton_dtype(text_obj.dtype)
-                ),
-                tclient.InferInput(
-                    "tgt_name", text_obj.shape, np_to_triton_dtype(text_obj.dtype)
-                ),
-            ]
-            input_tensors[0].set_data_from_numpy(text_obj)
-            input_tensors[1].set_data_from_numpy(src_lang)
-            input_tensors[2].set_data_from_numpy(tgt_lang)
-
-            # Set outputs
-            output = [
-                tclient.InferRequestedOutput("translation")
-            ]
-
-            # Query
-            client.async_infer(
-                model_name, inputs=input_tensors, outputs=output, callback=async_callback
-            )
     except KeyboardInterrupt:
         print("\nInterrupted by user. Exiting...")
-
 
 
 if __name__ == "__main__":

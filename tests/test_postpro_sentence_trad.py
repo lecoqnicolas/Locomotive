@@ -1,28 +1,17 @@
+import logging
+import time
 
 import numpy as np
 import tritonclient.grpc as tclient
 from tritonclient.utils import np_to_triton_dtype
-import time
-import argparse
-from transformers import AutoTokenizer
 
-class Counter:
-    def __init__(self):
-        self.count_pos = 0
-        self.count_neg = 0
+from locomotive_llm.utils import RequestCounter, get_callback_with_counter
 
-
-def async_callback(counter, result, error):
-    if error is not None:
-        print(f"Error reception from server : {str(error)}")
-        counter.count_neg += 1
-    if result is not None:
-        print("Triton server answer :")
-        for item in result.as_numpy("translation"):
-            print("Translation output:", item.decode("UTF-8"))
-        counter.count_pos += 1
 
 def test_model(model_name="sentence_trad_postpro"):
+    logging.basicConfig()
+    logging.getLogger().setLevel(logging.DEBUG)
+
     # grpc url should be prefered
     client = tclient.InferenceServerClient(url="localhost:8001")
     # Inputs
@@ -45,18 +34,14 @@ def test_model(model_name="sentence_trad_postpro"):
     # Set outputs
     output = [tclient.InferRequestedOutput("translation")]
 
-    counter = Counter()
+    counter = RequestCounter()
     # Query
     client.async_infer(
-        model_name, inputs=input_tensors, outputs=output, callback=lambda result, error: async_callback(counter, result, error)
+        model_name, inputs=input_tensors, outputs=output,
+        callback=lambda result, error: get_callback_with_counter(counter)
     )
 
-    while counter.count_neg + counter.count_pos < 1:
+    while counter.request_count < 1:
         time.sleep(0.1)
-        print(f"neg {counter.count_neg}, pos {counter.count_pos}")
-    assert counter.count_pos == 1
-
-
-if __name__ == "__main__":
-    
-    test_model()
+        logging.debug(f"neg {counter.neg_count}, pos {counter.pos_count}")
+    assert counter.pos_count == 1
