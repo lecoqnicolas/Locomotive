@@ -20,7 +20,7 @@ def async_callback(counter, result, error, tokenizer):
         print("Triton server answer :")
         print(result)
         for item in result.as_numpy("prompts"):
-            print(item.decode("UTF-8"))
+            print(item)
         for item in result.as_numpy("tokens"):
             print(item)
             decoded_translation = tokenizer.decode(item, skip_special_tokens=True)
@@ -34,14 +34,14 @@ def test_model(model_name="sentence_trad_prepro"):
     client = tclient.InferenceServerClient(url="localhost:8001")
     tokenizer = AutoTokenizer.from_pretrained("./tower_onnx/")
     # Inputs
-    prompts = ["Hello world"]
+    prompts = ["Hello world", "other_sentence"]
     print(f"Sentences to translate :")
     print(f"{prompts}")
     text_obj = np.array(prompts, dtype="object")
     text_obj = text_obj.reshape([-1,1])
-    src_obj = np.array(["English"], dtype="object")
+    src_obj = np.array(["English","English"], dtype="object")
     src_obj = src_obj.reshape([-1,1])
-    tgt_obj = np.array(["French"], dtype="object")
+    tgt_obj = np.array(["French","French"], dtype="object")
     tgt_obj = tgt_obj.reshape([-1,1])
     # Set Inputs
     input_tensors = [

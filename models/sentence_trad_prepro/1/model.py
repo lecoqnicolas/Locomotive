@@ -48,7 +48,7 @@ class TritonPythonModel:
         input_ids_np = input_ids.cpu().numpy()
 
         #traduction decoding
-        decoded_translations = [self._tokenizer.decode(ids, skip_special_tokens=True) for ids in input_ids_np]
+        print(valid_mask,   flush=True)
         print(prompts, flush=True)
         print(tokens, flush=True)
         tot_size = 0
@@ -57,11 +57,11 @@ class TritonPythonModel:
                 output_tensors=[
                     pb_utils.Tensor(
                         "valid_mask",
-                        np.array(valid_mask[tot_size:tot_size + request_size], dtype="bool"),
+                        np.array([valid_mask[tot_size:tot_size + request_size]], dtype="bool"),
                     ),
                     pb_utils.Tensor(
                         "prompts",
-                        np.array(prompts[tot_size:tot_size + request_size], dtype="object"),
+                        np.array(prompts[tot_size:tot_size + request_size], dtype="object").reshape(-1,1),
                     ),
                     pb_utils.Tensor(
                         "tokens",
