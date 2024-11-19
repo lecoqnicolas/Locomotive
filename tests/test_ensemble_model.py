@@ -1,3 +1,8 @@
+# Ensure we find locomotive llm in the pythonpath, as pytest do not add it.
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../")))
+
 from locomotive_llm.utils import RequestCounter, get_callback_with_counter, TritonLlmClient
 import logging
 import time

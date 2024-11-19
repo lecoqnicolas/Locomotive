@@ -1,3 +1,7 @@
+# Ensure we find locomotive llm in the pythonpath, as pytest do not add it.
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../")))
 
 import numpy as np
 import tritonclient.grpc as tclient
@@ -8,7 +12,7 @@ import logging
 from locomotive_llm.utils import RequestCounter
 
 
-def async_callback(counter:RequestCounter, result, error, tokenizer):
+def async_callback(counter: RequestCounter, result, error, tokenizer):
     if error is not None:
         print(f"Error reception from server : {str(error)}")
         counter.neg_count += 1
