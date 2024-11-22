@@ -24,9 +24,6 @@ class TritonLlmClient:
         text_obj = np.array(texts, dtype="object").reshape(-1,1)
         src_obj = np.array(src_lang, dtype="object").reshape(-1,1)
         tgt_obj = np.array(tgt_lang, dtype="object").reshape(-1,1)
-        print(text_obj)
-        print(src_obj)
-        print(tgt_obj)
         # Set Inputs
         input_tensors = [
             tclient.InferInput(

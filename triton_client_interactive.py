@@ -11,7 +11,7 @@ def async_callback(counter: RequestCounter, result, error):
         counter.neg_count += 1
     elif result is not None:
         translated_text = str(result.as_numpy("translation")[0].decode('UTF-8'))
-        print(f"+\n(French)>{translated_text} \n")
+        print(f"(French)>{translated_text} ")
         counter.pos_count += 1
 
 

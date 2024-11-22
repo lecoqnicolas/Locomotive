@@ -21,7 +21,7 @@ class Seq2SeqInference:
         self.tokenizer.load(tokenizer_path)
         self._max_batch_size = max_batch_size
         self._max_char_size = max_char_size
-        lang = [file for file in os.listdir(stanza_dir) if os.path.isdir(os.path.join(stanza_dir, file))]
+        lang = [file for file in os.listdir(stanza_dir) if os.path.isdir(os.path.join(stanza_dir, file))][0]
         self.nlp = stanza.Pipeline(lang, processors='tokenize', dir=stanza_dir)
 
     def segment_sentences(self, texts: list[str]) -> tuple[list[str], list[int]]:
@@ -38,8 +38,9 @@ class Seq2SeqInference:
         input_mapping = []
         for i, text in enumerate(texts):
             prev_len = 0
-            for sentence in self.nlp(text).sentences:
-                if i > 0 and prev_len + len(sentence) < self._max_char_size:
+            for j, sentence in enumerate(self.nlp(text).sentences):
+                sentence = sentence.text
+                if j > 0 and prev_len + len(sentence) < self._max_char_size:
                     # merge the sentence with the previous one if small enough
                     prev_len += len(sentence)
                     sentences[-1] = " ".join([sentences[-1], sentence])
