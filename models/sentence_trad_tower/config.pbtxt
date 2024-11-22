@@ -1,4 +1,4 @@
-name: "ensemble_model"
+name: "sentence_trad_tower"
 platform: "ensemble"
 max_batch_size: 50
 

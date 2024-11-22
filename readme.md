@@ -7,6 +7,24 @@
 
 ## Deployement
 
+## RUNNING the server
+
+  1) generate certificates (or provide your own in ./certs)
+
+   sh ./scripts/gen_certs.sh
+
+  2) deploy one or more models
+
+  python deploy_triton.py --model en_fr_seq2seq
+
+  3) run the server
+
+  sh ./scripts/run_triton.sh
+
+Logs are availables at /opt/tritonserver/logs.txt. To modify the place where the logs are stored, you can change
+the "log_dir" argument in run_triton.sh
+
+
 ### Installation triton :
 - For debian 12 (no docker install) :
 
