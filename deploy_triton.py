@@ -11,7 +11,24 @@ SOURCE_DEPENDANCIES = {
     "document_trad": ["./locomotive_llm"],
     "sentence_trad": ["./locomotive_llm"],
     "madlad": ["./locomotive_llm"],
-    "en_fr_seq2seq": ["./seq2seq_model/inference.py", "./seq2seq_model/translate-en_fr-1_10/"]
+    "en_fr_seq2seq": ["./seq2seq_model/inference.py", "./seq2seq_model/translate-en_fr-1_10/"],
+    "ar_fr_seq2seq": ['./seq2seq_model/inference.py', './seq2seq_model/translate-ar_fr-1_2/'],
+    "de_en_seq2seq": ['./seq2seq_model/inference.py', './seq2seq_model/translate-de_en-1_4/'],
+    "de_fr_seq2seq": ['./seq2seq_model/inference.py', './seq2seq_model/translate-de_fr-1_2/'],
+    "en_de_seq2seq": ['./seq2seq_model/inference.py', './seq2seq_model/translate-en_de-1_4/'],
+    "en_hy_seq2seq": ['./seq2seq_model/inference.py', './seq2seq_model/translate-en_hy-1_2/'],
+    "es_fr_seq2seq": ['./seq2seq_model/inference.py', './seq2seq_model/translate-es_fr-1_2/'],
+    "fr_de_seq2seq": ['./seq2seq_model/inference.py', './seq2seq_model/translate-fr_de-1_2/'],
+    "fr_en_seq2seq": ['./seq2seq_model/inference.py', './seq2seq_model/translate-fr_en-1_10/'],
+    "fr_es_seq2seq": ['./seq2seq_model/inference.py', './seq2seq_model/translate-fr_es-1_2/'],
+    "fr_pt_seq2seq": ['./seq2seq_model/inference.py', './seq2seq_model/translate-fr_pt-1_2/'],
+    "fr_ru_seq2seq": ['./seq2seq_model/inference.py', './seq2seq_model/translate-fr_ru-1_2/'],
+    "fr_zh_seq2seq": ['./seq2seq_model/inference.py', './seq2seq_model/translate-fr_zh-1_2/'],
+    "hy_en_seq2seq": ['./seq2seq_model/inference.py', './seq2seq_model/translate-hy_en-1_2/'],
+    "pt_fr_seq2seq": ['./seq2seq_model/inference.py', './seq2seq_model/translate-pt_fr-1_2/'],
+    "ru_fr_seq2seq": ['./seq2seq_model/inference.py', './seq2seq_model/translate-ru_fr-1_2/'],
+    "tr_fr_seq2seq": ['./seq2seq_model/inference.py', './seq2seq_model/translate-tr_fr-1_2/'],
+    "zh_fr_seq2seq": ['./seq2seq_model/inference.py', './seq2seq_model/translate-zh_fr-1_2/']
 }
 
 CUSTOM_ENV = {

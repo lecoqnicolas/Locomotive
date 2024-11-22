@@ -1,0 +1,41 @@
+name: "tr_fr_seq2seq"
+backend: "python"
+max_batch_size: 200
+
+input [
+  {
+    name: "text_to_translate"
+    data_type: TYPE_STRING
+    dims: [1]
+  },
+   {
+    name: "src_name"
+    data_type: TYPE_STRING
+    dims: [1]
+  },
+  {
+    name: "tgt_name"
+    data_type: TYPE_STRING
+    dims: [1]
+  }
+]
+output [
+  {
+    name: "translation"
+    data_type: TYPE_STRING
+    dims: [1]
+  }
+]
+parameters: {
+  key: "EXECUTION_ENV_PATH",
+  value: {string_value: "$$TRITON_MODEL_DIRECTORY/../sentence_trad_prepro/traduction_env"}
+}
+instance_group [{
+	       count: 1
+	       kind: KIND_GPU
+	       gpus: [ 0 ]
+}]
+dynamic_batching {
+        max_queue_delay_microseconds: 100
+}
+	
