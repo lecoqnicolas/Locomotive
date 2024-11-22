@@ -49,7 +49,6 @@ class Seq2SeqInference:
                     sentences.append(sentence)
                     input_mapping.append(i)
                     prev_len = len(sentence)
-        print("sentences", sentences)
         return sentences, input_mapping
 
     def tokenize_batch(self, sentences_batch: list[str]) -> list[str]:
