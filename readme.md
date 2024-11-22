@@ -111,7 +111,7 @@
     # the two exports may not be necessary
     export TRITON_SERVER_VERSION=24.05
     export NVIDIA_TRITON_SERVER_VERSION=2.46.0
-    #python3.10 build.py -v --no-container-build --build-dir=`pwd`/build --enable-all
+    #python3.10 build.py -v --no-container-build --build-dir=`pwd`/build --enable-all --dryrun
     sudo mkdir /opt/tritonserver
     sudo chown debian: /opt/tritonserver
     # install dcgm
@@ -127,7 +127,7 @@
     # datacenter-gpu-manager=1:3.2.6
     mkdir -p /home/debian/server/build/tritonserver/build
     cd /home/debian/server/build/tritonserver/build
-    cmake "-DTRT_VERSION=${TRT_VERSION}" "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}" "-DVCPKG_TARGET_TRIPLET=${VCPKG_TARGET_TRIPLET}" "-DCMAKE_BUILD_TYPE=Release" "-DCMAKE_INSTALL_PREFIX:PATH=/home/debian/server/build/tritonserver/install" "-DTRITON_VERSION:STRING=2.47.0" "-DTRITON_REPO_ORGANIZATION:STRING=https://github.com/triton-inference-server" "-DTRITON_COMMON_REPO_TAG:STRING=r24.06" "-DTRITON_CORE_REPO_TAG:STRING=r24.06" "-DTRITON_BACKEND_REPO_TAG:STRING=r24.06" "-DTRITON_THIRD_PARTY_REPO_TAG:STRING=r24.06" "-DTRITON_ENABLE_LOGGING:BOOL=ON" "-DTRITON_ENABLE_STATS:BOOL=ON" "-DTRITON_ENABLE_METRICS:BOOL=ON" "-DTRITON_ENABLE_METRICS_GPU:BOOL=ON" "-DTRITON_ENABLE_METRICS_CPU:BOOL=ON" "-DTRITON_ENABLE_TRACING:BOOL=ON" "-DTRITON_ENABLE_NVTX:BOOL=ON" "-DTRITON_ENABLE_GPU:BOOL=ON" "-DTRITON_MIN_COMPUTE_CAPABILITY=6.0" "-DTRITON_ENABLE_MALI_GPU:BOOL=OFF" "-DTRITON_ENABLE_GRPC:BOOL=ON" "-DTRITON_ENABLE_HTTP:BOOL=ON" "-DTRITON_ENABLE_ENSEMBLE:BOOL=ON" "-DCMAKE_POLICY_DEFAULT_CMP0148=OLD" "-DCMAKE_POLICY_DEFAULT_CMP0115=OLD" /home/debian/server
+    cmake "-DTRT_VERSION=${TRT_VERSION}" "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}" "-DVCPKG_TARGET_TRIPLET=${VCPKG_TARGET_TRIPLET}" "-DCMAKE_BUILD_TYPE=Release" "-DCMAKE_INSTALL_PREFIX:PATH=/home/debian/server/build/tritonserver/install" "-DTRITON_VERSION:STRING=2.47.0" "-DTRITON_REPO_ORGANIZATION:STRING=https://github.com/triton-inference-server" "-DTRITON_COMMON_REPO_TAG:STRING=r24.06" "-DTRITON_CORE_REPO_TAG:STRING=r24.06" "-DTRITON_BACKEND_REPO_TAG:STRING=r24.06" "-DTRITON_THIRD_PARTY_REPO_TAG:STRING=r24.06" "-DTRITON_ENABLE_LOGGING:BOOL=ON" "-DTRITON_ENABLE_STATS:BOOL=ON" "-DTRITON_ENABLE_METRICS:BOOL=ON" "-DTRITON_ENABLE_METRICS_GPU:BOOL=ON" "-DTRITON_ENABLE_METRICS_CPU:BOOL=ON" "-DTRITON_ENABLE_TRACING:BOOL=ON" "-DTRITON_ENABLE_NVTX:BOOL=ON" "-DTRITON_ENABLE_GPU:BOOL=ON" "-DTRITON_MIN_COMPUTE_CAPABILITY=6.0" "-DTRITON_ENABLE_MALI_GPU:BOOL=OFF" "-DTRITON_ENABLE_GRPC:BOOL=ON" "-DTRITON_ENABLE_HTTP:BOOL=ON" "-DTRITON_ENABLE_ENSEMBLE:BOOL=ON" "-DCMAKE_POLICY_DEFAULT_CMP0148=OLD" "-DCMAKE_POLICY_DEFAULT_CMP0115=OLD" "-DTRITON_ENABLE_TENSORRT:BOOL=ON" "-DPYBIND11_FINDPYTHON=ON" "-DPython_EXECUTABLE=/usr/local/bin/python3.10" /home/debian/server
     # add to cmake_install.cmake
         set(CMAKE_POLICY_DEFAULT_CMP0115 OLD)
         set(CMAKE_POLICY_DEFAULT_CMP0148 OLD)
@@ -198,9 +198,71 @@ deploy the new env
           except (NameError, TypeError):
 
 Export onnx:
-  pip install optimum[exporters]
-  python -m pip install --upgrade onnxruntime-gpu
+  #pip install optimum[exporters]
+  #python -m pip install --upgrade onnxruntime-gpu
+  python -m pip install onnxruntime-gpu==1.18.1
+  python -m pip install optimum[onnxruntime-gpu]
+
   optimum-cli export onnx --model Unbabel/TowerInstruct-Mistral-7B-v0.2  tower_onnx/ --task text-generation
   
   test_onnx.py
+
+Install onnx backend [WIP]:
+- Currently it fails.
+
+    cd
+    https://github.com/microsoft/onnxruntime.git
+    cd onnxruntime
+    git checkout v1.18.0
+    # modify python version in build.sh to get python 3.10
+    ./build.sh --use_cuda --cudnn_home /usr/local/cuda-12 --cuda_home <cuda home path>
+    git clone https://github.com/triton-inference-server/onnxruntime_backend.git
+   cd onnxruntime_backend
+   mkdir build
+   cd build
+   cmake -DCMAKE_INSTALL_PREFIX:PATH=`pwd`/install -DTRITON_ONNXRUNTIME_INCLUDE_PATHS=/home/debian/onnxruntime/build/Linux/Debug/ -DTRITON_ONNXRUNTIME_LIB_PATHS=/home/debian/onnxruntime/build/Linux/Debug/ -DTRITON_BUILD_ONNXRUNTIME_VERSION=1.18.0 -DTRITON_ENABLE_GPU=ON -DTRITON_ENABLE_ONNXRUNTIME_TENSORRT=ON -DPYBIND11_FINDPYTHON=ON -DPython_EXECUTABLE=/usr/local/bin/python3.10 ..
+    
+
+Tensorrt install:
+  git clone https://github.com/triton-inference-server/tensorrt_backend.git
+  git checkout r24.06
+  mkdir build
+  cmake -DCMAKE_INSTALL_PREFIX:PATH=/opt/tritonserver -DPYBIND11_FINDPYTHON=ON -DPython_EXECUTABLE=/usr/local/bin/python3.10 -DNVINFER_LIBRARY=/home/debian/TensorRT-10.0.1.6/lib/libnvinfer.so -DNVINFER_PLUGIN_LIBRARY=/home/debian/TensorRT-10.0.1.6/lib/libnvinfer_plugin.so -DTRITON_TENSORRT_INCLUDE_PATHS=/home/debian/TensorRT-10.0.1.6/include ..
+  make install
+
+Conversion to tensort:
+  cd TensorRT-10.0.1.6/bin 
+  chmod +x trtexec  , 
+  cd.. 
+  export PATH=$PATH:/home/debian/TensorRT-10.0.1.6/bin   
+  echo 'export PATH=$PATH:/home/debian/TensorRT-10.0.1.6/bin' >> ~/.bashrc
+  source ~/.bashrc
+   
+  Conversion :
+   
+  trtexec --onnx=tower_onnx/model.onnx --saveEngine=model_tower.trt --fp16
+
+Conversion:
+  python -m pip install torch-tensorrt tensorrt --extra-index-url https://download.pytorch.org/whl/cu124 --extra-index-url https://pypi.nvidia.com tensorrt-cu12-libs
+  pip install "nvidia-modelopt[all]" -U --extra-index-url https://pypi.nvidia.com
+  python -m pip install onnxruntime-gpu==1.18.1
+  python -m pip install optimum[onnxruntime-gpu]
+
+  optimum-cli export onnx --model Unbabel/TowerInstruct-Mistral-7B-v0.2  tower_onnx_2/ --task text-generation
+  trtexec --onnx=tower_onnx_2/model.onnx --saveEngine=model_tower.trt --fp16
+  
+
+Tensorrt llm:
+  git clone https://github.com/NVIDIA/TensorRT-LLM.git
+  cd TensorRT-LLM/
+  sudo apt install libmpich-dev
+  sudo apt install libopenmpi-dev
+  sudo apt-get install git-lfs
+  git lfs pull
+  # get os angostic installer from https://developer.nvidia.com/nccl/nccl-legacy-downloads v2.21.5
+  # scp ..\..\Downloads\nccl_2.21.5-1+cuda12.4_x86_64.txz debian@91.134.30.63:~/TensorRT-LLM
+  xz -d nccl_2.21.5-1+cuda12.4_x86_64.txz
+  tar xvf nccl_2.21.5-1+cuda12.4_x86_64.tar
+  
+  sudo python3.10 ./scripts/build_wheel.py --trt_root /home/debian/TensorRT-10.0.1.6/ -D "CMAKE_CUDA_COMPILER=/usr/local/cuda-12/bin/nvcc" -D "Python_EXECUTABLE=/usr/local/bin/python3.10" -D"PYBIND11_FINDPYTHON=ON" "-DPython3_EXECUTABLE=/usr/local/bin/python3.10" --clean
   
