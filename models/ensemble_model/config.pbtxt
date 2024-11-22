@@ -55,43 +55,24 @@ ensemble_scheduling {
           value: "tokens"
   
       }
-        output_map {
-          key: "tokens_mask"
-          value: "tokens_mask"
-  
-      }
-        output_map {
-          key: "tokens_position"
-          value: "tokens_position"
-  
-      }
+
       output_map {
           key: "valid_mask"
           value: "valid_mask"
       }
     },
     {
-      model_name: "tensorrt_translation_model"
+      model_name: "onnx_translation_model"
       model_version: 1
      
       input_map {
-          key: "input_ids"
+          key: "tokens"
           value: "tokens"
       }
-      
-      input_map {
-          key: "attention_mask"
-          value: "tokens_mask"
-      }
-      
-      input_map {
-          key: "position_ids"
-          value: "tokens_position"
-      }
-      
+       
     
       output_map {
-          key: "logits"
+          key: "translated_tokens"
           value: "translated_tokens"
       }
     },

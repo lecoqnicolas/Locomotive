@@ -11,7 +11,7 @@ SOURCE_DEPENDANCIES = {
     "document_trad": ["./locomotive_llm"],
     "sentence_trad": ["./locomotive_llm"],
     "madlad": ["./locomotive_llm"],
-    "en_fr_seq2seq": ["./seq2seq_model"]
+    "en_fr_seq2seq": ["./seq2seq_model/inference.py", "./seq2seq_model/translate-en_fr-1_10/"]
 }
 
 CUSTOM_ENV = {
@@ -101,7 +101,10 @@ def deploy_triton(arg):
                         dest_dep_dir = dest_version_dir / dep.name
                         if dest_dep_dir.is_file():
                             shutil.rmtree(dest_dep_dir)
-                        shutil.copytree(dep, dest_dep_dir)
+                        if dep.is_file():
+                            shutil.copyfile(dep, dest_dep_dir)
+                        else:
+                            shutil.copytree(dep, dest_dep_dir)
                 else:
                     logging.info(f"No source dependancy found for {elmt.name}")
 

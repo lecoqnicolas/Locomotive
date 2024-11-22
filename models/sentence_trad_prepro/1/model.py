@@ -51,14 +51,6 @@ class TritonPythonModel:
         input_ids = tokens['input_ids'].unsqueeze(0) 
         input_ids = input_ids.squeeze(1)
         input_ids_np = input_ids.cpu().numpy()
-        attention_mask = tokens['attention_mask'].unsqueeze(0) 
-        attention_mask = attention_mask.squeeze(1)
-        attention_mask_np = attention_mask.cpu().numpy()
-
-        if 'position_ids' not in tokens:
-            position_ids = torch.arange(0, 256, dtype=torch.long, device=self._device).unsqueeze(0)
-        position_ids_np = position_ids.cpu().numpy()
-
         #traduction decoding
       
         tot_size = 0
@@ -76,15 +68,8 @@ class TritonPythonModel:
                     pb_utils.Tensor(
                         "tokens",
                         np.array(input_ids_np[tot_size:tot_size + request_size], dtype="int64"),
-                    ),
-                    pb_utils.Tensor(
-                        "tokens_mask",
-                        np.array(attention_mask_np[tot_size:tot_size + request_size], dtype="int64"),
-                    ),
-                    pb_utils.Tensor(
-                        "tokens_position",
-                        np.array(position_ids_np[tot_size:tot_size + request_size], dtype="int64"),
                     )
+                   
                 ]
             )
             tot_size += request_size

@@ -10,14 +10,14 @@ class TritonPythonModel:
         file_path = os.path.realpath(__file__)
         self._file_dir = Path(os.sep.join(file_path.split(os.sep)[:-1]))
         self._version = "translate-en_fr-1_10"
-        BASE_DIR = self._file_dir / "seq2seq_model" / self._version
+        BASE_DIR = self._file_dir / self._version
         self._inference_engine = Seq2SeqInference(str(BASE_DIR))
         self._logger = pb_utils.Logger
         self._logger.log_info(f"Model seq2seq {self._version} loaded")
 
 
     def execute(self, requests):
-        self._logger.info(f"{self._version} is processing f{len(requests)} requests")
+        self._logger.log_info(f"{self._version} is processing {len(requests)} requests")
         responses = []
         request_sizes = []
         texts = []
@@ -28,10 +28,6 @@ class TritonPythonModel:
             text_tensor = pb_utils.get_input_tensor_by_name(request, "text_to_translate")
             src_name = pb_utils.get_input_tensor_by_name(request, "src_name")
             tgt_name = pb_utils.get_input_tensor_by_name(request, "tgt_name")
-            self._logger.debug("Model received")
-            self._logger.debug(text_tensor.as_numpy())
-            self._logger.debug(src_name.as_numpy())
-            self._logger.debug(tgt_name.as_numpy())
             request_sizes.append(text_tensor.as_numpy().shape[0])
             texts.extend([text[0].decode("UTF-8") for text in text_tensor.as_numpy()])
             languages_src.extend([name[0].decode("UTF-8") for name in src_name.as_numpy()])
@@ -40,7 +36,6 @@ class TritonPythonModel:
         # original inference engine create a list of (list of one sentence)
         #translated_text = [text[0] for text in translated_text]
         # unbatch and send each translation to the request
-        self._logger.debug(translated_text, flush=True)
         tot_size = 0
         for request_size in request_sizes:
             inference_response = pb_utils.InferenceResponse(
@@ -53,5 +48,5 @@ class TritonPythonModel:
             )
             tot_size += request_size
             responses.append(inference_response)
-        self._logger.info(f"{self._version} : processing finished")
+        self._logger.log_info(f"{self._version} : processing finished")
         return responses

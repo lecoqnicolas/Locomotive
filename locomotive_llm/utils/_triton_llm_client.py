@@ -10,9 +10,9 @@ class TritonLlmClient:
         cert_dir = Path(cert_dir)
         self._client = tclient.InferenceServerClient(url=url,
                                                      ssl=True,
-                                                     root_certificates=cert_dir / "ca.crt",
-                                                     private_key=cert_dir / "client.key",
-                                                     certificate_chain=cert_dir / "client.crt",
+                                                     root_certificates=cert_dir / "ca_localhost.crt",
+                                                     private_key=cert_dir / "client_localhost.key",
+                                                     certificate_chain=cert_dir / "client_localhost.crt",
                                                      )
         self._translate_input = "text_to_translate"
         self._src_input = "src_name"
