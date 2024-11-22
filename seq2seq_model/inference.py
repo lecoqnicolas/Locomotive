@@ -5,12 +5,12 @@ from ctranslate2 import Translator
 
 
 class Seq2SeqInference:
-    def __init__(self, model_dir):
+    def __init__(self, model_dir: str, max_batch_size: int = 50):
         """
         Initialize the CTranslate2 model, SentencePiece tokenizer, and Stanza pipeline.
 
         Args:
-            model_dir (str): Directory containing model files.
+            model_dir: Directory containing model files.
         """
         model_path = os.path.join(model_dir, "model")
         tokenizer_path = os.path.join(model_dir, "sentencepiece.model")
@@ -19,59 +19,74 @@ class Seq2SeqInference:
         self.translator = Translator(model_path)
         self.tokenizer = spm.SentencePieceProcessor()
         self.tokenizer.load(tokenizer_path)
-
+        self._max_batch_size = max_batch_size
         self.nlp = stanza.Pipeline('en', processors='tokenize', dir=stanza_dir)
 
-    def segment_sentences(self, texts):
+    def segment_sentences(self, texts: list[str]) -> tuple[list[str], list[int]]:
         """
         Segment texts into sentences.
 
         Args:
-            texts (list of str): Input texts.
+            texts: Input texts.
 
         Returns:
-            list of list of str: Segmented sentences.
+            list of sentences, list of mapping (in which input text was each sentence
         """
-        return [[sentence.text for sentence in self.nlp(text).sentences] for text in texts]
+        sentences = [sentence.text for text in texts for sentence in self.nlp(text).sentences]
+        input_mapping = [i for i, text in enumerate(texts) for _ in self.nlp(text).sentences]
+        return sentences, input_mapping
 
-    def tokenize_batch(self, sentences_batch):
+    def tokenize_batch(self, sentences_batch: list[str]) -> list[str]:
         """
         Tokenize sentences using SentencePiece.
 
         Args:
-            sentences_batch (list of list of str): Sentences to tokenize.
+            sentences_batch: Sentences to tokenize.
 
         Returns:
-            list of list of str: Tokenized sentences as string tokens.
+            Tokenized sentences as string tokens.
         """
-        return [[self.tokenizer.encode(sentence, out_type=str) for sentence in sentences] for sentences in sentences_batch]
+        return [self.tokenizer.encode(sentence, out_type=str) for sentence in sentences_batch]
 
-    def infer(self, texts):
+    def infer(self, texts: list[str]) -> list[str]:
         """
         Run inference on input texts.
 
         Args:
-            texts (list of str): Texts to translate.
+            texts: Texts to translate.
 
         Returns:
-            list of list of str: Translated texts.
+            Translated texts.
         """
-        sentences_batch = self.segment_sentences(texts)
-        tokenized_sentences = self.tokenize_batch(sentences_batch)
-        results = []
-        for tokenized_inputs in tokenized_sentences:
-            batch_output = self.translator.translate_batch(tokenized_inputs)
-            decoded_sentences = [self.tokenizer.decode(output.hypotheses[0]) for output in batch_output]
-            reconstructed_text = ' '.join(decoded_sentences).strip()
-            results.append(reconstructed_text)
+        # parse and flatten each text sentences
+        sentences, input_mapping = self.segment_sentences(texts)
 
+        translated_sentences = []
+        for i in range(0, len(sentences), self._max_batch_size):
+            batch_sentences = sentences[i: i+self._max_batch_size]
+            tokenized_inputs = self.tokenize_batch(batch_sentences)
+
+            batch_output = self.translator.translate_batch(tokenized_inputs)
+            batch_translations = [self.tokenizer.decode(out.hypotheses[0]) for out in batch_output]
+            translated_sentences.extend(batch_translations)
+
+        # map and merge every sentence into texts corresponding to the input texts
+        previous_mapping = -1
+        results = []
+        for i, translated_sentence in enumerate(translated_sentences):
+            # if the current sentence is not from the same text as the previous one, we create a new output element
+            if input_mapping[i] != previous_mapping:
+                results.append(translated_sentence)
+            else:  # else it was from the same text, so we merge them together
+                results[-1] = " ".join((results[-1], translated_sentence))
+            previous_mapping = input_mapping[i]
         return results
 
 
 if __name__ == "__main__":
     BASE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "translate-en_fr-1_10")
     inference_engine = Seq2SeqInference(BASE_DIR)
-    input_texts = ["Hello, my name Hugo and I live in Paris. And this is a second sentence",
-                   "Hello, my name Hugo and I live in Paris", "Hello world"]
+    input_texts = ["Hello, my name Hugo and I live in Paris. And this is a second sentence. And another",
+                   "Hello, my name Hugo and I live in Paris. Juste a second sentence here"]
     output = inference_engine.infer(input_texts)
     print("Inference output:", output)

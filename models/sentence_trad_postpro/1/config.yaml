@@ -3,7 +3,7 @@ run_name: "eng_fr_v1"
 pipeline: "instruct_langchain"
 version: 1
 llm_model: "Unbabel/TowerInstruct-Mistral-7B-v0.2"
-prompt: "/models/sentence_trad/1/prompt.yml"
+prompt: "/models/sentence_trad_postpro/1/prompt.yml"
 batch_size: 50
 max_token: 150
 device: 0

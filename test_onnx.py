@@ -8,7 +8,6 @@ from locomotive_llm.postprocess import BasicPostProcessor, LlmResponseParser
 
 
 def translate_texts(texts, src_lang, tgt_lang, model, tokenizer, device):
-    #prompt_template = "Only answer with the traduction. Never explain or detail your answers. Translate the following text from {src_lang} to {tgt_lang} :\n{src_lang}: {text}\n{tgt_lang}:"
     prompt_template = "./config/prompts/prompt_v1.yml"
     prepro = BasicPreprocessor(prompt_file=prompt_template, ignore_prompts=[" ", "\n", " \n", "  "])
     prompts, valid_mask = prepro.transform(texts, src_lang, tgt_lang)
@@ -21,8 +20,8 @@ def translate_texts(texts, src_lang, tgt_lang, model, tokenizer, device):
     return postpro.transform(valid_mask=valid_mask, input_prompts=prompts, outputs=translations)
 
 
-tokenizer = AutoTokenizer.from_pretrained("./tower_onnx/")
-model = ORTModelForCausalLM.from_pretrained("./tower_onnx/", use_cache=False, use_io_binding=False)
+tokenizer = AutoTokenizer.from_pretrained("tower_onnx_2/")
+model = ORTModelForCausalLM.from_pretrained("tower_onnx_2/", use_cache=False, use_io_binding=False)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
 total_start_time = time.time()
