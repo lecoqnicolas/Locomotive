@@ -5,7 +5,7 @@ from ctranslate2 import Translator
 
 
 class Seq2SeqInference:
-    def __init__(self, model_dir: str, max_batch_size: int = 50):
+    def __init__(self, model_dir: str, max_batch_size: int = 50, max_char_size=500):
         """
         Initialize the CTranslate2 model, SentencePiece tokenizer, and Stanza pipeline.
 
@@ -20,6 +20,7 @@ class Seq2SeqInference:
         self.tokenizer = spm.SentencePieceProcessor()
         self.tokenizer.load(tokenizer_path)
         self._max_batch_size = max_batch_size
+        self._max_char_size = max_char_size
         self.nlp = stanza.Pipeline('en', processors='tokenize', dir=stanza_dir)
 
     def segment_sentences(self, texts: list[str]) -> tuple[list[str], list[int]]:
@@ -32,8 +33,20 @@ class Seq2SeqInference:
         Returns:
             list of sentences, list of mapping (in which input text was each sentence
         """
-        sentences = [sentence.text for text in texts for sentence in self.nlp(text).sentences]
-        input_mapping = [i for i, text in enumerate(texts) for _ in self.nlp(text).sentences]
+        sentences = []
+        input_mapping = []
+        for i, text in enumerate(texts):
+            prev_len = 0
+            for sentence in self.nlp(text).sentences:
+                if i > 0 and prev_len + len(sentence) < self._max_char_size:
+                    # merge the sentence with the previous one if small enough
+                    prev_len += len(sentence)
+                    sentences[-1] = " ".join([sentences[-1], sentence])
+                else:
+                    # ad it as another one.
+                    sentences.append(sentence)
+                    input_mapping.append(i)
+                    prev_len = len(sentence)
         return sentences, input_mapping
 
     def tokenize_batch(self, sentences_batch: list[str]) -> list[str]:
