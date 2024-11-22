@@ -53,3 +53,15 @@ class TritonLlmClient:
             outputs=output,
             callback=callback
         )
+
+    def is_ready(self, model_name: str):
+        return self._client.is_model_ready(model_name)
+
+    def get_stats(self, model_name: str = ""):
+        """
+        If model_name is not provided, stats for all the models are provided.
+        """
+        return self._client.get_inference_statistics(model_name)
+
+    def get_models(self):
+        return self._client.get_model_repository_index(as_json=True)
