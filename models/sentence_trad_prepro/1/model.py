@@ -19,6 +19,9 @@ class TritonPythonModel:
         self._preprocessor = BasicPreprocessor(self._config.prompt, self._config.ignore_prompt, use_lang_code=False)
         self._tokenizer = AutoTokenizer.from_pretrained("./tower_onnx/")
         self._device = get_device(self._config.device)
+        self._version = "model_prepro_tower"
+        self._logger = pb_utils.Logger
+        self._logger.log_info(f"Model preprocessing {self._version} loaded")
 
     def execute(self, requests):
 

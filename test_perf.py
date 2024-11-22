@@ -8,7 +8,7 @@ import logging
 
 # Parameters
 NUM_REQUESTS = [100]
-BATCH_SIZE = 50
+BATCH_SIZE = 10
 DELAY = 0
 
 

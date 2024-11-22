@@ -1,6 +1,6 @@
 name: "en_fr_seq2seq"
 backend: "python"
-max_batch_size: 100
+max_batch_size: 200
 
 input [
   {

@@ -14,8 +14,9 @@ class TritonPythonModel:
         self._file_dir = Path(os.sep.join(file_path.split(os.sep)[:-1]))
         self._configuration_path = self._file_dir / "config.yaml"
         self._config = load_config(self._configuration_path)
-
-        # Load the tokenizer and set device
+        self._version = "model_postpro_tower"
+        self._logger = pb_utils.Logger
+        self._logger.log_info(f"Model postprocessing {self._version} loaded")
         self._tokenizer = AutoTokenizer.from_pretrained("./tower_onnx/")
         self._device = get_device(self._config.device)
 
