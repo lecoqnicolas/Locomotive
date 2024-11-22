@@ -13,3 +13,6 @@ mlruns
 mlflow_repository
 *.tar.gz
 *.tar
+*.key
+*.csr
+*.crt

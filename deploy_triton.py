@@ -5,7 +5,6 @@ import logging
 from pathlib import Path
 import subprocess
 import fileinput
-import sys
 
 
 SOURCE_DEPENDANCIES = {
@@ -21,6 +20,8 @@ CUSTOM_ENV = {
 }
 
 TRITON_CONFIG_FILE = "config.pbtxt"
+TRITON_CERTIFICATES_FOLDER = Path("/opt/tritonserver/certs")
+CERTIFICATES_FILES = ["server_localhost.crt", "server_localhost.key", "ca_localhost.crt"]
 
 
 def fix_pydantic_for_langchain3_triton(env_directory: Path):
@@ -53,6 +54,16 @@ def deploy_triton(arg):
         logging.info("Triton directory not found, creating it")
         os.makedirs(target_repository, exist_ok=True)
     src_repository = Path(args.local_model_repository)
+
+    logging.info("Updating certificates")
+    if not os.path.isdir(TRITON_CERTIFICATES_FOLDER):
+        logging.info("Certificate folder not found, creating it")
+        os.makedirs(TRITON_CERTIFICATES_FOLDER, exist_ok=True)
+    for cert_file in CERTIFICATES_FILES:
+        if not os.path.isfile(arg.certificates_dir / cert_file):
+            logging.warning(f"Certificate file {arg.certificates_dir / cert_file} not found, skipped")
+        else:
+            shutil.copyfile(arg.certificates_dir / cert_file, TRITON_CERTIFICATES_FOLDER / cert_file)
 
     for elmt in src_repository.glob("*"):
         if elmt.is_dir():
@@ -144,6 +155,11 @@ if __name__ == "__main__":
                         type=str,
                         default=None,
                         help='If provided, only deploy a specifc model')
+
+    parser.add_argument('--certificates_dir',
+                        type=Path,
+                        default='./certs',
+                        help="Servers certificates")
 
     parser.add_argument("--deploy_env",
                         type=bool,

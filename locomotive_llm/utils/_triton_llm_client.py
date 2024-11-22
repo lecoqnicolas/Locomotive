@@ -2,11 +2,18 @@ import numpy as np
 import tritonclient.grpc as tclient
 from tritonclient.utils import np_to_triton_dtype
 from typing import Callable
+from pathlib import Path
 
 
 class TritonLlmClient:
-    def __init__(self, url: str = "localhost:8001"):
-        self._client = tclient.InferenceServerClient(url=url)
+    def __init__(self, url: str = "localhost:8001", cert_dir: str = "./certs"):
+        cert_dir = Path(cert_dir)
+        self._client = tclient.InferenceServerClient(url=url,
+                                                     ssl=True,
+                                                     root_certificates=cert_dir / "ca.crt",
+                                                     private_key=cert_dir / "client.key",
+                                                     certificate_chain=cert_dir / "client.crt",
+                                                     )
         self._translate_input = "text_to_translate"
         self._src_input = "src_name"
         self._target_input = "tgt_name"
