@@ -13,13 +13,13 @@ def test_lang_strat():
     prio = get_model_prio(["fr_en_seq2seq", "en_fr_seq2seq", "sentence_trad_tower", "madlad","madlad2"], src,
                           dest)
     assert len(prio) == 3
-    assert prio[1] == "fr_en_seq2seq"
-    assert prio[2] == "madlad"
+    assert prio[0] == "fr_en_seq2seq"
+    assert prio[1] == "madlad"
     assert prio[2] == "sentence_trad_tower"
     prio = get_model_prio(["fr_en_seq2seq", "en_fr_seq2seq", "sentence_trad_tower", "madlad",
                            "sentence_trad_tower_docs"], src,
                           dest, document_mode=True)
     assert len(prio) == 3
-    assert prio[1] == "fr_en_seq2seq"
-    assert prio[2] == "sentence_trad_tower_docs"
+    assert prio[0] == "fr_en_seq2seq"
+    assert prio[1] == "sentence_trad_tower_docs"
     assert prio[2] == "madlad"

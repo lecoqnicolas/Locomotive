@@ -22,9 +22,10 @@ def get_model_prio(model_list: list[str], src_lang: str, tgt_lang: str, document
 
     # document_mode
     if document_mode:
-        if tgt_lang in TOWER_LANGS and src_lang in TOWER_LANGS:
+        if TOWER_MODEL_DOCUMENT in model_list and tgt_lang in TOWER_LANGS and src_lang in TOWER_LANGS:
             priority_list.append(TOWER_MODEL_DOCUMENT)
-    priority_list.append(MADLAD_MODEL)
-    if not document_mode:
+    if MADLAD_MODEL in model_list:
+        priority_list.append(MADLAD_MODEL)
+    if not document_mode and TOWER_MODEL in model_list:
         priority_list.append(TOWER_MODEL)
     return priority_list
