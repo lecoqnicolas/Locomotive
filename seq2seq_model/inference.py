@@ -21,7 +21,8 @@ class Seq2SeqInference:
         self.tokenizer.load(tokenizer_path)
         self._max_batch_size = max_batch_size
         self._max_char_size = max_char_size
-        self.nlp = stanza.Pipeline('en', processors='tokenize', dir=stanza_dir)
+        lang = [file for file in os.listdir(stanza_dir) if os.path.isdir(os.path.join(stanza_dir, file))]
+        self.nlp = stanza.Pipeline(lang, processors='tokenize', dir=stanza_dir)
 
     def segment_sentences(self, texts: list[str]) -> tuple[list[str], list[int]]:
         """
