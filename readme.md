@@ -203,6 +203,7 @@ Create a new env :
   - # create the env following above method
   - # test it
   - conda install -c conda-forge libstdcxx-ng=12 -y
+  - conda install conda-pack
   - conda-pack
   - mettre l'archive obtenue dans ./models/sentence_trad/ (ou à l'endroit ou votre model l'attendra)
 
