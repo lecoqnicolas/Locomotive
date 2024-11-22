@@ -61,4 +61,6 @@ class TritonLlmClient:
         return self._client.get_inference_statistics(model_name)
 
     def get_models(self):
-        return self._client.get_model_repository_index(as_json=True)
+        full_repo = self._client.get_model_repository_index(as_json=True)
+        return [model["name"] for model in full_repo["models"]]
+        
