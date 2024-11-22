@@ -31,6 +31,16 @@ output [
     dims: [-1]
   },
   {
+    name: "tokens_mask"
+    data_type: TYPE_INT64
+    dims: [-1]
+  },
+  {
+    name: "tokens_position"
+    data_type: TYPE_INT64
+    dims: [-1]
+  },
+  {
     name: "valid_mask"
     data_type: TYPE_BOOL
     dims: [-1]
@@ -38,7 +48,7 @@ output [
 ]
 parameters: {
   key: "EXECUTION_ENV_PATH",
-  value: {string_value: "$$TRITON_MODEL_DIRECTORY/../sentence_trad/traduction_env"}
+  value: {string_value: "$$TRITON_MODEL_DIRECTORY/traduction_env"}
 }
 instance_group [{
 	count: 1

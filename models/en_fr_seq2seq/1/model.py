@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 import numpy as np
 import triton_python_backend_utils as pb_utils
-from seq2seq_model.inference_proposition import Seq2SeqInference
+from seq2seq_model.inference import Seq2SeqInference
 
 
 class TritonPythonModel:

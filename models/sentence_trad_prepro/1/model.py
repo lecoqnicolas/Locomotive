@@ -5,7 +5,7 @@ from transformers import AutoTokenizer
 from locomotive_llm.load import load_config
 from locomotive_llm.preprocess import BasicPreprocessor
 from locomotive_llm.utils import get_device
-
+import torch
 import numpy as np
 import triton_python_backend_utils as pb_utils
 
@@ -43,14 +43,24 @@ class TritonPythonModel:
         prompts, valid_mask = self._preprocessor.transform(texts, languages_src, languages_dest)
 
         #prompts tokenization
-        tokens = self._tokenizer(prompts, return_tensors="pt", padding=True).to(self._device)
-        input_ids = tokens['input_ids']
-        input_ids_np = input_ids.cpu().numpy()
-
-        #traduction decoding
+        tokens = self._tokenizer(prompts, return_tensors="pt", padding='max_length', truncation=True, max_length=256).to(self._device)
         print(valid_mask,   flush=True)
         print(prompts, flush=True)
         print(tokens, flush=True)
+        print(tokens.keys(), flush=True)
+        input_ids = tokens['input_ids'].unsqueeze(0) 
+        input_ids = input_ids.squeeze(1)
+        input_ids_np = input_ids.cpu().numpy()
+        attention_mask = tokens['attention_mask'].unsqueeze(0) 
+        attention_mask = attention_mask.squeeze(1)
+        attention_mask_np = attention_mask.cpu().numpy()
+
+        if 'position_ids' not in tokens:
+            position_ids = torch.arange(0, 256, dtype=torch.long, device=self._device).unsqueeze(0)
+        position_ids_np = position_ids.cpu().numpy()
+
+        #traduction decoding
+      
         tot_size = 0
         for request_size in request_sizes:
             inference_response = pb_utils.InferenceResponse(
@@ -66,6 +76,14 @@ class TritonPythonModel:
                     pb_utils.Tensor(
                         "tokens",
                         np.array(input_ids_np[tot_size:tot_size + request_size], dtype="int64"),
+                    ),
+                    pb_utils.Tensor(
+                        "tokens_mask",
+                        np.array(attention_mask_np[tot_size:tot_size + request_size], dtype="int64"),
+                    ),
+                    pb_utils.Tensor(
+                        "tokens_position",
+                        np.array(position_ids_np[tot_size:tot_size + request_size], dtype="int64"),
                     )
                 ]
             )

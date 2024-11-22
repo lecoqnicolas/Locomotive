@@ -16,7 +16,8 @@ SOURCE_DEPENDANCIES = {
 }
 
 CUSTOM_ENV = {
-    "sentence_trad": "models/sentence_trad/traduction_env.tar.gz"
+    "sentence_trad": "models/sentence_trad/traduction_env.tar.gz",
+    "sentence_trad_prepro": "models/sentence_trad_prepro/traduction_env.tar.gz"
 }
 
 TRITON_CONFIG_FILE = "config.pbtxt"
@@ -40,7 +41,8 @@ def fix_pydantic_for_langchain3_triton(env_directory: Path):
 
 
 POST_ENV_ACTION = {
-    "sentence_trad": fix_pydantic_for_langchain3_triton
+    "sentence_trad": fix_pydantic_for_langchain3_triton,
+    "sentence_trad_prepro": fix_pydantic_for_langchain3_triton
 }
 
 
