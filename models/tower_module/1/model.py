@@ -20,6 +20,9 @@ class TritonPythonModel:
         Handles multiple inference requests and processes inputs and outputs.
         """
         responses = []
+        request_sizes = []
+        batch_id = []
+        batch_mask = []
         for request in requests:
               
             # Retrieve input tensors
@@ -28,30 +31,31 @@ class TritonPythonModel:
             print(f"input_ids shape in onnx model: {input_ids.shape}")
             print(f"attention_mask shape in onnx model: {attention_mask.shape}")
             print(input_ids)
-            input_ids = np.expand_dims(input_ids, axis=0) if input_ids.ndim == 1 else input_ids
-
+            #input_ids = np.expand_dims(input_ids, axis=0) if input_ids.ndim == 1 else input_ids
+            request_sizes.append(input_ids.shape[0])
             input_ids = input_ids.astype(np.int64)
             input_ids = torch.tensor(input_ids, device="cuda")
             attention_mask = attention_mask.astype(np.int64)
-            attention_mask  = torch.tensor(attention_mask, device="cuda")
-            #with torch.no_grad():
-            #    gen_tokens = self._model(input_ids=input_ids, attention_mask=attention_mask)
-            #    self.logger.log_info(f"input_ids shape: {input_ids.shape}, attention_mask shape: {attention_mask.shape}")
-            #    # Perform inference
-            #    print(gen_tokens, flush=True)
-            #    probabilities = F.softmax(gen_tokens.logits, dim=-1)
-            #    gen_tokens = torch.argmax(probabilities, dim=-1)
-            gen_tokens=self._model.generate(input_ids=input_ids, attention_mask=attention_mask, max_new_tokens=512, do_sample=False)
-            #translated_tokens = gen_tokens.cpu().numpy() if hasattr(gen_tokens, "cpu") else np.array(gen_tokens)
-            translated_tokens = gen_tokens.cpu().numpy()
-            translated_tokens = translated_tokens.astype(np.int64)
-            self.logger.log_info(f"Translated tokens shape: {translated_tokens.shape}")
+            attention_mask = torch.tensor(attention_mask, device="cuda")
+            batch_id.append(input_ids)
+            batch_mask.append(attention_mask)
+        tensor_inputs = torch.cat(batch_id, 0)
+        tensor_mask = torch.cat(batch_mask, 0)
+        gen_tokens = self._model.generate(input_ids=tensor_inputs, attention_mask=tensor_mask, max_new_tokens=512, do_sample=False)
+        #translated_tokens = gen_tokens.cpu().numpy() if hasattr(gen_tokens, "cpu") else np.array(gen_tokens)
+        translated_tokens = gen_tokens.cpu().numpy()
+        translated_tokens = translated_tokens.astype(np.int64)
+        tot_size = 0
+        for request_size in request_sizes:
+
+            translated_tokens_slices = np.array(translated_tokens[tot_size:tot_size + request_size], dtype="int64")
+
+            self.logger.log_info(f"Translated tokens shape: {translated_tokens_slices.shape}")
             print(f"Translated tokens shape: {translated_tokens.shape}")
-            print(translated_tokens, flush=True)
             # Create Triton inference response
             inference_response = pb_utils.InferenceResponse(
-                output_tensors=[pb_utils.Tensor("translated_tokens", translated_tokens)]
+                output_tensors=[pb_utils.Tensor("translated_tokens", translated_tokens_slices)]
             )
             responses.append(inference_response)
-
+            tot_size += request_size
         return responses
