@@ -11,9 +11,9 @@ def main(model_name):
     client = TritonLlmClient()
     
     # Inputs
-    prompts = ["Hello, my name is Triton"]
-    src = ["English"]
-    targets = ["French"]
+    prompts = ["Hello, my name is Triton", "Hello, my name is Maxime"]
+    src = ["English", "English"]
+    targets = ["French", "French"]
     logging.debug(f"Sentences to translate :")
     logging.debug(f"{prompts}")
     counter = RequestCounter()
