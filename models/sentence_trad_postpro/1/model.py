@@ -30,6 +30,7 @@ class TritonPythonModel:
             print(request, flush=True)
             # Extract input tensors
             prompts = pb_utils.get_input_tensor_by_name(request, "prompts").as_numpy()
+            print(prompts, flush=True)
             prompts = [text.decode("UTF-8") for text in prompts]
             tokens = pb_utils.get_input_tensor_by_name(request, "translated_tokens").as_numpy()
             valid_mask = pb_utils.get_input_tensor_by_name(request, "valid_mask").as_numpy()

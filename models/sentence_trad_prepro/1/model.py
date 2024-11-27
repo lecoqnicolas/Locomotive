@@ -66,7 +66,7 @@ class TritonPythonModel:
             print(input_ids_np_slice, flush=True)
             print(f"valid_mask shape: {valid_mask_np.shape}")
             print(f"prompts shape: {prompts_np.shape}")
-            print(f"input_ids shape: {input_ids_np.shape}")
+            print(f"input_ids shape: {input_ids_np_slice.shape}")
             print(f"attention_mask shape: {attention_mask_np_slice.shape}")
             inference_response = pb_utils.InferenceResponse(
                 output_tensors=[
