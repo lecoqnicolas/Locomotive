@@ -54,14 +54,16 @@ class TritonPythonModel:
         #input_ids = input_ids.squeeze(1)
         input_ids_np = tokens['input_ids'].cpu().numpy()
         attention_mask_np = tokens['attention_mask'].cpu().numpy()
+        print(input_ids_np, flush=True)
         #traduction decoding
         tot_size = 0
         for request_size in request_sizes:
             valid_mask_np = np.array(valid_mask[tot_size:tot_size + request_size], dtype="bool").reshape(request_size, -1)
             prompts_np = np.array(prompts[tot_size:tot_size + request_size], dtype="object").reshape(request_size, -1)
-            input_ids_np = np.array(input_ids_np[tot_size:tot_size + request_size], dtype="int64")
+            input_ids_np_slice = np.array(input_ids_np[tot_size:tot_size + request_size], dtype="int64")
             attention_mask_np_slice = np.array(attention_mask_np[tot_size:tot_size + request_size], dtype="int64")
             #
+            print(input_ids_np_slice, flush=True)
             print(f"valid_mask shape: {valid_mask_np.shape}")
             print(f"prompts shape: {prompts_np.shape}")
             print(f"input_ids shape: {input_ids_np.shape}")
@@ -70,12 +72,12 @@ class TritonPythonModel:
                 output_tensors=[
                     pb_utils.Tensor("valid_mask", valid_mask_np),
                     pb_utils.Tensor("prompts", prompts_np),
-                    pb_utils.Tensor("input_ids", input_ids_np),
+                    pb_utils.Tensor("input_ids", input_ids_np_slice),
                     pb_utils.Tensor("attention_mask", attention_mask_np_slice),
                 ]
             )
 
             tot_size += request_size
             responses.append(inference_response)
-       
+        print(len(responses), flush=True)
         return responses

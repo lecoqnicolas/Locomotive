@@ -1,82 +1,58 @@
-# Ensure we find locomotive llm in the pythonpath, as pytest do not add it.
 import sys
 import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../")))
-
 import numpy as np
 import tritonclient.grpc as tclient
 from tritonclient.utils import np_to_triton_dtype
 import time
 from transformers import AutoTokenizer
 import logging
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../")))
 from locomotive_llm.utils import RequestCounter
-
-
-def async_callback(counter: RequestCounter, result, error, tokenizer):
-    if error is not None:
-        print(f"Error reception from server : {str(error)}")
-        counter.neg_count += 1
-    if result is not None:
-        print("Triton server answer :")
-        print(result)
-        for item in result.as_numpy("prompts"):
-            print(item)
-        for item in result.as_numpy("tokens"):
-            print(item)
-            decoded_translation = tokenizer.decode(item, skip_special_tokens=True)
-            print(f"Decoded translation: {decoded_translation.strip()}")
-        for item in result.as_numpy("valid_mask"):
-            print(item)
-        counter.pos_count += 1
+from locomotive_llm.utils import TritonLlmClient, get_callback_with_counter
 
 
 def test_model(model_name="sentence_trad_prepro"):
-    logging.basicConfig()
-    logging.getLogger().setLevel(logging.DEBUG)
-    # grpc url should be prefered
-    client = tclient.InferenceServerClient(url="localhost:8001")
-    tokenizer = AutoTokenizer.from_pretrained("./tower_onnx/")
-    # Inputs
-    prompts = ["Hello world", "other_sentence"]
-    logging.debug(f"Sentences to translate :")
-    logging.debug(f"{prompts}")
-    text_obj = np.array(prompts, dtype="object")
-    text_obj = text_obj.reshape([-1,1])
-    src_obj = np.array(["English","English"], dtype="object")
-    src_obj = src_obj.reshape([-1,1])
-    tgt_obj = np.array(["French","French"], dtype="object")
-    tgt_obj = tgt_obj.reshape([-1,1])
-    # Set Inputs
-    input_tensors = [
-        tclient.InferInput(
-            "text_to_translate", text_obj.shape, np_to_triton_dtype(text_obj.dtype)
-        ),
-        tclient.InferInput(
-            "src_name", src_obj.shape, np_to_triton_dtype(src_obj.dtype)
-        ),
-        tclient.InferInput(
-            "tgt_name", tgt_obj.shape, np_to_triton_dtype(tgt_obj.dtype)
-        ),
-    ]
-    input_tensors[0].set_data_from_numpy(text_obj)
-    input_tensors[1].set_data_from_numpy(src_obj)
-    input_tensors[2].set_data_from_numpy(tgt_obj)
-
-    # Set outputs
-    output = [
-        tclient.InferRequestedOutput("prompts"),
-        tclient.InferRequestedOutput("tokens"),
-        tclient.InferRequestedOutput("valid_mask")
-    ]
-
+    """Test the sentence translation model."""
+    logging.basicConfig(level=logging.DEBUG)
     counter = RequestCounter()
-    # Query
-    client.async_infer(
-        model_name, inputs=input_tensors, outputs=output, callback=lambda result, error: async_callback(counter, result,
-                                                                                                        error, tokenizer)
-    )
+    callback = get_callback_with_counter(counter)
+    client = TritonLlmClient()
+    tokenizer = AutoTokenizer.from_pretrained("./tower_onnx_2/")
 
-    while counter.request_count < 1:
-        time.sleep(0.1)
-        logging.debug(f"neg {counter.neg_count}, pos {counter.pos_count}")
-    assert counter.pos_count == 1
+    # Inputs
+    prompts = ["Hello world"]
+    logging.debug(f"Sentences to translate: {prompts}")
+    
+    text_obj = np.array(prompts, dtype="object").reshape([-1, 1])
+    src = ["English"]
+    targets = ["French"]
+
+    # Set Inputs
+    client.infer(model_name=model_name, texts=prompts, src_lang=src, tgt_lang=targets, callback=callback)
+
+
+
+    try:
+        # Query the model asynchronously
+        client.infer(model_name=model_name, texts=prompts, src_lang=src, tgt_lang=targets, callback=callback)
+
+
+        # Wait for the request to complete or time out after 30 seconds
+        start_time = time.time()
+        while counter.request_count < 1:
+            time.sleep(0.1)
+            logging.debug(f"neg {counter.neg_count}, pos {counter.pos_count}")
+            if time.time() - start_time > 30:  # Timeout after 30 seconds
+                raise TimeoutError("Model inference timed out")
+
+        # Assert successful response
+        assert counter.pos_count == 1
+
+    except Exception as e:
+        logging.error(f"Test failed: {str(e)}")
+        raise
+
+if __name__ == "__main__":
+    test_model()

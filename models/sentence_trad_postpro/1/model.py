@@ -27,6 +27,7 @@ class TritonPythonModel:
         responses = []
 
         for request in requests:
+            print(request, flush=True)
             # Extract input tensors
             prompts = pb_utils.get_input_tensor_by_name(request, "prompts").as_numpy()
             prompts = [text.decode("UTF-8") for text in prompts]

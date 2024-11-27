@@ -7,9 +7,8 @@ import onnxruntime as ort
 from locomotive_llm.preprocess import BasicPreprocessor
 from locomotive_llm.postprocess import BasicPostProcessor, LlmResponseParser
 import torch
-print(torch.version.cuda)
-import onnxruntime as ort
-print("Available providers:", ort.get_available_providers())
+#print(torch.version.cuda)
+#print("Available providers:", ort.get_available_providers())
 def translate_texts(texts, src_lang, tgt_lang, model, tokenizer, device, batch_size=10):
     prompt_template = "./config/prompts/prompt_v1.yml"
     prepro = BasicPreprocessor(prompt_file=prompt_template, ignore_prompts=[" ", "\n", " \n", "  "])
@@ -18,16 +17,17 @@ def translate_texts(texts, src_lang, tgt_lang, model, tokenizer, device, batch_s
     inputs = tokenizer(prompts, return_tensors="pt", padding=True, truncation=True).to(device)
     print(inputs)
     gen_tokens = model.generate(**inputs, max_new_tokens=50)
+    print(gen_tokens)
     translations = tokenizer.batch_decode(gen_tokens, skip_special_tokens=True)
     print(translations)
     postpro = BasicPostProcessor(output_parsing_method=LlmResponseParser.keep_first_line, output_field=None)
     return postpro.transform(valid_mask=valid_mask, input_prompts=prompts, outputs=translations)
 
 providers = ["CUDAExecutionProvider"]
-model_path = "tower_onnx/"
-model = ORTModelForCausalLM.from_pretrained(model_path, use_cache=False, providers=providers, use_io_binding=False)
+model_path = "tower_onnx_2/"
+model = ORTModelForCausalLM.from_pretrained(model_path, use_cache=False, providers=providers, use_io_binding=False).to('cuda')
 #model = ort.InferenceSession(model_path, providers=providers)
-tokenizer = AutoTokenizer.from_pretrained("tower_onnx/")
+tokenizer = AutoTokenizer.from_pretrained("tower_onnx_2/")
 print(torch.cuda.is_available() )
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

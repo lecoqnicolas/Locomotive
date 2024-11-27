@@ -63,7 +63,7 @@ ensemble_scheduling {
       }
     },
     {
-      model_name: "tower_module"
+      model_name: "onnx_translation_model"
       model_version: 1
       input_map {
         key: "input_ids"

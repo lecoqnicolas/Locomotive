@@ -28,7 +28,8 @@ SOURCE_DEPENDANCIES = {
     "pt_fr_seq2seq": ['./seq2seq_model/inference.py', './seq2seq_model/translate-pt_fr-1_2/'],
     "ru_fr_seq2seq": ['./seq2seq_model/inference.py', './seq2seq_model/translate-ru_fr-1_2/'],
     "tr_fr_seq2seq": ['./seq2seq_model/inference.py', './seq2seq_model/translate-tr_fr-1_2/'],
-    "zh_fr_seq2seq": ['./seq2seq_model/inference.py', './seq2seq_model/translate-zh_fr-1_2/']
+    "zh_fr_seq2seq": ['./seq2seq_model/inference.py', './seq2seq_model/translate-zh_fr-1_2/'],
+    "onnx_translation_model": ["./tower_onnx_2"]
 }
 
 CUSTOM_ENV = {
