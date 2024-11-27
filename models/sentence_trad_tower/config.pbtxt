@@ -6,7 +6,7 @@ input [
   {
     name: "text_to_translate"
     data_type: TYPE_STRING
-    dims:[1]
+    dims: [1]
   },
   {
     name: "src_name"
@@ -19,6 +19,7 @@ input [
     dims: [1]
   }
 ]
+
 output [
   {
     name: "translation"
@@ -35,45 +36,46 @@ ensemble_scheduling {
       input_map {
         key: "text_to_translate"
         value: "text_to_translate"
-
       }
       input_map {
-          key: "src_name"
-          value: "src_name"
+        key: "src_name"
+        value: "src_name"
       }
       input_map {
-          key: "tgt_name"
-          value: "tgt_name"
-  
+        key: "tgt_name"
+        value: "tgt_name"
       }
       output_map {
         key: "prompts"
         value: "prompts"
       }
       output_map {
-          key: "tokens"
-          value: "tokens"
-  
+        key: "valid_mask"
+        value: "valid_mask"
       }
-
       output_map {
-          key: "valid_mask"
-          value: "valid_mask"
+        key: "input_ids"
+        value: "input_ids"
+      }
+      output_map {
+        key: "attention_mask"
+        value: "attention_mask"
       }
     },
     {
       model_name: "onnx_translation_model"
       model_version: 1
-     
       input_map {
-          key: "tokens"
-          value: "tokens"
+        key: "input_ids"
+        value: "input_ids"
       }
-       
-    
+      input_map {
+        key: "attention_mask"
+        value: "attention_mask"
+      }
       output_map {
-          key: "translated_tokens"
-          value: "translated_tokens"
+        key: "translated_tokens"
+        value: "translated_tokens"
       }
     },
     {
@@ -84,18 +86,16 @@ ensemble_scheduling {
         value: "prompts"
       }
       input_map {
-          key: "translated_tokens"
-          value: "translated_tokens"
-  
+        key: "translated_tokens"
+        value: "translated_tokens"
       }
       input_map {
-          key: "valid_mask"
-          value: "valid_mask"
+        key: "valid_mask"
+        value: "valid_mask"
       }
       output_map {
-         key: "translation"
-         value: "translation"
-  
+        key: "translation"
+        value: "translation"
       }
     }
   ]

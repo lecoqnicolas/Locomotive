@@ -28,38 +28,18 @@ class TritonPythonModel:
 
         for request in requests:
             # Extract input tensors
-            prompts = pb_utils.get_input_tensor_by_name(request, "prompts")
+            prompts = pb_utils.get_input_tensor_by_name(request, "prompts").as_numpy()
+            prompts = [text.decode("UTF-8") for text in prompts]
             tokens = pb_utils.get_input_tensor_by_name(request, "translated_tokens").as_numpy()
-            valid_mask = pb_utils.get_input_tensor_by_name(request, "valid_mask")
+            valid_mask = pb_utils.get_input_tensor_by_name(request, "valid_mask").as_numpy()
 
             # Check the shape of tokens
-            print(f"Tokens shape before reshaping: {tokens.shape}")
-
-            # Ensure tokens are a 2D NumPy array (if it's a list of lists, convert to NumPy array)
-            if isinstance(tokens, list):
-                tokens = np.array(tokens)
-
-            # Check if the shape is correct for decoding
-            if tokens.ndim == 3:
-                # Assuming tokens have shape (batch_size, seq_len, vocab_size), truncate the last dimension
-                tokens = tokens.reshape(tokens.shape[0], tokens.shape[1])
-
-            elif tokens.ndim == 2:
-                # Tokens already in the expected shape
-                pass
-            else:
-                raise ValueError(f"Unexpected shape for tokens: {tokens.shape}")
-
-            # Check the number of tokens (make sure it's not too large for decoding)
-            if tokens.size > 256:
-                tokens = tokens[:, :256]  # Truncate tokens if necessary
-
+            print(f"Tokens shape before reshaping: {tokens.shape}", flush=True)
+            print(f"masks : {valid_mask}", flush=True)
             # Decode tokens into text using the tokenizer
-            try:
-                decoded_translations = [self._tokenizer.decode(token_ids, skip_special_tokens=True) for token_ids in tokens]
-            except Exception as e:
-                raise ValueError(f"Error during decoding: {str(e)}")
-
+            translations = self.tokenizer.batch_decode(tokens, skip_special_tokens=True)
+            decoded_translations = self._postprocessor.transform(valid_mask=valid_mask , input_prompts=prompts, outputs=translations)
+            
             # Prepare the response with decoded translations
             translation_tensor = pb_utils.Tensor("translation", np.array(decoded_translations, dtype=object))
             inference_response = pb_utils.InferenceResponse(output_tensors=[translation_tensor])

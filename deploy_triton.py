@@ -33,6 +33,7 @@ SOURCE_DEPENDANCIES = {
 
 CUSTOM_ENV = {
     "sentence_trad": "models/sentence_trad/traduction_env.tar.gz",
+    "onnx_translation_model": "models/onnx_translation_model/locomotive_test.tar.gz",
     "sentence_trad_prepro": "models/sentence_trad_prepro/traduction_env.tar.gz"
 }
 

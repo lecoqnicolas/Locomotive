@@ -26,11 +26,16 @@ output [
     dims: [1]
   },
   {
-    name: "tokens"
+    name: "input_ids"
     data_type: TYPE_INT64
     dims: [-1]
   },
-  {
+   {
+    name: "attention_mask"
+    data_type: TYPE_INT64
+    dims: [-1]
+  },
+ {
     name: "valid_mask"
     data_type: TYPE_BOOL
     dims: [-1]
