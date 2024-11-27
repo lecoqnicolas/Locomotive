@@ -31,15 +31,15 @@ class TritonPythonModel:
             # Extract input tensors
             prompts = pb_utils.get_input_tensor_by_name(request, "prompts").as_numpy()
             print(prompts, flush=True)
-            prompts = [text.decode("UTF-8") for text in prompts]
+            prompts = [text[0].decode("UTF-8") for text in prompts]
             tokens = pb_utils.get_input_tensor_by_name(request, "translated_tokens").as_numpy()
             valid_mask = pb_utils.get_input_tensor_by_name(request, "valid_mask").as_numpy()
-
+            print(tokens)
             # Check the shape of tokens
             print(f"Tokens shape before reshaping: {tokens.shape}", flush=True)
             print(f"masks : {valid_mask}", flush=True)
             # Decode tokens into text using the tokenizer
-            translations = self.tokenizer.batch_decode(tokens, skip_special_tokens=True)
+            translations = self._tokenizer.batch_decode(tokens, skip_special_tokens=True)
             decoded_translations = self._postprocessor.transform(valid_mask=valid_mask , input_prompts=prompts, outputs=translations)
             
             # Prepare the response with decoded translations
