@@ -7,6 +7,32 @@
 
 ## Deployement
 
+Clone or get the latest version of the project locomotive_env.
+
+The current deployement script expects to find our artifacts in ./artifacts.
+You can either transfer the artifacts, or if you have an internet acces, download them from the huggingface
+repository :
+
+For direct download, inside ./articats, run the following commands (you need git and git lfs):
+
+  
+  git clone https://huggingface.co/google/madlad400-10b-mt
+  git clone https://huggingface.co/Unbabel/TowerInstruct-7B-v0.2
+
+
+Alternatively, just transfer the artifacts from the machine we prodided :
+
+  
+  - scp -r ./artifacts USER@IP:~/locomotive/artifacts
+    
+
+For the artifacts provided by Nicolas, we kept the provided structure : seq2seqmodel must contain
+one directory with Nicholas structure per model you want to deploy (ex : seq2seq_model/translate-ar_fr-1_2, ...):
+
+      - scp -r ./seq2seq_model USER@IP:~/locomotive/seq2seq_model 
+  
+
+      
 ## RUNNING the server
 
   1) generate certificates (or provide your own in ./certs)
