@@ -311,3 +311,6 @@ Tensorrt llm:
   
   sudo python3.10 ./scripts/build_wheel.py --trt_root /home/debian/TensorRT-10.0.1.6/ -D "CMAKE_CUDA_COMPILER=/usr/local/cuda-12/bin/nvcc" -D "Python_EXECUTABLE=/usr/local/bin/python3.10" -D"PYBIND11_FINDPYTHON=ON" "-DPython3_EXECUTABLE=/usr/local/bin/python3.10" --clean
   
+  Download models to be used offline:
+  huggingface-cli download nom-du-modele #"Unbabel/TowerInstruct-Mistral-7B-v0.2
+
