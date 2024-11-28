@@ -2,7 +2,7 @@ experiment_name: "InstructMistral0.2"
 run_name: "eng_fr_v1"
 pipeline: "instruct_langchain"
 version: 1
-llm_model: "Unbabel/TowerInstruct-Mistral-7B-v0.2"
+llm_model: "/models/tower_module/1/TowerInstruct-Mistral-7B-v0.2"
 prompt: "/models/onnx_translation_model/1/prompt.yml"
 batch_size: 50
 max_token: 150

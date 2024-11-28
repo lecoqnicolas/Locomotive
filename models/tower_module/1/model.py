@@ -2,6 +2,9 @@ import numpy as np
 import triton_python_backend_utils as pb_utils
 from transformers import AutoModelForCausalLM
 import torch
+import os
+from pathlib import Path
+from locomotive_llm.load import load_config
 import torch.nn.functional as F
 
 class TritonPythonModel:
@@ -9,7 +12,11 @@ class TritonPythonModel:
         """
         Initializes the ONNX model session and loads it into memory.
         """
-        self._model = AutoModelForCausalLM.from_pretrained("Unbabel/TowerInstruct-Mistral-7B-v0.2", torch_dtype=torch.float16).to("cuda")
+        file_path = os.path.realpath(__file__)
+        self._file_dir = Path(os.sep.join(file_path.split(os.sep)[:-1]))
+        self._configuration_path = self._file_dir / "config.yaml"
+        self._config = load_config(self._configuration_path)
+        self._model = AutoModelForCausalLM.from_pretrained(self._config.llm_model, torch_dtype=torch.float16).to("cuda")
         self._model.eval()
         self._version = "tower_transformer"
         self.logger = pb_utils.Logger  # Instantiate the logger

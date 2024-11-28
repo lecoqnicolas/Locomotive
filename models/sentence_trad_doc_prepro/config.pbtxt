@@ -1,4 +1,4 @@
-name: "sentence_trad"
+name: "sentence_trad_doc_prepro"
 backend: "python"
 max_batch_size: 50
 
@@ -21,14 +21,29 @@ input [
 ]
 output [
   {
-    name: "translation"
+    name: "prompts"
     data_type: TYPE_STRING
     dims: [1]
+  },
+  {
+    name: "input_ids"
+    data_type: TYPE_INT64
+    dims: [-1]
+  },
+   {
+    name: "attention_mask"
+    data_type: TYPE_INT64
+    dims: [-1]
+  },
+ {
+    name: "valid_mask"
+    data_type: TYPE_BOOL
+    dims: [-1]
   }
 ]
 parameters: {
   key: "EXECUTION_ENV_PATH",
-  value: {string_value: "$$TRITON_MODEL_DIRECTORY/traduction_env"}
+  value: {string_value: "$$TRITON_MODEL_DIRECTORY/../sentence_trad_prepro/traduction_env"}
 }
 instance_group [{
 	count: 1

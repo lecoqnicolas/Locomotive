@@ -17,7 +17,7 @@ class TritonPythonModel:
         self._version = "model_postpro_tower"
         self._logger = pb_utils.Logger
         self._logger.log_info(f"Model postprocessing {self._version} loaded")
-        self._tokenizer = AutoTokenizer.from_pretrained("./tower_onnx/")
+        self._tokenizer = AutoTokenizer.from_pretrained(self._config.llm_model)
         self._device = get_device(self._config.device)
 
         # Post-processor setup

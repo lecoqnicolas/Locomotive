@@ -1,7 +1,0 @@
-input_variables:
-- src_lang
-- tgt_lang
-- text
-output_parser: null
-template: " Only answer with the traduction. Never explain or detail your answers. Translate the following text from {src_lang} to {tgt_lang} :\n{src_lang}: {text}\n{tgt_lang}:"
-template_format: f-string

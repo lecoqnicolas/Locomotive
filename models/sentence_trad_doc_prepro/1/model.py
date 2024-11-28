@@ -3,7 +3,7 @@ from pathlib import Path
 from transformers import AutoTokenizer
 
 from locomotive_llm.load import load_config
-from locomotive_llm.preprocess import BasicPreprocessor
+from locomotive_llm.preprocess import ContextPreprocessor
 from locomotive_llm.utils import get_device
 import torch
 import numpy as np
@@ -16,12 +16,12 @@ class TritonPythonModel:
         self._file_dir = Path(os.sep.join(file_path.split(os.sep)[:-1]))
         self._configuration_path = self._file_dir / "config.yaml"
         self._config = load_config(self._configuration_path)
-        self._preprocessor = BasicPreprocessor(self._config.prompt, self._config.ignore_prompt, use_lang_code=False)
-        self._tokenizer = AutoTokenizer.from_pretrained(self._config.llm_model)
+        self._context_preprocessor = ContextPreprocessor(prompt_file=self._config.prompt, ignore_prompts=self._config.ignore_prompt, use_lang_code=False, context_window=self._config.context_window, context_sep=self._config.separateur_context)
+        self._tokenizer = AutoTokenizer.from_pretrained(self._config.llm_model, local_files_only= True)
 
         self._device = get_device(self._config.device)
 
-        self._version = "model_prepro_tower"
+        self._version = "model_prepro_doc_tower"
         self._logger = pb_utils.Logger
         self._logger.log_info(f"Model preprocessing {self._version} loaded")
 
@@ -46,7 +46,7 @@ class TritonPythonModel:
             texts.extend([text[0].decode("UTF-8") for text in text_tensor.as_numpy()])
             languages_src.extend([name[0].decode("UTF-8") for name in src_name.as_numpy()])
             languages_dest.extend([name[0].decode("UTF-8") for name in tgt_name.as_numpy()])
-        prompts, valid_mask = self._preprocessor.transform(texts, languages_src, languages_dest)
+        prompts, valid_mask = self._context_preprocessor.transform(texts, languages_src, languages_dest)
         #prompts tokenization
         tokens = self._tokenizer(prompts, return_tensors="pt", padding=True, truncation=True, max_length=256).to(self._device)
         #input_ids = tokens['input_ids'].unsqueeze(1) 
