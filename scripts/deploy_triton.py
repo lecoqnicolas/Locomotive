@@ -8,25 +8,25 @@ import fileinput
 
 
 SOURCE_DEPENDANCIES = {
-    "madlad": ["./locomotive_llm","artifacts/madlad400-10b-mt"],
-    "en_fr_seq2seq": ["./seq2seq_model/inference.py", "./seq2seq_model/translate-en_fr-1_10/"],
-    "ar_fr_seq2seq": ['./seq2seq_model/inference.py', './seq2seq_model/translate-ar_fr-1_2/'],
-    "de_en_seq2seq": ['./seq2seq_model/inference.py', './seq2seq_model/translate-de_en-1_4/'],
-    "de_fr_seq2seq": ['./seq2seq_model/inference.py', './seq2seq_model/translate-de_fr-1_2/'],
-    "en_de_seq2seq": ['./seq2seq_model/inference.py', './seq2seq_model/translate-en_de-1_4/'],
-    "en_hy_seq2seq": ['./seq2seq_model/inference.py', './seq2seq_model/translate-en_hy-1_2/'],
-    "es_fr_seq2seq": ['./seq2seq_model/inference.py', './seq2seq_model/translate-es_fr-1_2/'],
-    "fr_de_seq2seq": ['./seq2seq_model/inference.py', './seq2seq_model/translate-fr_de-1_2/'],
-    "fr_en_seq2seq": ['./seq2seq_model/inference.py', './seq2seq_model/translate-fr_en-1_10/'],
-    "fr_es_seq2seq": ['./seq2seq_model/inference.py', './seq2seq_model/translate-fr_es-1_2/'],
-    "fr_pt_seq2seq": ['./seq2seq_model/inference.py', './seq2seq_model/translate-fr_pt-1_2/'],
-    "fr_ru_seq2seq": ['./seq2seq_model/inference.py', './seq2seq_model/translate-fr_ru-1_2/'],
-    "fr_zh_seq2seq": ['./seq2seq_model/inference.py', './seq2seq_model/translate-fr_zh-1_2/'],
-    "hy_en_seq2seq": ['./seq2seq_model/inference.py', './seq2seq_model/translate-hy_en-1_2/'],
-    "pt_fr_seq2seq": ['./seq2seq_model/inference.py', './seq2seq_model/translate-pt_fr-1_2/'],
-    "ru_fr_seq2seq": ['./seq2seq_model/inference.py', './seq2seq_model/translate-ru_fr-1_2/'],
-    "tr_fr_seq2seq": ['./seq2seq_model/inference.py', './seq2seq_model/translate-tr_fr-1_2/'],
-    "zh_fr_seq2seq": ['./seq2seq_model/inference.py', './seq2seq_model/translate-zh_fr-1_2/'],
+    "madlad": ["./locomotive_llm", "artifacts/madlad400-10b-mt"],
+    "en_fr_seq2seq": ["./seq2seq_model", "./artifacts/translate-en_fr-1_10/"],
+    "ar_fr_seq2seq": ['./seq2seq_model', './artifacts/translate-ar_fr-1_2/'],
+    "de_en_seq2seq": ['./seq2seq_model', './artifacts/translate-de_en-1_4/'],
+    "de_fr_seq2seq": ['./seq2seq_model', './artifacts/translate-de_fr-1_2/'],
+    "en_de_seq2seq": ['./seq2seq_model', './artifacts/translate-en_de-1_4/'],
+    "en_hy_seq2seq": ['./seq2seq_model', './artifacts/translate-en_hy-1_2/'],
+    "es_fr_seq2seq": ['./seq2seq_model', './artifacts/translate-es_fr-1_2/'],
+    "fr_de_seq2seq": ['./seq2seq_model', './artifacts/translate-fr_de-1_2/'],
+    "fr_en_seq2seq": ['./seq2seq_model', './artifacts/translate-fr_en-1_10/'],
+    "fr_es_seq2seq": ['./seq2seq_model', './artifacts/translate-fr_es-1_2/'],
+    "fr_pt_seq2seq": ['./seq2seq_model', './artifacts/translate-fr_pt-1_2/'],
+    "fr_ru_seq2seq": ['./seq2seq_model', './artifacts/translate-fr_ru-1_2/'],
+    "fr_zh_seq2seq": ['./seq2seq_model', './artifacts/translate-fr_zh-1_2/'],
+    "hy_en_seq2seq": ['./seq2seq_model', './artifacts/translate-hy_en-1_2/'],
+    "pt_fr_seq2seq": ['./seq2seq_model', './artifacts/translate-pt_fr-1_2/'],
+    "ru_fr_seq2seq": ['./seq2seq_model', './artifacts/translate-ru_fr-1_2/'],
+    "tr_fr_seq2seq": ['./seq2seq_model', './artifacts/translate-tr_fr-1_2/'],
+    "zh_fr_seq2seq": ['./seq2seq_model', './artifacts/translate-zh_fr-1_2/'],
     "tower_module": ["./artifacts/TowerInstruct-Mistral-7B-v0.2"],
 }
 
@@ -57,7 +57,7 @@ def fix_pydantic_for_langchain3_triton(env_directory: Path):
 
 
 POST_ENV_ACTION = {
-    "sentence_trad": fix_pydantic_for_langchain3_triton,
+    "madlad": fix_pydantic_for_langchain3_triton,
     "sentence_trad_prepro": fix_pydantic_for_langchain3_triton,
     "sentence_trad_prepro_docs": fix_pydantic_for_langchain3_triton
 }
