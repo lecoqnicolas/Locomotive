@@ -9,7 +9,7 @@ version: 1
 pipeline: "tower"
 llm_model: "/models/tower_module/1/TowerInstruct-Mistral-7B-v0.2"
 prompt: "config/prompts/prompt_v1.yml"
-batch_size: 10
+batch_size: 50
 max_token: 150
 device: 0
 src_code: "deu_Latn"

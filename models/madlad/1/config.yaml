@@ -7,7 +7,7 @@ separateur_context: "\n"
 version: 1
 llm_model: "/models/madlad/1/madlad400-10b-mt"
 pipeline : "madlad400"
-batch_size: 10
+batch_size: 50
 max_token: 512
 device: "cuda:0"
 src_code: "deu_Latn"
