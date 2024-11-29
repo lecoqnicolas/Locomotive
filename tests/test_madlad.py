@@ -8,7 +8,7 @@ import logging
 import time
 
 
-def test_ensemble_model(model_name="sentence_trad_tower"):
+def test_model(model_name="madlad"):
     logging.basicConfig()
     logging.getLogger().setLevel(logging.DEBUG)
     client = TritonLlmClient()
@@ -29,9 +29,8 @@ def test_ensemble_model(model_name="sentence_trad_tower"):
         time.sleep(0.1)
     assert counter.pos_count == 1
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Ensemble model")
-    parser.add_argument("--model_name", type=str, required=True, help="The ensemble model to use for inference")
-    args = parser.parse_args()
-    test_ensemble_model(args.model_name)
 
+    test_model()
+
+    
 

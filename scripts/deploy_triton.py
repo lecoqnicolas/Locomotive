@@ -8,8 +8,6 @@ import fileinput
 
 
 SOURCE_DEPENDANCIES = {
-    "document_trad": ["./locomotive_llm"],
-    "sentence_trad": ["./locomotive_llm"],
     "madlad": ["./locomotive_llm","artifacts/madlad400-10b-mt"],
     "en_fr_seq2seq": ["./seq2seq_model/inference.py", "./seq2seq_model/translate-en_fr-1_10/"],
     "ar_fr_seq2seq": ['./seq2seq_model/inference.py', './seq2seq_model/translate-ar_fr-1_2/'],
@@ -29,14 +27,11 @@ SOURCE_DEPENDANCIES = {
     "ru_fr_seq2seq": ['./seq2seq_model/inference.py', './seq2seq_model/translate-ru_fr-1_2/'],
     "tr_fr_seq2seq": ['./seq2seq_model/inference.py', './seq2seq_model/translate-tr_fr-1_2/'],
     "zh_fr_seq2seq": ['./seq2seq_model/inference.py', './seq2seq_model/translate-zh_fr-1_2/'],
-    "onnx_translation_model": ["./tower_onnx_2"],
-    "tower_module":["./artifacts/TowerInstruct-Mistral-7B-v0.2"],
-    
+    "tower_module": ["./artifacts/TowerInstruct-Mistral-7B-v0.2"],
 }
 
 CUSTOM_ENV = {
-    "sentence_trad": "models/sentence_trad/traduction_env.tar.gz",
-    "sentence_trad_prepro": "models/sentence_trad_prepro/traduction_env.tar.gz"
+    "madlad": "models/madlad/traduction_env.tar.gz"
 }
 
 TRITON_CONFIG_FILE = "config.pbtxt"

@@ -26,7 +26,7 @@ output [
 ]
 parameters: {
   key: "EXECUTION_ENV_PATH",
-  value: {string_value: "$$TRITON_MODEL_DIRECTORY/../sentence_trad_prepro//traduction_env"}
+  value: {string_value: "/models/madlad/traduction_env"}
 }
 instance_group [
   {
