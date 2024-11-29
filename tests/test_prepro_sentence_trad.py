@@ -1,7 +1,6 @@
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../")))
-import argparse
 import numpy as np
 import tritonclient.grpc as tclient
 from tritonclient.utils import np_to_triton_dtype
@@ -38,7 +37,7 @@ def async_callback(counter:RequestCounter , result, error, tokenizer):
     except Exception as e:
         logging.error(f"Exception processing result: {str(e)}")
         counter.neg_count += 1
-def test_model(model_name="sentence_trad_prepro"):
+def eval_model(model_name):
     logging.basicConfig()
     logging.getLogger().setLevel(logging.DEBUG)
     counter = RequestCounter()
@@ -96,12 +95,16 @@ def test_model(model_name="sentence_trad_prepro"):
             logging.error("Timeout reached. Exiting.")
             break
     assert counter.pos_count == 1
+
+
+def test_prepro_model_tower():
+    eval_model("sentence_trad_prepro")
+def test_prepro_model_tower_docs():
+    eval_model("sentence_trad_doc_prepro")
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Model preprocessing")
-    parser.add_argument("--docs", type=bool,default=False, required=True, help="The model preprocessing to use for inference")
-    args = parser.parse_args()
-    if args.docs == True:
-        test_model('sentence_trad_doc_prepro')
-    else:
-         test_model()
+
+    test_prepro_model_tower()
+    test_prepro_model_tower_docs()
+
+
     

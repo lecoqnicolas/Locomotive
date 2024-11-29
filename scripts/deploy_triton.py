@@ -27,11 +27,13 @@ SOURCE_DEPENDANCIES = {
     "ru_fr_seq2seq": ['./seq2seq_model', './artifacts/translate-ru_fr-1_2/'],
     "tr_fr_seq2seq": ['./seq2seq_model', './artifacts/translate-tr_fr-1_2/'],
     "zh_fr_seq2seq": ['./seq2seq_model', './artifacts/translate-zh_fr-1_2/'],
-    "tower_module": ["./artifacts/TowerInstruct-Mistral-7B-v0.2"],
+    "tower_module": ["./artifacts/TowerInstruct-Mistral-7B-v0.2", "locomotive_llm"],
+    "sentence_trad_prepro": ["./locomotive_llm"],
+    "sentence_trad_postpro": ["./locomotive_llm"]
 }
 
 CUSTOM_ENV = {
-    "madlad": "models/madlad/traduction_env.tar.gz"
+    "madlad": "./traduction_env.tar.gz"
 }
 
 TRITON_CONFIG_FILE = "config.pbtxt"
@@ -58,8 +60,6 @@ def fix_pydantic_for_langchain3_triton(env_directory: Path):
 
 POST_ENV_ACTION = {
     "madlad": fix_pydantic_for_langchain3_triton,
-    "sentence_trad_prepro": fix_pydantic_for_langchain3_triton,
-    "sentence_trad_prepro_docs": fix_pydantic_for_langchain3_triton
 }
 
 
