@@ -1,3 +1,11 @@
+"""
+This file updates the env location for all pbtxt found under ROOT_DIRECTORY.
+
+To optimize ram and mermoery consumption, all our models are using the same env.
+This implies at least one of the model deployed must have an env (we can chose which one in deploy.py).
+Then this script can be used to make all the models configuration link to the chosen env.
+"""
+
 import os
 import re
 
