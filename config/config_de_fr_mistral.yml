@@ -4,7 +4,7 @@ use_context: False
 separateur_context: "\n"
 version: 1
 llm_model: "Unbabel/TowerInstruct-Mistral-7B-v0.2"
-model_type : "madlad"
+model_type : "tower"
 prompt: "config/prompts/prompt_v1.yml"
 batch_size: 100
 max_token: 500

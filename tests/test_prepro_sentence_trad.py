@@ -1,7 +1,7 @@
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../")))
-
+import argparse
 import numpy as np
 import tritonclient.grpc as tclient
 from tritonclient.utils import np_to_triton_dtype
@@ -9,7 +9,7 @@ import time
 from transformers import AutoTokenizer
 import logging
 from pathlib import Path
-from locomotive_llm.utils import RequestCounter, get_callback_with_counter
+from locomotive_llm.utils import RequestCounter
 
 
 
@@ -48,7 +48,7 @@ def test_model(model_name="sentence_trad_prepro"):
                                                      root_certificates=cert_dir / "ca_localhost.crt",
                                                      private_key=cert_dir / "client_localhost.key",
                                                      certificate_chain=cert_dir / "client_localhost.crt")
-    tokenizer = AutoTokenizer.from_pretrained("./tower_onnx_2/")
+    tokenizer = AutoTokenizer.from_pretrained("./artifacts/TowerInstruct-Mistral-7B-v0.2/")
     # Inputs
     prompts = ["Hello world"]
     logging.debug(f"Sentences to translate :")
@@ -97,5 +97,11 @@ def test_model(model_name="sentence_trad_prepro"):
             break
     assert counter.pos_count == 1
 if __name__ == "__main__":
-    test_model()
+    parser = argparse.ArgumentParser(description="Model preprocessing")
+    parser.add_argument("--docs", type=bool,default=False, required=True, help="The model preprocessing to use for inference")
+    args = parser.parse_args()
+    if args.docs == True:
+        test_model('sentence_trad_doc_prepro')
+    else:
+         test_model()
     

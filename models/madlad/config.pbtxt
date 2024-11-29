@@ -1,6 +1,6 @@
 name: "madlad"
 backend: "python"
-max_batch_size: 10
+max_batch_size: 50
 
 input [
   {
@@ -28,7 +28,7 @@ output [
 ]
 parameters: {
   key: "EXECUTION_ENV_PATH",
-  value: {string_value: "$$TRITON_MODEL_DIRECTORY/../sentence_trad/traduction_env"}
+  value: {string_value: "$$TRITON_MODEL_DIRECTORY/../sentence_trad_prepro/traduction_env"}
 }
 instance_group [{
 	       count: 1

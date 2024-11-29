@@ -5,11 +5,11 @@ context_window: 2
 prompt: "/models/madlad/1/prompt_madlad.yml"
 separateur_context: "\n"
 version: 1
-llm_model: "google/madlad400-10b-mt"
+llm_model: "/models/madlad/1/madlad400-10b-mt"
 pipeline : "madlad400"
 batch_size: 10
 max_token: 512
-device: 0 #1 or 0 or "cpu"
+device: "cuda:0"
 src_code: "deu_Latn"
 src_name: "German"
 tgt_code: "fra_Latn"

@@ -50,8 +50,8 @@ def main(model_name):
     client = TritonLlmClient()
 
     # load document
-    output_file = "translated_doc1.docx"
-    doc_path = "documents/input/DE_version_doc1.docx"
+    output_file = "translated_doc1.pdf"
+    doc_path = "documents/input/DE_version_doc1.pdf"
     raw_content, doc_template = load_document(doc_path)
     all_lines = [el["content"] for el in raw_content] if doc_path.endswith(('.docx', '.pdf')) else raw_content
 
