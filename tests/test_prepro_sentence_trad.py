@@ -42,11 +42,7 @@ def eval_model(model_name):
     logging.getLogger().setLevel(logging.DEBUG)
     counter = RequestCounter()
     # grpc url should be prefered
-    cert_dir = Path("./certs")
-    client = tclient.InferenceServerClient(url="localhost:8001",  ssl=True,
-                                                     root_certificates=cert_dir / "ca_localhost.crt",
-                                                     private_key=cert_dir / "client_localhost.key",
-                                                     certificate_chain=cert_dir / "client_localhost.crt")
+    client = tclient.InferenceServerClient(url="localhost:8001")
     tokenizer = AutoTokenizer.from_pretrained("./artifacts/TowerInstruct-Mistral-7B-v0.2/")
     # Inputs
     prompts = ["Hello world"]
