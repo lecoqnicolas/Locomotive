@@ -29,7 +29,8 @@ SOURCE_DEPENDANCIES = {
     "zh_fr_seq2seq": ['./seq2seq_model', './artifacts/translate-zh_fr-1_2/'],
     "tower_module": ["./artifacts/TowerInstruct-Mistral-7B-v0.2", "locomotive_llm"],
     "sentence_trad_prepro": ["./locomotive_llm"],
-    "sentence_trad_postpro": ["./locomotive_llm"]
+    "sentence_trad_postpro": ["./locomotive_llm"],
+    "sentence_trad_doc": ["./locomotive_llm"]
 }
 
 CUSTOM_ENV = {
@@ -96,9 +97,9 @@ def deploy_triton(arg):
                 logging.error(f"Version {arg.version} for model {elmt.name}")
                 versions = list()
 
-            if len(versions) == 0:
-                logging.info(f"Skipping model {elmt.name} : no valid version was found")
-                continue
+            #if len(versions) == 0:
+            #    logging.info(f"Skipping model {elmt.name} : no valid version was found")
+            #    continue
             logging.info(f"Deploying versions {versions} of {elmt.name} to triton model repository {target_repository}")
 
             dest_model_dir = target_repository / elmt.name
