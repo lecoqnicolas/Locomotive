@@ -34,12 +34,7 @@ def async_callback(counter:RequestCounter , result, error):
 def test_model(model_name="sentence_trad_postpro"):
     logging.basicConfig()
     logging.getLogger().setLevel(logging.DEBUG)
-
-    cert_dir = Path("./certs")
-    client = tclient.InferenceServerClient(url="localhost:8001",  ssl=True,
-                                                     root_certificates=cert_dir / "ca_localhost.crt",
-                                                     private_key=cert_dir / "client_localhost.key",
-                                                     certificate_chain=cert_dir / "client_localhost.crt")
+    client = tclient.InferenceServerClient(url="localhost:8001")
     # Inputs
     prompts = ["Translate the following text from English to French:\nEnglish: Hello world\nFrench:"]
     tokens = np.array([[1, 28705, 6352, 4372, 395, 272, 2784, 15029, 28723, 9268, 7282, 442, 8291, 574, 11194, 28723, 4335, 10020, 272, 2296, 2245, 477, 4300, 298, 4949, 714, 13, 27871, 28747, 22557, 1526, 13, 28765, 4284, 28747]],dtype=np.int64)
