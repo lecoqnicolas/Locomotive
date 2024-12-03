@@ -9,7 +9,7 @@ version: 1
 pipeline: "tower"
 llm_model: "/models/tower_module/1/TowerInstruct-Mistral-7B-v0.2"
 prompt: "/models/sentence_trad_doc_prepro/1/prompt.yml"
-batch_size: 50
+batch_size: 10
 max_token: 150
 device: 0
 src_code: "deu_Latn"

@@ -7,8 +7,8 @@ from locomotive_llm.utils import TritonLlmClient, RequestCounter, get_callback_w
 import logging
 
 # Parameters
-NUM_REQUESTS = [100]
-BATCH_SIZE = 50
+NUM_REQUESTS = [20]
+BATCH_SIZE = 5
 DELAY = 0
 
 

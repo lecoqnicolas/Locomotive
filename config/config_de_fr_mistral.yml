@@ -3,7 +3,7 @@ run_name: "deu_fr_corrected_bleu"
 use_context: False
 separateur_context: "\n"
 version: 1
-llm_model: "Unbabel/TowerInstruct-Mistral-7B-v0.2"
+llm_model: "artifacts/TowerInstruct-Mistral-7B-v0.2"
 model_type : "tower"
 prompt: "config/prompts/prompt_v1.yml"
 batch_size: 100

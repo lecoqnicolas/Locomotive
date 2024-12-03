@@ -1,6 +1,6 @@
 name: "sentence_trad_tower_docs"
 platform: "ensemble"
-max_batch_size: 50
+max_batch_size: 10
 
 input [
   {

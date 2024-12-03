@@ -1,6 +1,6 @@
 name: "sentence_trad_postpro"
 backend: "python"
-max_batch_size: 50
+max_batch_size: 10
 
 input [
   {

@@ -18,7 +18,7 @@ def async_callback(counter: RequestCounter, result, error):
 def main(model_name):
     client = TritonLlmClient()
 
-    src_name = "English"
+    src_name = "Russian"
     tgt_name = "French"
     # Inputs
     try:
