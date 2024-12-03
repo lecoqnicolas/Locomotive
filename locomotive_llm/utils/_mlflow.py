@@ -11,7 +11,7 @@ from ._git import get_git_commit
 
 
 # mlflow client
-CLIENT = MlflowClient()
+CLIENT = None # MlflowClient()
 
 
 def fetch_mlflow_data(run_id: str, client=CLIENT) -> tuple:
