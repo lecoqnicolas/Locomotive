@@ -67,7 +67,7 @@ def main(model_name):
     # Set Inputs
     for i in range(0, len(src_obj), max_batch_size):
         nb_requests += 1
-        client.infer(model_name=model_name, texts=all_lines, src_lang=src_obj, tgt_lang=tgt_obj,
+        client.infer(model_name=model_name, texts=all_lines[i:i+max_batch_size], src_lang=src_obj[i:i+max_batch_size], tgt_lang=tgt_obj[i:i+max_batch_size],
                      callback=lambda result, error: document_callback(counter, output_file, doc_template, result, error))
 
     logging.info("Doing other stuff while the answer is computed")
