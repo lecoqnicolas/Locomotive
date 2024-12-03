@@ -8,13 +8,7 @@ Prérequis
 
 1. Création de l'environnement Conda:
     Créer et activer l'environnement Conda :
- 
-    conda create -n traduction_env python=3.10
-    conda activate traduction_env
-    python -m pip install -r requirements_traduction.txt
-
-    or 
-
+    
     conda env create -f env_traduction.yaml
     conda activate traduction_env
 
