@@ -1,57 +1,171 @@
-## Installation
-- Tested with cuda 12.4.1 on debian 12.
-- Conda installation :
+## Installation et Déploiement de Triton Inference Server avec Modèles de Traduction
+Prérequis
+        - Système : Debian 12
+        - CUDA : Version 12.4.1
+        - Python : Version 3.10.15
+
+# Installation et déploiement de l'environnement Conda
+
+1. Création de l'environnement Conda:
+    Créer et activer l'environnement Conda :
  
-    conda env create -f conda.yaml
+    conda create -n traduction_env python=3.10
+    conda activate traduction_env
+    python -m pip install -r requirements_traduction.txt
+
+    or 
+
+    conda env create -f env_traduction.yaml
     conda activate traduction_env
 
-## Deployement
+2. Emballage de l'environnement avec conda-pack
+  - export PYTHONNOUSERSITE=True
+  - conda install -c conda-forge libstdcxx-ng=12 -y (Cela a déjà été résolu dans le fichier env_traduction.yaml)
+  - conda install conda-pack (Cela a déjà été résolu dans le fichier env_traduction.yaml)
+  - conda-pack
+  - Déplacer l'archive générée (.tar.zip)  dans le dossier attendu par le modèle, par exemple dans notre cas c'est la racine du projet.
 
-Clone or get the latest version of the project locomotive_env.
+3. Déploiement de l'environnement
+Le script deploy_triton.py peut gérer ce processus avec l'option --deploy_env True.
+Exemple d'étapes prises en charge :
 
-The current deployement script expects to find our artifacts in ./artifacts.
-You can either transfer the artifacts, or if you have an internet acces, download them from the huggingface
-repository :
+- cp traduction_env.tar.gz /models/sentence_trad/traduction_env.tar.gz
+- mkdir /models/sentence_trad/traduction_env
+- tar -xvf /models/sentence_trad/traduction_env.tar.gz -C /models/sentence_trad/traduction_env
 
-For direct download, inside ./articats, run the following commands (you need git and git lfs):
+4. Ajustement pour LangChain
+Modifier le fichier suivant pour corriger une exception :
 
-  
-  git clone https://huggingface.co/google/madlad400-10b-mt
-  git clone https://huggingface.co/Unbabel/TowerInstruct-7B-v0.2
+Chemin : /models/sentence_trad/traduction_env/lib/python3.10/site-packages/pydantic/_internal/_typing_extra.py
+Modification : Ajouter TypeError dans les exceptions de la méthode eval_type_lenient à la ligne 258 :
+- except (NameError, TypeError):
+
+5. Configuration de l'environnement pour Triton
+Ajouter les chemins des environnements dans le fichier deploy_triton.py :
+
+- CUSTOM_ENV = {
+    "madlad": "./traduction_env.tar.gz",   (traduction_env.tar.gz est l'output de conda-pack)
+}
+Dans le fichier config.pbtxt de chaque modèle :
+
+- parameters: {
+  key: "EXECUTION_ENV_PATH",
+  value: {string_value: "/models/madlad/traduction_env"}}
+
+Si on veut utiliser le même environnement mais pour un autre modele sans le déployer dans le dossier de modele, dans config.pbtxt de l’autre modele : 
+parameters: {
+  key: "EXECUTION_ENV_PATH",
+  value: {string_value: "/models/madlad/traduction_env"}
+}
+Notre environnement dans ce cas est dans le modele madlad
+
+## Structure du projet :
+Le projet Locomotive est composé de : 
+    - ./artifacts: Contient tous les artefacts nécessaires au déploiement des modèles. Ce dossier est détaillé dans la section Déploiement des modèles.
+    - ./certs : Dossier pour les certificats utilisés dans la sécurisation des communications avec Triton Server (non déployé sur ce projet suite à la demande)
+    - ./config : Dossier contenant toutes les configurations et prompts testés lors de la phase d'expérimentation.
+            - config_de_fr.yml : Exemple de fichier de configuration (allemand -> Français)
+            - ./prompts: : Dossier contenant les différents prompts testées (contexte, simple..)
+    - ./documents: Contient tous les documents PDF et DOCX utilisés pour les tests des modèles LLM.
+            - ./input : Dossier contenant les documents d'entrée.
+            - ./ground_truth : Documents traduits par les traducteurs et transférés par le MEAE pour l'évaluation.
+            - ./output : Résultats des tests de traduction.
+    -./locomotive_llm: Dossier contenant les pipelines pour les modèles Madlad, Tower, ainsi que la gestion des documents, le postprocessing et le preprocessing.
+            -./eval: Scripts pour l'évaluation des modèles (_bleu_score.py, _comet_score.py)
+            -./load : Scripts pour charger les templates des documents PDF et DOCX.
+            -./model: Contient les pipeline des modèles :
+                  - tower_instruct_pipeline
+                  - madlad_pipeline
+                  - utils.py : Fonctions communes utilisées par les pipelines.
+            -./postprocess: Scripts de post-processing (parsing des réponses, méthode pour nettoyage des réponses, décodage).
+            -./preprocess: Scripts de preprocessing (formatage des prompts, préparation des entrées, preprocessing du contexte).
+            -./save: Scripts pour la sauvegarde des documents pour conserver le même formatage.
+            -./schema: Schémas des données utilisées (configuration LLM)
+            -./ui: Interface utilisateur pour l'interaction.
+            -./utils: Utilitaires divers pour le projet (définition des classes, des stratégies, déploiement MLflow, intégration GPU)
+    -./mlflow_repository / ./mlruns : Dossiers utilisés par MLflow pour gérer les expérimentations et le suivi des modèles.
+    -./models: Contient tous les modèles qui seront déployés sur Triton Server. Utilisé dans le script deploy_triton.py pour copier les changements.
+    -./scripts: Dossier contenant des scripts utiles pour diverses opérations.
+      - deploy_triton.py : Script pour déployer les modèles sur Triton Server (détaillé dans la section "Déploiement des modèles")
+      - gen_certs.sh : Script pour générer des certificats SSL.
+      - onnx2trt.sh : Script pour convertir des modèles ONNX en TensorRT.
+      - run_gradio_doc.bat : Script batch pour exécuter l'interface Gradio pour la gestion de documents.
+      - run_gradio.bat : Script batch pour exécuter l'interface Gradio en mode interactif.
+      - run_triton.sh : Script pour démarrer Triton Server.
+      - update_deployement_env_location.py : Script pour mettre à jour l'emplacement de l'environnement de déploiement.
+    -./seq2seq_model: Dossier contenant des scripts relatifs à l'inférence pour les modèles de type Seq2Seq.
+      - inference.py: Script permettant d'effectuer des inférences de traduction en utilisant un modèle Seq2Seq avec CTranslate2, SentencePiece pour la tokenisation, et Stanza pour la segmentation des phrases, tout en gérant l'inférence par batchs pour optimiser les performances.
+    -./tests : Dossier contenant les tests unitaires, les tests des modèles, ainsi que les tests modulaires et d'ensemble.
+    -./traduction_env : Environnement utilisé pour les traductions, extrait à partir de .zip
+    - env_traduction.yml : Fichier YAML pour créer un nouvel environnement dédié à la traduction.
+    - eval_llm.py : Script pour évaluer un modèle LLM en utilisant le dataset Flores pour calculer les scores BLEU et COMET, en appelant les méthodes dans locomotive_llm/eval.
+    - interactive_prompt.py: Script pour tester les modèles LLM en direct, en introduisant des inputs directement dans le shell.
+    - test_perf.py: Script pour tester la performance des modèles (tester par rapport au nombre des requêtes, utilisateurs , batching )
+    - translate_eval_doc.py: Script pour traduire et évaluer les documents traduits, prenant comme arguments le fichier input, groundtruth, output et le fichier de configuration.
+    - triton_client_document.py: Script pour interagir avec Triton Server, en envoyant des requêtes pour traduire les documents.
+    - triton_client_interactive.py: Script pour tester Triton Server en mode interactif.
+    - triton_client.py: Client pour interagir avec Triton Server, envoyer des requêtes et récupérer des prédictions des modèles déployés, prenant model_name comme argument pour identifier le modèle qu'on souhaite tester.
 
 
-Alternatively, just transfer the artifacts from the machine we prodided :
+### Déploiement des modèles
+Il faut cloner ou obtenir la dernière version du projet locomotive_env.
 
-  
-  - scp -r ./artifacts USER@IP:~/locomotive/artifacts
+1. Méthode 1 :  Téléchargement depuis Hugging Face
+
+Le script de déploiement actuel s'attend à trouver nos artefacts dans ./artifacts.
+Avec un accès à internet, On puet les télécharger depuis le hub Hugging Face :
+Pour un téléchargement direct, à l'intérieur de ./artifacts, exécutez les commandes suivantes (vous avez besoin de git et de git lfs) :
+
+Clonez les modèles nécessaires dans le dossier./artifacts :
+git clone https://huggingface.co/google/madlad400-10b-mt ./artifacts/madlad400
+git clone https://huggingface.co/Unbabel/TowerInstruct-Mistral-7B-v0.2 ./artifacts/TowerInstruct
+
+2. Méthode 2 : Transfert des artefacts existants
+
+Pour les artefacts déjà disponibles :
+
+scp -r ./artifacts USER@IP:~/locomotive/artifacts
     
+3. Méthode 3 : Transfert de modèles spécifiques
 
-For the artifacts provided by Nicolas, we kept the provided structure : seq2seqmodel must contain
-one directory with Nicholas structure per model you want to deploy (ex : seq2seq_model/translate-ar_fr-1_2, ...):
+Pour les artefacts fournis par Nicolas, nous avons conservé la structure fournie : seq2seqmodel doit contenir un répertoire avec la structure de Nicolas pour chaque modèle que vous souhaitez déployer (ex : seq2seq_model/translate-ar_fr-1_2, ...):
 
       - scp -r ./seq2seq_model USER@IP:~/locomotive/seq2seq_model 
   
+Liste des artifacts par modele : 
 
+Nom du modèle	- Artifacts	- 	Dépôt
+Madlad	- ./artifacts/madlad400-10b-mt	-	models/madlad/
+en_fr_seq2seq	- ./artifacts/translate-en_fr-1_10/	- models/en_fr_seq2seq/
+Tower Module -	./artifacts/TowerInstruct-Mistral-7B-v0.2	- models/tower_module/
+Environnement pour les modeles seq2seq et Tower :  	models/madlad/traduction_env.tar.gz
       
-## RUNNING the server
+#### Lancement du serveur Triton
 
-  1) generate certificates (or provide your own in ./certs)
+  1. Génération des certificats
 
-   sh ./scripts/gen_certs.sh
+Exécuter le script suivant pour générer les certificats ou les placer dans le répertoire ./certs :
+sh ./scripts/gen_certs.sh
 
-  2) deploy one or more models
+2. Déploiement des modèles
 
-  python deploy_triton.py --model en_fr_seq2seq
+Pour déployer un modèle spécifique :
+python deploy_triton.py --model en_fr_seq2seq
 
-  3) run the server
+3. Démarrage du serveur
 
-  sh ./scripts/run_triton.sh
+Lancer le serveur avec le script :
+sh ./scripts/run_triton.sh
 
-Logs are availables at /opt/tritonserver/logs.txt. To modify the place where the logs are stored, you can change
-the "log_dir" argument in run_triton.sh
+Pour l'option sans certificats: 
+/opt/tritonserver/bin/tritonserver  --model-repository=/models --allow-http False  
+
+Les logs sont disponibles par défaut dans /opt/tritonserver/logs.txt. Modifier ce chemin dans le script run_triton.sh via l'argument log_dir.
 
 
-### Installation triton :
+## Installation triton :
+Il est recommandé d'utiliser le script fourni (développé avec Pierre) pour simplifier l'installation. Cependant, en cas de problèmes rencontrés avec ce script, voici les étapes manuelles qui ont été suivies pour installer Triton :
+
 - For debian 12 (no docker install) :
 
     sudo apt update
@@ -223,25 +337,7 @@ the "log_dir" argument in run_triton.sh
     # add to bashrc
     export PYTHONNOUSERSITE=True
 
-## Packaging an env
-Create a new env : 
-  - export PYTHONNOUSERSITE=True
-  - # create the env following above method
-  - # test it
-  - conda install -c conda-forge libstdcxx-ng=12 -y
-  - conda install conda-pack
-  - conda-pack
-  - mettre l'archive obtenue dans ./models/sentence_trad/ (ou à l'endroit ou votre model l'attendra)
-
-deploy the new env
-  La suite est maintenant faite par le script deploy_triton en précisant deploy_env :
-  - cp traduction_env.tar.gz /models/sentence_trad/traduction_env.tar.gz
-  - /models/sentence_trad/traduction_env
-  - tar -xvf /models/sentence_trad/traduction_env.tar.gz -C /models/sentence_trad/traduction_env
-  - for langchain, emacs /models/sentence_trad/traduction_env/lib/python3.10/site-packages/pydantic/_internal/_typing_extra.py
-    - et ajouter typeerror en exception a la method eval_type_lenient (l258):
-          except (NameError, TypeError):
-
+# Expérimentations pour l'utilisation d'onnx avec un backend python
 Export onnx:
   #pip install optimum[exporters]
   #python -m pip install --upgrade onnxruntime-gpu
@@ -251,7 +347,7 @@ Export onnx:
   optimum-cli export onnx --model Unbabel/TowerInstruct-Mistral-7B-v0.2  tower_onnx/ --task text-generation
   
   test_onnx.py
-
+# Expérimentations pour l'utilisation d'onnx avec un backend onnx 
 Install onnx backend [WIP]:
 - Currently it fails.
 
@@ -267,7 +363,7 @@ Install onnx backend [WIP]:
    cd build
    cmake -DCMAKE_INSTALL_PREFIX:PATH=`pwd`/install -DTRITON_ONNXRUNTIME_INCLUDE_PATHS=/home/debian/onnxruntime/build/Linux/Debug/ -DTRITON_ONNXRUNTIME_LIB_PATHS=/home/debian/onnxruntime/build/Linux/Debug/ -DTRITON_BUILD_ONNXRUNTIME_VERSION=1.18.0 -DTRITON_ENABLE_GPU=ON -DTRITON_ENABLE_ONNXRUNTIME_TENSORRT=ON -DPYBIND11_FINDPYTHON=ON -DPython_EXECUTABLE=/usr/local/bin/python3.10 ..
     
-
+# Expérimentations pour l'utilisation du modele trt avec un backend tensorrt 
 Tensorrt install:
   git clone https://github.com/triton-inference-server/tensorrt_backend.git
   git checkout r24.06
@@ -296,7 +392,7 @@ Conversion:
   optimum-cli export onnx --model Unbabel/TowerInstruct-Mistral-7B-v0.2  tower_onnx_2/ --task text-generation
   trtexec --onnx=tower_onnx_2/model.onnx --saveEngine=model_tower.trt --fp16
   
-
+# Expérimentations pour l'utilisation du modele trt avec un backend tensorrt LLM
 Tensorrt llm:
   git clone https://github.com/NVIDIA/TensorRT-LLM.git
   cd TensorRT-LLM/
