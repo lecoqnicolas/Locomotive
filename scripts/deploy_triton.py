@@ -30,7 +30,8 @@ SOURCE_DEPENDANCIES = {
     "tower_module": ["./artifacts/TowerInstruct-Mistral-7B-v0.2", "locomotive_llm"],
     "sentence_trad_prepro": ["./locomotive_llm"],
     "sentence_trad_postpro": ["./locomotive_llm"],
-    "sentence_trad_doc": ["./locomotive_llm"]
+    "sentence_trad_doc": ["./locomotive_llm"],
+    "sentence_trad_doc_prepro": ["./locomotive_llm"]
 }
 
 CUSTOM_ENV = {
